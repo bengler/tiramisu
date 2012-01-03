@@ -14,6 +14,7 @@ require 'rack/test'
 
 require 'api/v1'
 require 'config/logging'
+require 'timecop'
 
 # require 'vcr'
 # VCR.config do |c|

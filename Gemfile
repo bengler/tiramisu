@@ -19,5 +19,5 @@ group :development, :test do
   gem 'capistrano-ext', '=1.2.1'
   # gem 'vcr'
   # gem 'webmock'
-  # gem 'timecop'
+  gem 'timecop'
 end
