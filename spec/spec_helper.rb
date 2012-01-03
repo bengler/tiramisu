@@ -22,15 +22,3 @@ require 'config/logging'
 # end
 
 set :environment, :test
-
-# Run all examples in a transaction
-RSpec.configure do |c|
-  c.around(:each) do |example|
-    clear_cookies if respond_to?(:clear_cookies)
-#    $memcached = Mockcached.new
-    ActiveRecord::Base.connection.transaction do
-      example.run
-      raise ActiveRecord::Rollback
-    end
-  end
-end
