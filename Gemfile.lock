@@ -127,11 +127,8 @@ DEPENDENCIES
   capistrano-ext (= 1.2.1)
   coffee-script
   dalli
-<<<<<<< HEAD
   haml
-=======
   httpclient
->>>>>>> Initial complete back to back version
   pebblebed!
   petroglyph
   rack-contrib!

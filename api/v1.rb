@@ -20,13 +20,6 @@ class TiramisuV1 < Sinatra::Base
     def progress
       Thread.current[:progress_tracker] ||= ProgressTracker.new(Dalli::Client.new(settings.config['memcached']))
     end
-
-    def tootsie(pipeline)
-      Thread.current[:tootsie_pipelines] ||= {}
-      Thread.current[:tootsie_pipelines][pipeline.to_sym] ||= TootsiePipeline.new(
-        :server => settings.config['tootsie'][pipeline.to_s],
-        :bucket => settings.config['S3']['bucket'])
-    end
   end
 
   get '/progress' do
