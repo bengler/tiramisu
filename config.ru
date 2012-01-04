@@ -15,3 +15,15 @@ map "/api/tiramisu/v1" do
   use Rack::MethodOverride
   run TiramisuV1
 end
+
+map "/api/tiramisu/v1/assets" do
+
+  environment = Sprockets::Environment.new
+  environment.append_path 'api/v1/assets'
+  Sprockets::Helpers.configure do |config|
+    config.environment = environment
+    config.prefix      = "/api/tiramisu/v1/assets"
+    config.digest      = false
+  end
+  run environment
+end

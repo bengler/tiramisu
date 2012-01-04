@@ -11,6 +11,11 @@ gem 'pebblebed', :git => 'git@github.com:benglerpebbles/pebblebed.git'
 gem 's3'
 gem 'dalli'
 
+gem 'sprockets', :require => 'sprockets'
+gem 'sprockets-helpers', '~> 0.2'
+gem 'coffee-script'
+gem 'haml'
+
 group :development, :test do
   gem 'bengler_test_helper',  :git => "git@github.com:origo/bengler_test_helper.git"
   gem 'rspec', '~> 2.7.0.rc1'

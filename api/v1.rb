@@ -26,4 +26,26 @@ class TiramisuV1 < Sinatra::Base
       Thread.current[:tootsie_pipelines][pipeline.to_sym] ||= TootsiePipeline.new(settings.config['tootsie'][pipeline.to_s])
     end
   end
+
+  get '/progress' do
+    haml :progress
+  end
+
+  get '/tick' do
+    expires -1, :public, :must_revalidate
+
+    content_type 'text/plain' if request.user_agent =~ /MSIE/
+
+    stream do |out|
+      out << " " * 256  if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
+
+      i = 0
+      while i <= 100 do
+        i += rand(5)
+        out << "#{i};#{[i,100].min()}% (#{i < 15 ? 4 : i < 35 ? 3 : i < 80 ? 2 : 1} av 4 operasjoner gjenstår)\n"
+        #out << "#{i}\r\n"
+        sleep 0.1
+      end
+    end
+  end
 end
