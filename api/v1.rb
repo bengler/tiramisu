@@ -32,6 +32,8 @@ class TiramisuV1 < Sinatra::Base
   end
 
   get '/tick' do
+    response['X-Accel-Buffering'] = 'no' # prevent buffering in proxy server
+
     expires -1, :public, :must_revalidate
 
     content_type 'text/plain' if request.user_agent =~ /MSIE/
