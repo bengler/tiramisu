@@ -44,8 +44,18 @@ class ImageBundle
     "#{protocol}#{host}/#{original_image_path}"
   end
 
+  def scaled_image_url(size)
+    "#{url}/#{size}.jpg"
+  end
+
   def uid
     "asset:#{@location.split('/').join('.')}$#{oid}"
+  end
+
+  def scaled_image_exists?(size)
+    client = HTTPClient.new
+    response = client.head(scaled_image_url(size))
+    return ((200...300).include?(response.status_code))
   end
 
   # The unique name of the asset used as a folder name in S3 and as an oid in pebbles

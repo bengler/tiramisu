@@ -1,20 +1,21 @@
 # A gob of glue to talk to the transcoding service Tootsie
 
-class Tootsie
+class TootsiePipeline
   def initialize(options)
+    $stderr.puts options.inspect
     @server = options[:server]
     @bucket = options[:bucket]
   end
 
   # :source - url of source image
-  # :bundle_path - path to image bundle
+  # :destination - path to image bundle
   # :sizes - sizes to request
   # :notification_url - url tootsie will post response to
   def transcode(params)
     job = {
       :type => 'image',
       :notification_url => params[:notification_url],
-      :params => params_for(params[:source], params[:bundle_path], params[:sizes])
+      :params => params_for(params[:source], params[:destination], params[:sizes])
     }
 
     client = HTTPClient.new
@@ -28,20 +29,20 @@ class Tootsie
     end
   end
   
-  def params_for(source, bundle_path, sizes)
+  def params_for(source, destination, sizes)
     params = {}
     params[:input_url] = source
     params[:versions] = []
     sizes.each do |size|
-      params[:versions] << version_options(bundle_path, size)
+      params[:versions] << version_options(destination, size)
     end
     params
   end
 
-  def version_options(bundle_path, size)
+  def version_options(destination, size)
     options = {
       "format" => "jpeg",
-      "target_url" => "s3:#{@bucket}/#{bundle_path}/#{size}.jpg?acl=public_read",
+      "target_url" => "s3:#{@bucket}/#{destination}/#{size}.jpg?acl=public_read",
       "strip_metadata" => true,
       "width" => size
     }

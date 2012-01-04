@@ -10,6 +10,7 @@ gem 'unicorn', '~> 4.1.1'
 gem 'pebblebed', :git => 'git@github.com:benglerpebbles/pebblebed.git'
 gem 's3'
 gem 'dalli'
+gem 'httpclient'
 
 gem 'sprockets', :require => 'sprockets'
 gem 'sprockets-helpers', '~> 0.2'

@@ -23,7 +23,9 @@ class TiramisuV1 < Sinatra::Base
 
     def tootsie(pipeline)
       Thread.current[:tootsie_pipelines] ||= {}
-      Thread.current[:tootsie_pipelines][pipeline.to_sym] ||= TootsiePipeline.new(settings.config['tootsie'][pipeline.to_s])
+      Thread.current[:tootsie_pipelines][pipeline.to_sym] ||= TootsiePipeline.new(
+        :server => settings.config['tootsie'][pipeline.to_s],
+        :bucket => settings.config['S3']['bucket'])
     end
   end
 
