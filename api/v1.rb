@@ -10,16 +10,20 @@ class TiramisuV1 < Sinatra::Base
   register Sinatra::Pebblebed
   i_am :tiramisu
 
-  post '/a_resource' do
-    require_god
-  end
+  set :config, YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]
 
-  put '/a_resource/:resource' do |resource|
-    require_god
-  end
+  helpers do
+    def asset_store
+      Thread.current[:asset_store] ||= AssetStore.new(settings.config['S3'])
+    end
 
-  get '/a_resource/:resource' do |resource|
-    require_identity
-  end
+    def progress
+      Thread.current[:progress_tracker] ||= ProgressTracker.new(Dalli::Client.new(settings.config['memcached']))
+    end
 
+    def tootsie(pipeline)
+      Thread.current[:tootsie_pipelines] ||= {}
+      Thread.current[:tootsie_pipelines][pipeline.to_sym] ||= TootsiePipeline.new(settings.config['tootsie'][pipeline.to_s])
+    end
+  end
 end

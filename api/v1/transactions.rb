@@ -1,10 +1,10 @@
 class TiramisuV1 < Sinatra::Base
 
-  get '/transactions/:id/progress' do
+  get '/transactions/:id/progress' do |transaction_id|
+    response['X-Accel-Buffering'] = 'no'
     stream do |out|
-      11.times do |i|
-        out << "#{i*10}\n"
-        sleep 1
+      progress.track(transaction_id) do |progress|
+        out << "#{progress}\n"
       end
     end
   end

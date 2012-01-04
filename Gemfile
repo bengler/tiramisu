@@ -9,6 +9,7 @@ gem 'petroglyph'
 gem 'unicorn', '~> 4.1.1'
 gem 'pebblebed', :git => 'git@github.com:benglerpebbles/pebblebed.git'
 gem 's3'
+gem 'dalli'
 
 group :development, :test do
   gem 'bengler_test_helper',  :git => "git@github.com:origo/bengler_test_helper.git"

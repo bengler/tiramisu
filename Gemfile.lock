@@ -41,6 +41,7 @@ GEM
     capistrano-ext (1.2.1)
       capistrano (>= 1.0.0)
     curb (0.7.16)
+    dalli (1.1.4)
     deepstruct (0.0.1)
     diff-lcs (1.1.3)
     eventmachine (0.12.10)
@@ -109,6 +110,7 @@ DEPENDENCIES
   bengler_test_helper!
   capistrano (= 2.8.0)
   capistrano-ext (= 1.2.1)
+  dalli
   pebblebed!
   petroglyph
   rack-contrib!
