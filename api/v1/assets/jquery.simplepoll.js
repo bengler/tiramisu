@@ -200,7 +200,7 @@
 
 
   /**
-   * IE only
+   *  IE only
    */
   var SimpleIFramePoll = (function () {
 
@@ -243,10 +243,8 @@
 
       iframe.src = url;
       iframeContainer().appendChild(iframe);
-
-      return poller.start().pipe(null, null, function (data) {
-        return data[data.length-1];
-      });
+      poller.start();
+      return poller;
     };
   })();
 
@@ -271,9 +269,7 @@
       }
     };
     req.send();
-    return poll.pipe(null, null, function (data) {
-      return data[data.length-1];
-    });
+    return poll;
   };
 
   $.fn.SimplePoll = function(url, delimiter) {
