@@ -40,6 +40,7 @@ GEM
       net-ssh-gateway (>= 1.1.0)
     capistrano-ext (1.2.1)
       capistrano (>= 1.0.0)
+    carrot (1.2.0)
     coffee-script (2.2.0)
       coffee-script-source
       execjs
@@ -125,6 +126,7 @@ DEPENDENCIES
   bengler_test_helper!
   capistrano (= 2.8.0)
   capistrano-ext (= 1.2.1)
+  carrot
   coffee-script
   dalli
   haml

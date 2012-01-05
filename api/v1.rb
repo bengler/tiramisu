@@ -16,10 +16,6 @@ class TiramisuV1 < Sinatra::Base
     def asset_store
       Thread.current[:asset_store] ||= AssetStore.new(settings.config['S3'])
     end
-
-    def progress
-      Thread.current[:progress_tracker] ||= ProgressTracker.new(Dalli::Client.new(settings.config['memcached']))
-    end
   end
 
   get '/progress' do

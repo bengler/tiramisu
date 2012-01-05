@@ -17,6 +17,8 @@ gem 'sprockets-helpers', '~> 0.2'
 gem 'coffee-script'
 gem 'haml'
 
+gem 'carrot'
+
 group :development, :test do
   gem 'bengler_test_helper',  :git => "git@github.com:origo/bengler_test_helper.git"
   gem 'rspec', '~> 2.7.0.rc1'

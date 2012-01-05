@@ -18,8 +18,8 @@ class TiramisuV1 < Sinatra::Base
       :store => asset_store,
       :file => params[:file][:tempfile],
       :location => location
-    ) do |progress_value| # <- reports progress as the original file is uploaded to S3
-      progress.report(transaction_id, (progress_value*90).round)
+    ) do |progress| # <- reports progress as the original file is uploaded to S3
+      ProgressTracker.report(transaction_id, (progress*90).round)
     end
 
     # Submit thumbnail job to express tootsie pipeline
@@ -43,7 +43,7 @@ class TiramisuV1 < Sinatra::Base
       halt 408, "Thumbnail did not arrive in time, backend down or overburdened"
     end
     
-    progress.report(transaction_id, 100) # 'cause we're done
+    ProgressTracker.report(transaction_id, 100) # 'cause we're done
 
     response.status = 201
     {:image => {
