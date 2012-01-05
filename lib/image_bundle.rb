@@ -1,3 +1,6 @@
+# Represents a collection of versions of the same image. Typically an original 
+# upload + scaled and cleaned versions of that image.
+
 require 'securerandom'
 
 class ImageBundle
@@ -20,6 +23,43 @@ class ImageBundle
     @store.put(original_image_path, @file)
   end
 
+  def has_member?(name)
+    client = HTTPClient.new
+    response = client.head(member_url(name))
+    return ((200...300).include?(response.status_code))
+  end
+
+  def has_size?(size)
+    has_member?("#{size}.jpg")
+  end
+
+  def self.create_from_file(options, &block)
+    bundle = new(options[:store])
+    if block_given?
+      file = Interceptor.wrap(options[:file]) do |file, method, args|
+        block.call(file.pos.to_f/file.size)
+      end
+    else
+      file = options[:file]
+    end
+    bundle.build_from_file(file)
+    bundle.save_original(options[:location])
+    bundle
+  end
+
+  # :server - tootsie server
+  # :sizes - array of sizes (integers)
+  # :notification_url - url tootsie will notify when the job is done
+  def generate_sizes(options)
+    TootsieHelper.generate_sizes(options[:server],
+      :source => original_image_url,
+      :bucket => @store.bucket.name,
+      :path => path,
+      :sizes => options[:sizes],
+      :notification_url => options[:notification_url]
+    )
+  end
+
   def host
     @store.host
   end
@@ -36,29 +76,27 @@ class ImageBundle
     "#{protocol}#{host}/#{path}"
   end
 
+  def member_url(name)
+    "#{url}/#{name}"
+  end
+
+  def original_image_name
+    "original.#{@format.downcase}"
+  end
+
   def original_image_path
-    "#{path}/original.#{@format.downcase}"
+    "#{path}/#{original_image_name}"
   end
 
   def original_image_url
-    "#{protocol}#{host}/#{original_image_path}"
-  end
-
-  def scaled_image_url(size)
-    "#{url}/#{size}.jpg"
+    member_url(original_image_name)
   end
 
   def uid
-    "asset:#{@location.split('/').join('.')}$#{oid}"
+    "image:#{@location.split('/').join('.')}$#{oid}"
   end
 
-  def scaled_image_exists?(size)
-    client = HTTPClient.new
-    response = client.head(scaled_image_url(size))
-    return ((200...300).include?(response.status_code))
-  end
-
-  # The unique name of the asset used as a folder name in S3 and as an oid in pebbles
+  # The unique name of the image used as a folder name in S3 and as an object id in pebbles
   def oid
     @oid ||= "#{Time.now.utc.strftime('%Y%m%d%H%M%S')}-#{(aspect_ratio * 1000).round}-#{SecureRandom.random_number(36**4).to_s(36)}"
   end
@@ -67,18 +105,5 @@ class ImageBundle
     {'100' => "#{url}/100.jpg", '300' => nil, '500' => nil, '1000' => nil, '5000' => nil}
   end
 
-  def self.build_from_file(options, &block)
-    bundle = new(options[:store])
-    if block_given?
-      file = Interceptor.wrap(options[:file]) do |file, method, args|
-        block.call(file.pos.to_f/file.size)
-      end
-    else
-      file = options[:file]
-    end
-    bundle.build_from_file(file)
-    bundle.save_original(options[:location])
-    bundle
-  end
 
 end
