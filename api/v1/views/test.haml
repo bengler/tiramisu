@@ -1,0 +1,86 @@
+!!! 5
+%html
+  %head
+    %title Demo
+    :javascript
+      // todo: remove
+      var console;
+      if (console === undefined) {
+        var noop = function() {}
+        console = {log: noop,debug: noop}
+      }
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/json2.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.simplepoll.js?#{rand(2**64).to_s(36)}")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/uploader.js?#{rand(2**64).to_s(36)}")
+  %body
+
+    :javascript
+      $(function () {
+        var form = $('#upload_form');
+        var disableSubmit = function(e) {
+          e.preventDefault();
+          return false;
+        }
+        //var uploader = $.fn.fileUploader(form);
+        var uploader = $.fn['#{uploader}'](form);
+        var doUpload = function() {
+          form.bind('submit', disableSubmit); // disable form submission while we are uploading
+          $('#bar').html('&nbsp;');
+          uploader.upload($('#file')[0], 'upload')
+            .then(function() {
+              $('#progress').html("Hurra, vi har mottatt bildet ditt! Nå kan vi starte med å polle tiramisu");
+              $('#uploaded_file_container').css('display', '');
+              $('#file').val('');
+            })
+            .fail(function (xhr) {
+              $('#uploaded_file_container').css('display', 'none');
+              $('#progress').html("Usj, det gikk visst ikke så bra :-(<br/>Feilmeldingen var:<br/> "+xhr.statusText);
+            })
+            .progress(function(e) {
+              if (e.lengthComputable) {
+                percent = Math.ceil((e.loaded / e.total)*100);
+                $('#bar').css('width', percent + '%');
+                $('#progress').html(percent + '%');
+              }
+              else {
+                $('#bar').css('width', '');
+                $('#bar').html('Vis spinner eller.no (må gjette progresjon på opplasting)');
+                $('#progress').html('Laster opp...');
+              }
+            })
+            .always(function() {
+              form.unbind('submit', disableSubmit);
+            });
+        }
+
+        $('#upload_form').bind('submit', function(e) {
+          doUpload();
+          e.preventDefault();
+          return false;
+        });
+      });
+
+    Test with:
+    %a(href="?uploader=XhrUploader") XHR
+    |
+    %a(href="?uploader=IframeUploader") Legacy (iframe)
+    |
+    %a(href="?") Default/Feature checked
+    %form#upload_form(name="upload_form" action="/some/where/else" method="post")
+      %div
+        %div(style="width:300px")
+          #bar(style="float:left;background-color: lightblue")
+          %br
+          %span#progress
+        %div(style="clear:both;overflow:hidden")
+        #file_input_container
+          Bildefil:
+          #uploaded_file_container(style="display:none")
+            Opplastet:
+            %input#uploaded_file(name="uploaded_file" type='text' value="")
+            %img#thumbnail(height="50" width="50")
+          %input#file(name="file" type='file')
+          %button#upload_btn Upload
+      %div
+        %input(type='submit' value='Last opp til Tootsie')
