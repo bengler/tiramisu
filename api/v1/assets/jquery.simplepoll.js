@@ -77,7 +77,8 @@
         task: task || null,
         every:1000,
         times:-1, // defaults to once
-        _for:-1 // ever
+        _for:-1, // ever
+        until: null // ever
       };
 
       var chained = function (func) {
@@ -103,7 +104,16 @@
         opts.times = times;
       });
 
+      self['while'] = chained(function (func) {
+        opts.until = function() {return !func()};
+      });
+
+      self['until'] = chained(function (func) {
+        opts.until = func();
+      });
+
       self.step = chained(function () {
+        if ($.isFunction(opts.until) && opts.until()) self.stop();
         if (~opts._for && (new Date().getTime() - started) > opts._for) self.stop();
         else if (~opts.times && ++counter === opts.times) self.stop();
         else opts.task();
@@ -276,4 +286,6 @@
     $.fn.SimplePoll = $.browser.msie ? SimpleIFramePoll : SimpleXHRPoll;
     return $.fn.SimplePoll(url, delimiter);
   };
+  // todo: remove
+  window.Repeat = Repeat;
 })(jQuery);
