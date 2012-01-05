@@ -3,6 +3,9 @@ require 'timeout'
 
 class TiramisuV1 < Sinatra::Base
 
+  IMAGE_SIZES = [100, 300, 700, 1000]
+  WAIT_FOR_THUMBNAIL_SECONDS = 20
+
   # POST /images/:uid?transaction_id=abcdef&notification_url=localhost:3000?stuff # asset:realm.application.collection.etc
 
   post '/images/:id' do |id|
@@ -22,22 +25,16 @@ class TiramisuV1 < Sinatra::Base
       ProgressTracker.report(transaction_id, (progress*90).round)
     end
 
-    # Submit thumbnail job to express tootsie pipeline
+    # Submit image scaling job to tootsie
     bundle.generate_sizes(
-      :server => settings.config['tootsie']['express'],
-      :sizes => [100],
-      :notification_url => params[:notification_url])
-
-    # Submit all other sizes to the default tootsie pipeline
-    bundle.generate_sizes(
-      :server => settings.config['tootsie']['default'],
-      :sizes => [300, 700, 1000],
+      :server => settings.config['tootsie'],
+      :sizes => IMAGE_SIZES,
       :notification_url => params[:notification_url])
 
     # Wait for thumbnail to arrive
     begin
-      Timeout::timeout(20) do
-        sleep 1 until bundle.has_size?(100)
+      Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
+        sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
       end
     rescue Timeout::Error
       halt 408, "Thumbnail did not arrive in time, backend down or overburdened"
