@@ -5,6 +5,10 @@ require 'securerandom'
 
 class ImageBundle
 
+  SUPPORTED_FORMATS = ['png', 'jpeg', 'bmp', 'gif', 'tiff', 'gif', 'pdf', 'psd']
+
+  class FormatError < Exception; end
+
   attr_reader :aspect_ratio, :location
 
   def initialize(store, uid = nil)
@@ -14,6 +18,8 @@ class ImageBundle
   def build_from_file(file)
     @file = file
     @format, width, height = `identify -format '%m %w %h' #{file.path}`.split(/\s+/)
+    @format.downcase! if @format
+    raise FormatError, "Format #{@format.inspect} not supported" unless SUPPORTED_FORMATS.include?(@format)
     @aspect_ratio = width.to_f/height.to_f
     @content = file
   end

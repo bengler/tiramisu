@@ -17,12 +17,17 @@ class TiramisuV1 < Sinatra::Base
     transaction_id = params[:transaction_id]
 
     # Generate a new image bundle and upload the original image to it
-    bundle = ImageBundle.create_from_file(
-      :store => asset_store,
-      :file => params[:file][:tempfile],
-      :location => location
-    ) do |progress| # <- reports progress as the original file is uploaded to S3
-      ProgressTracker.report(transaction_id, (progress*90).round)
+    begin
+      bundle = ImageBundle.create_from_file(
+        :store => asset_store,
+        :file => params[:file][:tempfile],
+        :location => location
+      ) do |progress| # <- reports progress as the original file is uploaded to S3
+        ProgressTracker.report(transaction_id, "#{(progress*90).round};transfering")
+      end
+    rescue ImageBundle::FormatError => e
+      ProgressTracker.report(transaction_id, "100;failed")
+      halt 400, '{"error":"format-not-supported"}'
     end
 
     # Submit image scaling job to tootsie
@@ -31,16 +36,19 @@ class TiramisuV1 < Sinatra::Base
       :sizes => IMAGE_SIZES,
       :notification_url => params[:notification_url])
 
+    ProgressTracker.report(transaction_id, "95;processing")
+
     # Wait for thumbnail to arrive
     begin
       Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
         sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
       end
     rescue Timeout::Error
-      halt 408, "Thumbnail did not arrive in time, backend down or overburdened"
+      ProgressTracker.report(transaction_id, "100;failed")
+      halt 408, '{"error":"timeout"}'
     end
     
-    ProgressTracker.report(transaction_id, 100) # 'cause we're done
+    ProgressTracker.report(transaction_id, "100;completed") # 'cause we're done
 
     response.status = 201
     {:image => {
