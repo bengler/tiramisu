@@ -189,17 +189,15 @@
       self.data = function(object, property) {
         var getData = resolveDataArgs(object, property);
         var wrapped = (function () {
-          var last_len = -1;
+          var last_len = 0;
           return function () {
             var current_data = getData(),
                 current_len = current_data.length;
 
-            if (!~last_len) last_len = current_len;
-
             if (current_data.length > last_len) {
               self.notify(range(current_data, last_len, current_len));
-              last_len = current_len;
             }
+            last_len = current_len;
           }
         }());
         return self.task(wrapped);
@@ -237,6 +235,8 @@
         poller.step().stop();
       };
 
+      if (delimiter === undefined) delimiter = "\n";
+
       if (iframe.attachEvent) {
         iframe.attachEvent("onload", complete);
         iframe.attachEvent("onerror", complete);
@@ -261,6 +261,8 @@
   var SimpleXHRPoll = function (url, delimiter) {
     var req = new XMLHttpRequest(),
         poll = Poll();
+
+    if (delimiter === undefined) delimiter = "\n";
 
     req.open('GET', url, true);
 
