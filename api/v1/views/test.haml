@@ -19,101 +19,41 @@
       $(function () {
 
         var ProgressBar = (function(statusTextEl, progressBarEl) {
-          return {
-            append: function(html) {
-              statusTextEl.append(html);
-            },
-            html: function(html) {
-              statusTextEl.html(html);
-            },
-            progress: function(val) {
-              progressBarEl.css('style', val+'%');
+            return {
+              append: function(html) {
+                statusTextEl.prepend(html);
+              },
+              html: function(html) {
+                statusTextEl.html(html);
+              },
+              progress: function(val) {
+                progressBarEl.css('style', val+'%');
+              }
             }
-          }
-        });
+          }),
+          progressBar = ProgressBar($('#progress .text'), $('#progress .bar')),
+          form = $('#upload_form'),
+          file_field = $('#file')[0],
+          fileUploader = new $.fn.FileUploader(form),
+          uid = "image:lifeloop.oa$farsdag";
 
-        var mkTransactionId = function() {
-          return Math.random().toString(36).substring(2);
-        }
-
-        var progressBar = ProgressBar($('#progress .text'), $('#progress .bar'))
-        var uid = "image:lifeloop.oa$farsdag";
-        var form = $('#upload_form');
-        var disableSubmit = function(e) {
-          e.preventDefault();
-          return false;
-        }
-
-        //var uploader = $.fn.fileUploader(form);
-        var percent = 0;
-        var uploader = $.fn['#{uploader}'](form);
-        var doUpload = function() {
-          progressBar.html('');
-          var transaction_id = mkTransactionId();
-          var poller = $.fn.SimplePoll('transactions/'+transaction_id+'/progress');
-          poller.progress((function() {
-              var actions = {
-                uploading: function(percent) {
-                  progressBar.append("<li>Laster opp... "+(~percent && percent+'%')+"</li>");
-                  return true;
-                },
-                received: function(percent) {
-                  progressBar.append("<li>Applikasjonen har mottatt bildet. Laster opp til Amazon.</li>");
-                  return true;
-                },
-                transfering: function(percent) {
-                  progressBar.append("<li>Laster opp til Amzn.</li>");
-                  return true;
-                },
-                processing: function(percent) {
-                  progressBar.append("<li>Bildet er lastet opp til Amzn. Lager miniatyrbilde...</li>");
-                  return true;
-                }
-              };
-              return function(events) {
-                $.each(events, function(i, event) {
-                  var parts = event.split(";");
-                  console.log(parts)
-                  if (parts[1] == 'received') {
-                    delete actions.uploading;
-                  }
-                  if (actions[parts[1]]) actions[parts[1]](parts[0]);
-                });
-              };
-            })())
-            .then(function(res) {
-              progressBar.append("<li>Ferdig. Minatyrbildet vises under.</li>");
-            });
-
-          form.bind('submit', disableSubmit); // disable form submission while we are uploading
-
-          uploader.upload($('#file')[0], 'images/'+uid+"?transaction_id="+transaction_id)
+        $(form).bind('submit', function(e) {
+          var transaction_id = $.fn.TiramisuUploader.generate_transaction_id(),
+            post_url = 'images/'+uid+'?transaction_id='+transaction_id,
+            poll_url = 'transactions/'+transaction_id+'/progress';
+          progressBar.html("<li>Starter opplasting...</li>");
+          $.fn.TiramisuUploader(fileUploader, file_field, post_url, poll_url)
+            .progress(function(p) {
+              progressBar.append("<li>Progress: "+p+"</li>");
+            })
             .then(function(xhr) {
-              var res = JSON.parse(xhr.responseText);
-              var thumb = res.image.sizes[100];
-              $('#thumbnail_container').html('<img src="'+thumb+'">');
-              $('#file').val('');
+              var image = JSON.parse(xhr.responseText).image;
+              progressBar.append("<li>Win! "+image.id+"</li>");
+              $('#thumbnail_container').html('<img src="'+image.sizes['100']+'">');
             })
-            .fail(function (xhr) {
-              //$('#uploaded_file_container').css('display', 'none');
-              //$('#progress').html("Usj, det gikk visst ikke så bra :-(<br/>Feilmeldingen var:<br/> "+xhr.statusText);
+            .fail(function(xhr) {
+              progressBar.append("<li>Error "+xhr.responseText+"</li>");
             })
-            .progress(function(e) {
-              if (e.lengthComputable) {
-                percent = Math.ceil((e.loaded / e.total)*50);
-                poller.notify([percent+';uploading']);
-              }
-              else {
-                poller.notify(['-1;uploading']);
-              }
-            })
-            .always(function() {
-              form.unbind('submit', disableSubmit);
-            });
-        }
-
-        $('#upload_form').bind('submit', function(e) {
-          doUpload();
           e.preventDefault();
           return false;
         });
@@ -125,16 +65,11 @@
     %a(href="?uploader=IframeUploader") Legacy (iframe)
     |
     %a(href="?") Default/Feature detected
+    %hr
     %form#upload_form(name="upload_form" action="/some/where/else" method="post")
       %div
-        %div#progress(style="width:300px")
-          .bar(style="float:left;background-color: lightblue;overflow:hidden;height: 4px;width:0")
-          %br
-          %ul.text
-        %div(style="clear:both;overflow:hidden")
+        #thumbnail_container
         #file_input_container
-          Bildefil:
-          #thumbnail_container
           #uploaded_file_container(style="display:none")
             Opplastet:
             %input#uploaded_file(name="uploaded_file" type='text' value="")
@@ -143,3 +78,9 @@
           %button#upload_btn Upload
       %div
         %input(type='submit' value='Last opp til Tootsie')
+
+  %div#progress(style="width:300px")
+    .bar(style="float:left;background-color: lightblue;overflow:hidden;height: 4px;width:0")
+    %br
+    %ul.text
+  %div(style="clear:both;overflow:hidden")

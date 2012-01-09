@@ -169,8 +169,53 @@
     }
   }());
 
+
+  var TiramisuUploader = function(/* $.fn.FileUploader*/ uploader, file_field, url, poller_url) {
+    var deferred = $.Deferred(),
+        poller = $.fn.SimplePoll(poller_url),
+        received = false; // will be set to true when server indicates that image is received
+
+    poller.progress(function(events) {
+        $.each(events, function(i, event) {
+          deferred.notify(event);
+          if (event.split(";")[1] === 'received') received = true;
+        });
+      })
+      .fail(function(res) { /* ignore? */ })
+      .then(function(res) { /* ignore? */ });
+
+    uploader.upload(file_field, url)
+      .progress(function(e) {
+        if (received) return; // We're using IframeUploader and waiting for server response. However, the progress
+                              // tracker has reported that the file is received server side.
+        if (e.lengthComputable) {
+          var percent = Math.ceil((e.loaded / e.total)*50);
+          deferred.notify(percent+';uploading');
+        }
+        else {
+          // The file upload API is for some reason unable to provide file stats
+          deferred.notify('-1;uploading');
+        }
+      })
+      .fail(function(xhr) {
+        deferred.reject(xhr)
+      })
+      .then(function(xhr) {
+        deferred.resolve(xhr)
+      });
+    return deferred;
+  };
+
+
+  TiramisuUploader.generate_transaction_id = function() {
+    return new Date().getTime()+Math.random().toString(36).substring(2);
+  };
+
+
   // feature detection for File API
+  // TODO Fix: jQuery plugins should *never* export more than one function
   $.fn.FileUploader = FormData === undefined ? IframeUploader : XhrUploader;
+  $.fn.TiramisuUploader = TiramisuUploader;
 
   // todo:remove the following lines two lines
   $.fn.IframeUploader = IframeUploader;
