@@ -143,7 +143,7 @@
         var file = file_field.files[0]; // todo: support multiple files
 
         var fd = new FormData();
-        fd.append("image", file); // Append the file
+        fd.append(file_field.name, file); // Append the file
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", url);
