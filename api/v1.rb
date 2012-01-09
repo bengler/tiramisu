@@ -28,7 +28,7 @@ class TiramisuV1 < Sinatra::Base
     {:status => 201, :responseText => "Upload ok!"}.to_json
   end
 
-  def tick
+  get '/tick' do
     response['X-Accel-Buffering'] = 'no' # prevent buffering in proxy server
     expires -1, :public, :must_revalidate
     content_type 'text/plain' if request.user_agent =~ /MSIE/
