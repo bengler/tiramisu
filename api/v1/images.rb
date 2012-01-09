@@ -43,7 +43,7 @@ class TiramisuV1 < Sinatra::Base
     # Wait for thumbnail to arrive
     begin
       Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
-        sleep 9 until bundle.has_size?(IMAGE_SIZES.first)
+        sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
       end
     rescue Timeout::Error
       ProgressTracker.report(transaction_id, "100;failed")
@@ -63,8 +63,7 @@ class TiramisuV1 < Sinatra::Base
   end
 
   get '/images/:id' do |id|
-=begin
-asset = Asset.new(id)
+    asset = Asset.new(id)
     {:image => {
       :id => asset.uid,
       :basepath => asset.basepath,
@@ -72,6 +71,5 @@ asset = Asset.new(id)
       :original => asset.original_image,
       :aspect => asset.aspect_ratio
     }}.to_json
-=end
   end
 end
