@@ -16,6 +16,8 @@ class TiramisuV1 < Sinatra::Base
     # and can be used to track the progress of its processing.
     transaction_id = params[:transaction_id]
 
+    ProgressTracker.report(transaction_id, "50;received")
+
     # Generate a new image bundle and upload the original image to it
     begin
       bundle = ImageBundle.create_from_file(
@@ -41,7 +43,7 @@ class TiramisuV1 < Sinatra::Base
     # Wait for thumbnail to arrive
     begin
       Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
-        sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
+        sleep 9 until bundle.has_size?(IMAGE_SIZES.first)
       end
     rescue Timeout::Error
       ProgressTracker.report(transaction_id, "100;failed")
@@ -61,7 +63,8 @@ class TiramisuV1 < Sinatra::Base
   end
 
   get '/images/:id' do |id|
-    asset = Asset.new(id)
+=begin
+asset = Asset.new(id)
     {:image => {
       :id => asset.uid,
       :basepath => asset.basepath,
@@ -69,5 +72,6 @@ class TiramisuV1 < Sinatra::Base
       :original => asset.original_image,
       :aspect => asset.aspect_ratio
     }}.to_json
+=end
   end
 end
