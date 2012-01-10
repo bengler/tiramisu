@@ -16,7 +16,7 @@ class TiramisuV1 < Sinatra::Base
     # and can be used to track the progress of its processing.
     transaction_id = params[:transaction_id]
 
-    ProgressTracker.report(transaction_id, "50;received")
+    ProgressTracker.report(transaction_id, "0;received")
 
     # Generate a new image bundle and upload the original image to it
     begin
@@ -25,7 +25,7 @@ class TiramisuV1 < Sinatra::Base
         :file => params[:file][:tempfile],
         :location => location
       ) do |progress| # <- reports progress as the original file is uploaded to S3
-        ProgressTracker.report(transaction_id, "#{(progress*90).round};transfering")
+        ProgressTracker.report(transaction_id, "#{(progress*90).round};transferring")
       end
     rescue ImageBundle::FormatError => e
       ProgressTracker.report(transaction_id, "100;failed")
