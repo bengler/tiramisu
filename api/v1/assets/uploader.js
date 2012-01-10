@@ -189,7 +189,7 @@
         if (received) return; // We're using IframeUploader and waiting for server response. However, the progress
                               // tracker has reported that the file is received server side.
         if (e.lengthComputable) {
-          var percent = Math.ceil((e.loaded / e.total)*50);
+          var percent = Math.ceil((e.loaded / e.total)*100);
           deferred.notify(percent+';uploading');
         }
         else {
