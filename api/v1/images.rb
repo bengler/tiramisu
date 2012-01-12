@@ -3,7 +3,7 @@ require 'timeout'
 
 class TiramisuV1 < Sinatra::Base
 
-  IMAGE_SIZES = [100, 300, 700, 1000]
+  IMAGE_SIZES = [100, 300, 700, 1000, 5000]
   WAIT_FOR_THUMBNAIL_SECONDS = 20
 
   # POST /images/:uid?transaction_id=abcdef&notification_url=localhost:3000?stuff # asset:realm.application.collection.etc
