@@ -36,7 +36,7 @@ class ImageBundle
   end
 
   def has_size?(size)
-    has_member?("#{size}.jpg")
+    has_member?("#{size[:width]}#{size[:square] ? 'sq' : ''}.jpg")
   end
 
   def self.create_from_file(options, &block)
@@ -54,7 +54,7 @@ class ImageBundle
   end
 
   # :server - tootsie server
-  # :sizes - array of sizes (integers)
+  # :sizes - array of sizes [{:width => integer, :square => boolean}, ...]
   # :notification_url - url tootsie will notify when the job is done
   def generate_sizes(options)
     TootsieHelper.generate_sizes(options[:server],
@@ -87,7 +87,7 @@ class ImageBundle
   end
 
   def original_image_name
-    "original.#{@format.downcase}"
+    "original.#{@format}"
   end
 
   def original_image_path

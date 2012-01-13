@@ -24,15 +24,28 @@ module TootsieHelper
   def self.job_params(options)
     params = {}
     params[:input_url] = options[:source]
-    params[:versions] = options[:sizes].map { |size| version_params(options, size) }
+    params[:versions] = options[:sizes].map { |version| version_params(options, version) }
     params
   end
 
-  def self.version_params(options, size)
-    { "format" => "jpeg",
-      "target_url" => "s3:#{options[:bucket]}/#{options[:path]}/#{size}.jpg?acl=public_read",
+  def self.version_params(options, version)
+    width = version[:width]
+    square = version[:square]
+    medium = version[:medium] || 'web'
+    suffix = square ? 'sq' : ''
+
+    params = {
+      "format" => "jpeg",
+      "medium" => medium,
+      "target_url" => "s3:#{options[:bucket]}/#{options[:path]}/#{width}#{suffix}.jpg?acl=public_read",
       "strip_metadata" => true,
-      "width" => size
+      "width" => width
     }
+    if square
+      params["scale"] = 'fit'
+      params["height"] = width
+      params["crop"] = true
+    end
+    params
   end
 end
