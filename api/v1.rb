@@ -44,19 +44,23 @@ class TiramisuV1 < Sinatra::Base
   end
 
   get '/ping' do
+    failures = []
     begin
-      carrot = Carrot.new
-      queue = Carrot.queue('ping')
-      queue.purge
-      queue.publish('ping')
-      unless queue.pop == 'ping'
-        raise Exception.new("RabbitMQ: Unable to process messages.")
-      end
-      carrot.stop
+      Carrot.queue('ping')
     rescue Exception => e
-      halt 503, "RabbitMQ: #{e.message}"
-    else
+      failures << "RabbitMQ: #{e.message}"
+    end
+
+    begin
+      TootsieHelper.ping(settings.config['tootsie'])
+    rescue Exception => e
+      failures << "Tootsie: #{e.message}"
+    end
+
+    if failures.empty?
       halt 200, "tiramisu"
+    else
+      halt 503, failures.join("\n")
     end
   end
 end

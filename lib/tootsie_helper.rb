@@ -19,6 +19,13 @@ module TootsieHelper
     end
   end
 
+  def self.ping(server)
+    response = HTTPClient.new.head("#{server}/status")
+    unless (200...300).include? response.status_code
+      raise "/status responded with #{response.status_code}"
+    end
+  end
+
   private
   
   def self.job_params(options)
