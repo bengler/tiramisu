@@ -8,7 +8,6 @@ class TiramisuV1 < Sinatra::Base
   set :root, "#{File.dirname(__FILE__)}/v1"
 
   register Sinatra::Pebblebed
-  i_am :tiramisu
 
   set :config, YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]
 
@@ -41,6 +40,23 @@ class TiramisuV1 < Sinatra::Base
         out << "#{i};#{[i,100].min()}% (#{i < 15 ? 4 : i < 35 ? 3 : i < 80 ? 2 : 1} av 4 operasjoner gjenstår)\n"
         sleep 0.1
       end
+    end
+  end
+
+  get '/ping' do
+    begin
+      carrot = Carrot.new
+      queue = Carrot.queue('ping')
+      queue.purge
+      queue.publish('ping')
+      unless queue.pop == 'ping'
+        raise Exception.new("RabbitMQ: Unable to process messages.")
+      end
+      carrot.stop
+    rescue Exception => e
+      halt 503, "RabbitMQ: #{e.message}"
+    else
+      halt 200, "tiramisu"
     end
   end
 end
