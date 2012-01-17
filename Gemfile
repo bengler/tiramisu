@@ -9,8 +9,8 @@ gem 'petroglyph'
 gem 'unicorn', '~> 4.1.1'
 gem 'pebblebed', :git => 'git@github.com:benglerpebbles/pebblebed.git'
 gem 's3'
-gem 'dalli'
 gem 'httpclient'
+gem 'hupper'
 
 gem 'sprockets', :require => 'sprockets'
 gem 'sprockets-helpers', '~> 0.2'
@@ -26,7 +26,5 @@ group :development, :test do
   gem 'simplecov'
   gem 'capistrano', '=2.8.0'
   gem 'capistrano-ext', '=1.2.1'
-  # gem 'vcr'
-  # gem 'webmock'
   gem 'timecop'
 end

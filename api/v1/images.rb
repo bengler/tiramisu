@@ -14,7 +14,7 @@ class TiramisuV1 < Sinatra::Base
   ]
   WAIT_FOR_THUMBNAIL_SECONDS = 20
 
-  # POST /images/:uid?transaction_id=abcdef&notification_url=localhost:3000?stuff # asset:realm.application.collection.etc
+  # POST /images/:uid?transaction_id=abcdef&notification_url=localhost:3000&stuff # asset:realm.application.collection.etc
 
   post '/images/:id' do |id|
     klass, path, oid = Pebblebed::Uid.parse(id)
