@@ -1,5 +1,5 @@
 GIT
-  remote: git@github.com:benglerpebbles/pebblebed.git
+  remote: git://github.com/benglerpebbles/pebblebed.git
   revision: 4a52e5fccf0eb43a67c8f85437350e91b3140a43
   specs:
     pebblebed (0.0.5)
@@ -14,14 +14,14 @@ GIT
       yajl-ruby
 
 GIT
-  remote: git@github.com:origo/bengler_test_helper.git
+  remote: git://github.com/origo/bengler_test_helper.git
   revision: 388b8545455c4ef1c0c4ee1841c154041241c97f
   specs:
     bengler_test_helper (0.0.1)
 
 GIT
-  remote: git@github.com:rack/rack-contrib.git
-  revision: acdcb256bb6e7da2f86a02457e287a338cdbde5e
+  remote: git://github.com/rack/rack-contrib.git
+  revision: af3663ca6200f8292b221acd5a406af33c219249
   specs:
     rack-contrib (1.1.0)
       rack (>= 0.9.1)
