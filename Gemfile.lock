@@ -56,7 +56,6 @@ GEM
     highline (1.6.9)
     hike (1.2.1)
     httpclient (2.2.1)
-    hupper (0.0.1)
     i18n (0.6.0)
     kgio (2.7.0)
     multi_json (1.0.4)
@@ -130,7 +129,6 @@ DEPENDENCIES
   coffee-script
   haml
   httpclient
-  hupper
   pebblebed!
   petroglyph
   rack-contrib!
