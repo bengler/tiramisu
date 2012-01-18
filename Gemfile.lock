@@ -1,6 +1,6 @@
 GIT
   remote: git://github.com/benglerpebbles/pebblebed.git
-  revision: 4a52e5fccf0eb43a67c8f85437350e91b3140a43
+  revision: 139f6e53a95a1911cd3e04160debb7000f814be6
   specs:
     pebblebed (0.0.5)
       activesupport
