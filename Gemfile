@@ -17,9 +17,9 @@ gem 'coffee-script'
 gem 'haml'
 
 gem 'carrot'
+gem 'bengler_test_helper',  :git => "git://github.com/origo/bengler_test_helper.git"
 
 group :development, :test do
-  gem 'bengler_test_helper',  :git => "git://github.com/origo/bengler_test_helper.git"
   gem 'rspec', '~> 2.7.0.rc1'
   gem 'rack-test'
   gem 'simplecov'
