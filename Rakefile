@@ -1,6 +1,10 @@
 $:.unshift(File.dirname(__FILE__))
 
-require 'bengler_test_helper/tasks'
+begin
+  require 'bengler_test_helper/tasks'
+rescue LoadError => e
+  puts e.message
+end
 
 task :environment do
   require 'config/environment'
