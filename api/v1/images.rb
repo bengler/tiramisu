@@ -14,7 +14,11 @@ class TiramisuV1 < Sinatra::Base
   ]
   WAIT_FOR_THUMBNAIL_SECONDS = 20
 
-  # POST /images/:uid?transaction_id=abcdef&notification_url=localhost:3000&stuff # asset:realm.application.collection.etc
+  # POST /images/:uid
+  # +file+ multipart post
+  # -transaction_id-
+  # -notification_url-
+  # -wait_for_thumbnail- default: false
 
   post '/images/:id' do |id|
     klass, path, oid = Pebblebed::Uid.parse(id)
@@ -48,14 +52,15 @@ class TiramisuV1 < Sinatra::Base
 
     ProgressTracker.report(transaction_id, "95;processing")
 
-    # Wait for thumbnail to arrive
-    begin
-      Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
-        sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
+    unless params[:wait_for_thumbnail] == "false"
+      begin
+        Timeout::timeout(WAIT_FOR_THUMBNAIL_SECONDS) do
+          sleep 1 until bundle.has_size?(IMAGE_SIZES.first)
+        end
+      rescue Timeout::Error
+        ProgressTracker.report(transaction_id, "100;failed")
+        halt 408, '{"error":"timeout"}'
       end
-    rescue Timeout::Error
-      ProgressTracker.report(transaction_id, "100;failed")
-      halt 408, '{"error":"timeout"}'
     end
     
     ProgressTracker.report(transaction_id, "100;completed") # 'cause we're done
