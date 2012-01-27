@@ -15,7 +15,6 @@ class TiramisuV1 < Sinatra::Base
 
   # POST /images/:uid
   # +file+ multipart post
-  # -transaction_id-
   # -notification_url-
   # -wait_for_thumbnail- default: false
 
@@ -27,42 +26,41 @@ class TiramisuV1 < Sinatra::Base
     content_type 'application/octet-stream' if request.user_agent =~ /MSIE/
 
     stream do |out|
-      stream_write_progress out, :percent => 0, :status => 'received'
-
-      # The transaction_id is a client provided identifier that represents this upload event
-      # and can be used to track the progress of its processing.
-
-      # Generate a new image bundle and upload the original image to it
       begin
-        bundle = ImageBundle.create_from_file(
-          :store => asset_store,
-          :file => params[:file][:tempfile],
-          :location => location
-        ) do |progress| # <- reports progress as a number between 0 and 1 as the original file is uploaded to S3
-          stream_write_progress out, :percent => (progress*90).round, :status => 'transferring'
+        stream_write_progress out, :percent => 0, :status => 'received'
+
+        # Generate a new image bundle and upload the original image to it
+        begin
+          bundle = ImageBundle.create_from_file(
+            :store => asset_store,
+            :file => params[:file][:tempfile],
+            :location => location
+          ) do |progress| # <- reports progress as a number between 0 and 1 as the original file is uploaded to S3
+            stream_write_progress out, :percent => (progress*90).round, :status => 'transferring'
+          end
+        rescue ImageBundle::FormatError => e
+          stream_write_progress out, :percent => 100, :status => 'failed', :message => 'format-not-supported'
+          halt 400, 'Format not supported'
         end
-      rescue ImageBundle::FormatError => e
-        stream_write_progress out, :percent => 100, :status => 'failed', :message => 'format-not-supported'
-        halt 400, 'Format not supported'
+
+        # Submit image scaling job to tootsie
+        bundle.generate_sizes(
+          :server => settings.config['tootsie'],
+          :sizes => IMAGE_SIZES,
+          :notification_url => params[:notification_url])
+
+        stream_write_progress out, :percent => 100,
+                                    :status => 'completed', # 'cause we're done
+                                    :image => {
+                                      :id => bundle.uid,
+                                      :baseurl => bundle.url,
+                                      :sizes => bundle.sizes,
+                                      :original => bundle.original_image_url,
+                                      :aspect => bundle.aspect_ratio
+                                    }
+      rescue => e
+        out << e
       end
-
-      # Submit image scaling job to tootsie
-      bundle.generate_sizes(
-        :server => settings.config['tootsie'],
-        :sizes => IMAGE_SIZES,
-        :notification_url => params[:notification_url])
-
-      stream_write_progress out, :percent => 100,
-                                  :status => 'completed', # 'cause we're done
-                                  :image => {
-                                    :id => bundle.uid,
-                                    :baseurl => bundle.url,
-                                    :sizes => bundle.sizes,
-                                    :original => bundle.original_image_url,
-                                    :aspect => bundle.aspect_ratio
-                                  }
-
-      response.status = 201
     end
   end
 
