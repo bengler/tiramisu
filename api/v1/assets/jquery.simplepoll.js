@@ -75,7 +75,7 @@
 
       opts = {
         task: task || null,
-        every:1000,
+        every:-1, // will not be repeated
         times:-1, // defaults to once
         _for:-1, // ever
         until: null // ever
@@ -109,12 +109,12 @@
       });
 
       self['until'] = chained(function (func) {
-        opts.until = func();
+        opts.until = func;
       });
 
       self.step = chained(function () {
         if ($.isFunction(opts.until) && opts.until()) self.stop();
-        if (~opts._for && (new Date().getTime() - started) > opts._for) self.stop();
+        else if (~opts._for && (new Date().getTime() - started) > opts._for) self.stop();
         else if (~opts.times && ++counter === opts.times) self.stop();
         else opts.task();
       });
@@ -123,12 +123,13 @@
         if (started) throw Error("Already started");
         else if (!self.task) throw Error("Don't know any task");
         else if (!$.isFunction(self.task)) throw Error("Task is not a function");
-
         started = new Date().getTime();
         opts.task();
-        interval = setInterval(function () {
-          self.step()
-        }, opts.every);
+        if (~opts.every) {
+          interval = setInterval(function () {
+            self.step();
+          }, opts.every);
+        }
         return self.promise();
       };
 
@@ -193,8 +194,7 @@
           return function () {
             var current_data = getData(),
                 current_len = current_data.length;
-
-            if (current_data.length > last_len) {
+            if (current_len > last_len) {
               self.notify(range(current_data, last_len, current_len));
             }
             last_len = current_len;
@@ -283,11 +283,11 @@
     req.send();
     return poll;
   };
-
   $.fn.SimplePoll = function(url, delimiter) {
     $.fn.SimplePoll = $.browser.msie ? SimpleIFramePoll : SimpleXHRPoll;
     return $.fn.SimplePoll(url, delimiter);
   };
   // todo: remove
   window.Repeat = Repeat;
+  $.fn.Poll = Poll;
 })(jQuery);

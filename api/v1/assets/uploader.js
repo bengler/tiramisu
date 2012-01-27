@@ -1,13 +1,15 @@
 (function ($, Repeat) {
   /**
+   * TODO: BN cleanup & refactor!
+   *
    * Fallback iframe uploader legacy browsers (like IE 9) not supporting the HTML5 File API (http://www.w3.org/TR/FileAPI/)
    * It mimics the progress notification
    *
    * Tested in:
-   *  [x] IE 6
-   *  [x] IE 7
-   *  [x] IE 8
-   *  [x] IE 9
+   *  [ ] IE 6
+   *  [ ] IE 7
+   *  [ ] IE 8
+   *  [ ] IE 9
    *
    *  It **should** also work in other browsers not supporting the file api
    *
@@ -22,31 +24,29 @@
 	var IframeUploader = (function () {
 
     var preventSubmit = function(e) {
-      e.preventDefault();
-      return false;
-    };
-
-    var extend = function(obj, source) {
-      for (var prop in source) {
-        if (source[prop] !== void 0) obj[prop] = source[prop];
-      }
-      return obj;
-    };
-    var shiftAttrs = function(elem, attrs) {
-      var old = {};
-      $.each(attrs, function(attr, new_value) {
-        if (attr == 'enctype' && !new_value) new_value = 'application/x-www-form-urlencoded';
-        old[attr] = elem.attr(attr);
-        // jquery bug #
-        elem.attr(attr, new_value || '');
-      });
-      return old;
-    };
+        e.preventDefault();
+        return false;
+      },
+      shiftAttrs = function(elem, attrs) {
+        var old = {};
+        $.each(attrs, function(attr, new_value) {
+          if (attr == 'enctype' && !new_value) new_value = 'application/x-www-form-urlencoded';
+          old[attr] = elem.attr(attr);
+          // jquery bug #
+          elem.attr(attr, new_value || '');
+        });
+        return old;
+      },
+      getFrameBody = function (iframe) {
+        var contents = $(iframe).contents(),
+            body = contents.find('body');
+        return body;
+      };
 
     return function(form) {
       var iframe,
           iframe_name = 'uploader_iframe_'+Math.random().toString(36).substring(2),
-          self = {};
+          self = {}
 
       iframe = $('<iframe id="'+iframe_name+'" name="'+iframe_name+'" style="display:none"></iframe>')
                 .appendTo(form);
@@ -58,53 +58,60 @@
               target: iframe_name,
               action: url,
               enctype: 'multipart/form-data'
-            });
+            }),
+            initial_response_received = false;
+
+        getFrameBody(iframe).empty();
 
         self.upload = function() {/* throttle */};
 
-        $(iframe).load(function() {
-          var contents = $(iframe).contents(),
-              body = contents.find('body'),
-              title = contents.find('title'),
-              response = {
-                responseText: body && body.text() || '',
-                statusText: title && title.text() || '',
-                readyState: 4,
-                status: 200
-              };
+        var poll = $.fn.Poll();
+        poll.data(function () {
+            var content = $.trim(getFrameBody(iframe).text());
+            return content ? content.split("\n") : content;
+          })
+          .every(200, 'ms').start();
 
-          if (response.responseText.charAt(0) == '{') {
-            var json = JSON.parse(response.responseText);
-            extend(response, json);
-            (response.status < 200 || response.status > 299) ?
-                deferred.reject(response) : deferred.resolve(response);
-          }
-          else {
-            // its not json, assume 500 (unexpected) server error
-            response.status = 500;
-            response.responseText = $(iframe).contents()[0].documentElement.innerHTML;
-            deferred.reject(response);
-          }
+        poll.progress(function(chunks){
+          $.each(chunks, function(i, chunk) {
+            initial_response_received = true;
+            if (chunk.charAt(0) == '{') {
+              deferred.notify(JSON.parse(chunk));
+            }
+            else {
+              // its not json, assume the server threw an unexpected server error
+              deferred.reject(chunk);
+            }
+          })
+        });
 
-          deferred.always(function() {
-            form.unbind('submit', preventSubmit);
-            shiftAttrs(form, overridden_attrs);
-            self.upload = real_upload;
-          });
+        Repeat((function() {
+          var fake_percent = 0;
+          return function() {
+            fake_percent += ((100-fake_percent)/100);
+            deferred.notify({percent: fake_percent, approximate: true, status: 'uploading'});
+          };
+         }))
+         .every(100, 'ms')
+         .until(function() {
+            return initial_response_received;
+          })
+         .now();
+
+        $(iframe).one('load', function() {
+          poll.step().then(function() {
+            deferred.resolve();
+          }).resolve();
+        });
+
+        deferred.always(function() {
+          form.unbind('submit', preventSubmit);
+          shiftAttrs(form, overridden_attrs);
+          self.upload = real_upload;
         });
         form.unbind('submit', preventSubmit);
         form[0].submit();
         form.bind('submit', preventSubmit);
-
-        // fake progress at regular intervals (it can be useful i.e. for knowing how long an upload is taking)
-        // whether it is standard behaviour to send progress events when lengthComputable is false is not
-        // specified by the w3c (http://www.w3.org/TR/progress-events/)
-        Repeat(function() {
-          deferred.notify({lengthComputable: false, loaded: 0, total: 0});
-        })
-          .every(200, 'ms')
-          .until(function() {return deferred.isResolved()})
-          .now();
 
         return deferred;
       };
@@ -123,20 +130,12 @@
    *  - Implement multiple file support
    */
   var XhrUploader = (function() {
-    var superset = function(src, props) {
-      var cloned = {};
-      for (var i = props.length; i--;) {
-        cloned[props[i]] = src[props[i]];
-      }
-      return cloned;
-    };
-    var normalizeXhr = function(xhr) {
-      return superset(xhr, ['responseText', 'status', 'statusText', 'readyState'])
-    };
+
     return function(/*ignored*/form) {
       var self = {};
       self.upload = function(file_field, url) {
-        var deferred = $.Deferred();
+        var deferred = $.Deferred(),
+            poll = new $.fn.Poll();
 
         //if (!file_field || !file.type.match(/image.*/)) return; todo show thumbnail
 
@@ -148,19 +147,50 @@
         var xhr = new XMLHttpRequest();
         xhr.open("POST", url);
 
-        xhr.addEventListener("load", function() {
-          var e = normalizeXhr(xhr);
-          (xhr.status < 200 || xhr.status > 299) ? deferred.reject(e) : deferred.resolve(e);
-        }, false);
         xhr.addEventListener("error", function() {
-          deferred.reject(normalizeXhr(xhr));
+          deferred.reject();
         }, false);
+
         xhr.addEventListener("abort", function() {
-          deferred.reject(normalizeXhr(xhr));
+          deferred.reject();
         }, false);
+
         xhr.upload.addEventListener("progress", function (e) {
-          deferred.notify(e);
+           // Set to -1 if the file upload API for some reason is unable to provide file stats
+          var percent = e.lengthComputable ? Math.ceil((e.loaded / e.total)*100) : -1;
+          deferred.notify({percent: percent, status:'uploading'});
         }, false);
+
+        poll.then(function() {
+          deferred[(xhr.status < 200 || xhr.status > 299) ? 'reject' : 'resolve']();
+        });
+
+        // ----------
+        // Read streamed response from the tiramisu upload action and treat as progress events
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState == 3) {
+            poll.data(function() {
+              return $.trim(xhr.responseText).split("\n");
+            }).every(200, 'ms').start();
+            xhr.onreadystatechange = function() {
+              if (xhr.readyState == 4) {
+                poll.step().stop();
+              }
+            }
+          }
+        };
+        poll.progress(function(chunks){
+          $.each(chunks, function(i, chunk) {
+            if (chunk.charAt(0) == '{') {
+              deferred.notify(JSON.parse(chunk));
+            }
+            else {
+              // its not json, assume the server threw an unexpected server error
+              deferred.reject(chunk);
+            }
+          })
+        });
+        // ----------
 
         xhr.send(fd);
         return deferred;
@@ -169,48 +199,9 @@
     }
   }());
 
-
-  var TiramisuUploader = function(/* $.fn.FileUploader*/ uploader, file_field, url, poller_url) {
-    var deferred = $.Deferred(),
-        poller = $.fn.SimplePoll(poller_url),
-        received = false; // will be set to true when server indicates that image is received
-
-    poller.progress(function(events) {
-        $.each(events, function(i, event) {
-          deferred.notify(event);
-          if (event.split(";")[1] === 'received') received = true;
-        });
-      })
-      .fail(function(res) { /* ignore? */ })
-      .then(function(res) { /* ignore? */ });
-
-    uploader.upload(file_field, url)
-      .progress(function(e) {
-        if (received) return; // We're using IframeUploader and waiting for server response. However, the progress
-                              // tracker has reported that the file is received server side.
-        if (e.lengthComputable) {
-          var percent = Math.ceil((e.loaded / e.total)*100);
-          deferred.notify(percent+';uploading');
-        }
-        else {
-          // The file upload API is for some reason unable to provide file stats
-          deferred.notify('-1;uploading');
-        }
-      })
-      .fail(function(xhr) {
-        deferred.reject(xhr)
-      })
-      .then(function(xhr) {
-        deferred.resolve(xhr)
-      });
-    return deferred;
+  var TiramisuUploader = function(/* $.fn.FileUploader*/ uploader, file_field, url) {
+    return uploader.upload(file_field, url);
   };
-
-
-  TiramisuUploader.generate_transaction_id = function() {
-    return new Date().getTime()+Math.random().toString(36).substring(2);
-  };
-
 
   // feature detection for File API
   // TODO Fix: jQuery plugins should *never* export more than one function
