@@ -9,10 +9,10 @@
         var noop = function() {}
         console = {log: noop,debug: noop}
       }
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.js")
+    %script(type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
     %script(type="text/javascript" src="/api/tiramisu/v1/assets/json2.js")
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.simplepoll.js?#{rand(2**64).to_s(36)}")
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/uploader.js?#{rand(2**64).to_s(36)}")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.simplepoll.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/uploader.js")
   %body
 
     :javascript
