@@ -218,7 +218,7 @@
 
   // feature detection for File API
   // TODO Fix: jQuery plugins should *never* export more than one function
-  $.fn.FileUploader = FormData === undefined ? IframeUploader : XhrUploader;
+  $.fn.FileUploader = window.FormData === undefined ? IframeUploader : XhrUploader;
   $.fn.TiramisuUploader = TiramisuUploader;
 
 })(jQuery, window.Repeat);
