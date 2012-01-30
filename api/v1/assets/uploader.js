@@ -169,9 +169,11 @@
         // Read streamed response from the tiramisu upload action and treat as progress events
         xhr.onreadystatechange = function () {
           if (xhr.readyState == 3) {
-            poll.data(function() {
-              return $.trim(xhr.responseText).split("\n");
-            }).every(200, 'ms').start();
+            poll.data(function () {
+              var chunks = xhr.responseText.split("\n");
+              return chunks.slice(0,chunks.length-1);
+            })
+            .every(200, 'ms').start();
             xhr.onreadystatechange = function() {
               if (xhr.readyState == 4) {
                 poll.step().stop();
@@ -181,7 +183,6 @@
         };
         poll.progress(function(chunks){
           $.each(chunks, function(i, chunk) {
-            console.log(chunk);
             var json;
             try {
               json = JSON.parse(chunk);
