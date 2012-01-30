@@ -7,12 +7,24 @@ class ImageBundle
 
   SUPPORTED_FORMATS = ['png', 'jpeg', 'bmp', 'gif', 'tiff', 'gif', 'pdf', 'psd']
 
+  IMAGE_SIZES = [
+    {:width => 100},
+    {:width => 100, :square => true},
+    {:width => 300},
+    {:width => 500, :square => true},
+    {:width => 700},
+    {:width => 1000},
+    {:width => 5000, :medium => 'print'}
+  ]
+
   class FormatError < Exception; end
 
   attr_reader :aspect_ratio, :location
 
-  def initialize(store, uid = nil)
+  def initialize(store, options = {})
     @store = store
+    @location = options[:location].chomp('/') if options[:location]
+    @aspect_ratio = options[:aspect_ratio]
   end
 
   def build_from_file(file)
@@ -61,7 +73,7 @@ class ImageBundle
       :source => original_image_url,
       :bucket => @store.bucket.name,
       :path => path,
-      :sizes => options[:sizes],
+      :sizes => IMAGE_SIZES,
       :notification_url => options[:notification_url]
     )
   end
@@ -108,7 +120,9 @@ class ImageBundle
   end
 
   def sizes
-    {'100' => "#{url}/100.jpg", '300' => nil, '500' => nil, '1000' => nil, '5000' => nil}
+    IMAGE_SIZES.map do |image|
+      {:width => image[:width], :square => !!(image[:square]), :url => "#{url}/#{image[:width]}#{image[:square] ? 'sq' : ''}.jpg"}
+    end
   end
 
   def image_data

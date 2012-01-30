@@ -3,16 +3,6 @@ require 'timeout'
 
 class TiramisuV1 < Sinatra::Base
 
-  IMAGE_SIZES = [
-    {:width => 100},
-    {:width => 100, :square => true},
-    {:width => 300},
-    {:width => 500, :square => true},
-    {:width => 700},
-    {:width => 1000},
-    {:width => 5000, :medium => 'print'}
-  ]
-
   # POST /images/:uid
   # +file+ multipart post
   # -notification_url-
@@ -47,7 +37,6 @@ class TiramisuV1 < Sinatra::Base
         # Submit image scaling job to tootsie
         bundle.generate_sizes(
           :server => settings.config['tootsie'],
-          :sizes => IMAGE_SIZES,
           :notification_url => params[:notification_url])
 
         progress.completed :image => bundle.image_data
