@@ -110,4 +110,14 @@ class ImageBundle
   def sizes
     {'100' => "#{url}/100.jpg", '300' => nil, '500' => nil, '1000' => nil, '5000' => nil}
   end
+
+  def image_data
+    {
+      :id => uid,
+      :baseurl => url,
+      :sizes => sizes,
+      :original => original_image_url,
+      :aspect => aspect_ratio
+    }
+  end
 end

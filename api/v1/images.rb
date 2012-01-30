@@ -16,7 +16,6 @@ class TiramisuV1 < Sinatra::Base
   # POST /images/:uid
   # +file+ multipart post
   # -notification_url-
-  # -wait_for_thumbnail- default: false
 
   post '/images/:id' do |id|
     klass, path, oid = Pebblebed::Uid.parse(id)
@@ -26,8 +25,10 @@ class TiramisuV1 < Sinatra::Base
     content_type 'application/octet-stream' if request.user_agent =~ /MSIE/
 
     stream do |out|
+      progress = Progress.new(out)
+
       begin
-        stream_write_progress out, :percent => 0, :status => 'received'
+        progress.received
 
         # Generate a new image bundle and upload the original image to it
         begin
@@ -35,11 +36,11 @@ class TiramisuV1 < Sinatra::Base
             :store => asset_store,
             :file => params[:file][:tempfile],
             :location => location
-          ) do |progress| # <- reports progress as a number between 0 and 1 as the original file is uploaded to S3
-            stream_write_progress out, :percent => (progress*90).round, :status => 'transferring'
+          ) do |percent| # <- reports progress as a number between 0 and 1 as the original file is uploaded to S3
+            progress.transferring(percent)
           end
         rescue ImageBundle::FormatError => e
-          stream_write_progress out, :percent => 100, :status => 'failed', :message => 'format-not-supported'
+          progress.failed('format-not-supported')
           halt 400, 'Format not supported'
         end
 
@@ -49,23 +50,10 @@ class TiramisuV1 < Sinatra::Base
           :sizes => IMAGE_SIZES,
           :notification_url => params[:notification_url])
 
-        stream_write_progress out, :percent => 100,
-                                    :status => 'completed', # 'cause we're done
-                                    :image => {
-                                      :id => bundle.uid,
-                                      :baseurl => bundle.url,
-                                      :sizes => bundle.sizes,
-                                      :original => bundle.original_image_url,
-                                      :aspect => bundle.aspect_ratio
-                                    }
-      rescue => e
-        out << e
+        progress.completed :image => bundle.image_data
+       rescue => e
+        progress.failed e.message
       end
     end
-  end
-
-  private
-  def stream_write_progress(out, progress)
-    out << "#{progress.to_json}\n"
   end
 end
