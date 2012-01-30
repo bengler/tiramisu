@@ -271,7 +271,6 @@
     req.onreadystatechange = function () {
       if (req.readyState == 3) {
         poll.data(function() {
-          console.log(req.responseText.split(delimiter));
           return req.responseText.split(delimiter);
         }).every(200, 'ms').start();
         req.onreadystatechange = function() {

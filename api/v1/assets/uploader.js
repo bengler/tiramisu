@@ -181,6 +181,7 @@
         };
         poll.progress(function(chunks){
           $.each(chunks, function(i, chunk) {
+            console.log(chunk);
             var json;
             try {
               json = JSON.parse(chunk);
