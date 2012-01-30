@@ -181,12 +181,18 @@
         };
         poll.progress(function(chunks){
           $.each(chunks, function(i, chunk) {
-            if (chunk.charAt(0) == '{') {
-              deferred.notify(JSON.parse(chunk));
+            var json;
+            try {
+              json = JSON.parse(chunk);
+            }
+            catch (e) { // if its not json, assume the server raised an unexpected error
+              json = {"percent": 100, "status":"failed", "message": chunk}
+            }
+            if (json.status === 'failed') {
+              deferred.reject(json);
             }
             else {
-              // its not json, assume the server threw an unexpected server error
-              deferred.reject(chunk);
+              deferred.notify(json);
             }
           })
         });
@@ -208,7 +214,4 @@
   $.fn.FileUploader = FormData === undefined ? IframeUploader : XhrUploader;
   $.fn.TiramisuUploader = TiramisuUploader;
 
-  // todo:remove the following lines two lines
-  $.fn.IframeUploader = IframeUploader;
-  $.fn.XhrUploader = XhrUploader;
 })(jQuery, window.Repeat);
