@@ -44,12 +44,10 @@
       };
 
     return function(form) {
-      var iframe,
+      var
           iframe_name = 'uploader_iframe_'+Math.random().toString(36).substring(2),
-          self = {}
-
-      iframe = $('<iframe id="'+iframe_name+'" name="'+iframe_name+'" style="display:none"></iframe>')
-                .appendTo(form);
+          self = {},
+          iframe = $('<iframe id="'+iframe_name+'" name="'+iframe_name+'" ></iframe>').appendTo(form);
 
       self.upload = function(file_field, url) {
         var deferred = $.Deferred(),
@@ -67,22 +65,29 @@
 
         var poll = $.fn.Poll();
         poll.data(function () {
-            var content = $.trim(getFrameBody(iframe).text());
-            return content ? content.split("\n") : content;
+            var content = getFrameBody(iframe).text();
+            var chunks = content.split("\n");
+            return chunks.slice(0,chunks.length-1);
           })
           .every(200, 'ms').start();
 
         poll.progress(function(chunks){
           $.each(chunks, function(i, chunk) {
             initial_response_received = true;
-            if (chunk.charAt(0) == '{') {
-              deferred.notify(JSON.parse(chunk));
+            var json;
+            try {
+              json = JSON.parse(chunk);
+            }
+            catch (e) { // if its not json, assume the server raised an unexpected error
+              json = {"percent": 100, "status":"failed", "message": chunk}
+            }
+            if (json.status === 'failed') {
+              deferred.reject(json);
             }
             else {
-              // its not json, assume the server threw an unexpected server error
-              deferred.reject(chunk);
+              deferred.notify(json);
             }
-          })
+          });
         });
 
         Repeat((function() {
@@ -196,7 +201,7 @@
             else {
               deferred.notify(json);
             }
-          })
+          });
         });
         // ----------
 

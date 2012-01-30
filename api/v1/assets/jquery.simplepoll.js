@@ -224,7 +224,7 @@
       var doc = iframe.contentWindow || iframe.contentDocument;
       doc = doc.document || doc;
       if (doc.readyState !== 'interactive') return '';
-      return $.trim(doc.body.innerText);
+      return doc.body.innerText;
     };
 
     return function(url, delimiter) {
