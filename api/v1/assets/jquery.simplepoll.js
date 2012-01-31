@@ -96,7 +96,7 @@
         opts.every = ms;
       }));
 
-      self['for'] = chained(with_unit_as_args(function (ms) {
+      self['lasting'] = chained(with_unit_as_args(function (ms) {
         opts._for = ms;
       }));
 
@@ -104,7 +104,7 @@
         opts.times = times;
       });
 
-      self['while'] = chained(function (func) {
+      self['as'] = chained(function (func) {
         opts.until = function() {return !func()};
       });
 
@@ -133,7 +133,7 @@
         return self.promise();
       };
 
-      self['in'] = with_unit_as_args(function (ms) {
+      self['delay'] = with_unit_as_args(function (ms) {
         setTimeout(function () {
           self.start()
         }, ms);

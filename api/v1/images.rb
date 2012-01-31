@@ -12,9 +12,11 @@ class TiramisuV1 < Sinatra::Base
     location = path.gsub('.', '/')
 
     response['X-Accel-Buffering'] = 'no'
-    content_type 'application/octet-stream' if request.user_agent =~ /MSIE/
+    content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream do |out|
+      out << " " * 256  if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
+
       progress = Progress.new(out)
 
       begin
@@ -43,6 +45,7 @@ class TiramisuV1 < Sinatra::Base
        rescue => e
         progress.failed e.message
       end
+      out << ";" if request.user_agent =~ /MSIE/ # Damn you, IE...
     end
   end
 end
