@@ -52,7 +52,7 @@
       var
           iframe_name = 'uploader_iframe_'+Math.random().toString(36).substring(2),
           self = {},
-          iframe = $('<iframe id="'+iframe_name+'" name="'+iframe_name+'" ></iframe>').appendTo(form);
+          iframe = $('<iframe id="'+iframe_name+'" name="'+iframe_name+'" style="display:none"></iframe>').appendTo(form);
 
       self.upload = function(file_field, url) {
         var deferred = $.Deferred(),
