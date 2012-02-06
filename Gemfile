@@ -23,7 +23,7 @@ group :development, :test do
   gem 'rspec', '~> 2.7.0.rc1'
   gem 'rack-test'
   gem 'simplecov'
-  gem 'capistrano', '=2.8.0'
-  gem 'capistrano-ext', '=1.2.1'
+  gem 'capistrano', '~> 2.9.0'
+  gem 'capistrano-bengler', :git => "git@github.com:origo/capistrano-bengler.git"
   gem 'timecop'
 end
