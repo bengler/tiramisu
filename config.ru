@@ -11,7 +11,7 @@ set :environment, ENV['RACK_ENV'].to_sym
 use Rack::CommonLogger
 
 map "/api/tiramisu/v1/ping" do
-  use Pingable::Handler, "tiramisu"
+  run Pingable::Handler.new("tiramisu")
 end
 
 map "/api/tiramisu/v1" do
