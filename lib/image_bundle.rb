@@ -51,16 +51,9 @@ class ImageBundle
     has_member?("#{size[:width]}#{size[:square] ? 'sq' : ''}.jpg")
   end
 
-  def self.create_from_file(options, &block)
+  def self.create_from_file(options)
     bundle = new(options[:store])
-    if block_given?
-      file = Interceptor.wrap(options[:file]) do |file, method, args|
-        block.call(file.pos.to_f/file.size)
-      end
-    else
-      file = options[:file]
-    end
-    bundle.build_from_file(file)
+    bundle.build_from_file(options[:file])
     bundle.save_original(options[:location])
     bundle
   end

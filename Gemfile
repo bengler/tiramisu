@@ -21,10 +21,11 @@ gem 'carrot'
 gem 'bengler_test_helper',  :git => "git://github.com/origo/bengler_test_helper.git"
 
 group :development, :test do
-  gem 'rspec', '~> 2.7.0.rc1'
+  gem 'rspec', '~> 2.8'
   gem 'rack-test'
+  gem 'vcr', '~> 2.0.0.rc1'
+  gem 'webmock'
   gem 'simplecov'
   gem 'capistrano', '~> 2.9.0'
   gem 'capistrano-bengler', :git => "git@github.com:origo/capistrano-bengler.git"
-  gem 'timecop'
 end

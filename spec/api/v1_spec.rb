@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'vcr'
 
 describe 'API v1' do
   include Rack::Test::Methods
@@ -7,105 +8,64 @@ describe 'API v1' do
     TiramisuV1
   end
 
-  god_endpoints = [
-    {:method => :post, :endpoint => '/a_resource'},
-    {:method => :put, :endpoint => '/a_resource/id'},
-  ]
+  let(:json_chunks) { last_response.body.split("\n").map {|chunk| JSON.parse(chunk)} }
+  let(:image_from_fixture) {
+    {:file => 'spec/fixtures/ullevaalseter.jpg', :aspect_ratio =>1.499} 
+  }
+  # [x] Make it pass
+  # [ ] Make it right
+  # [ ] Make it fast
+  describe 'POST /assets/:id' do
+    it "submits an image and returns a chunked json response with progress data and finally the image hash" do
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
+      end
+      last_response.status.should eq(201)
+      chunks = json_chunks
 
-  user_endpoints = [
-    {:method => :get, :endpoint => '/a_resource/id'}
-  ]
+      chunks.first['status'].should eq('received')
+      chunks[1]['status'].should eq('transferring')
+      chunks.last['status'].should eq('completed')
+      chunks.last['percent'].should eq(100)
 
-  let(:json_output) { JSON.parse(last_response.body) }
+      image = chunks.last['image']
+      image.should_not be_nil
 
-  context "with a logged in god" do
-    before :each do
-      Pebblebed::Connector.any_instance.stub(:checkpoint).and_return(DeepStruct.wrap(:me => {:id => 1337, :god => true, :realm => 'rock_and_roll'}))
+      klass, path, oid = Pebblebed::Uid.parse(image['id']) 
+      klass.should eq('image')
+      path.should eq('realm.app.collection.box')
+      oid.should_not be_nil
+      timestamp, aspect_ratio, id = oid.split("-")
+      aspect_ratio.to_i.should eq(image_from_fixture[:aspect_ratio]*1000)
+
+      image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}/)
+      image['sizes'].map{|s| s['width']}.should eq([100, 100, 300, 500, 700, 1000, 5000])
+      
+      image['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}\/original\.jpeg/)
+      image['aspect'].should be_within(0.01).of(1.49)
     end
 
-    it "does powerful stuff"
-
-  end
-
-  context "with a logged in user" do
-    before :each do
-      Pebblebed::Connector.any_instance.stub(:checkpoint).and_return(DeepStruct.wrap(:me => {:id => 1337, :god => false, :realm => 'rock_and_roll'}))
-    end
-
-    it "accesses all sorts of things"
-
-    describe "has no access to god endpoints" do
-      god_endpoints.each do |forbidden|
-        it "fails to #{forbidden[:method]} #{forbidden[:endpoint]}" do
-          self.send(forbidden[:method], forbidden[:endpoint])
-          last_response.status.should eq(403)
-        end
+    it "returns failure as last json hash if uploaded file are of wrong format" do
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
       end
-    end
-  end
-
-  describe "with no current user" do
-    before :each do
-      Pebblebed::Connector.any_instance.stub(:checkpoint).and_return(DeepStruct.wrap(:me => {}))
-    end
-
-    it "mostly gets harmless stuff"
-
-    describe "assets" do
-      before(:each) do
-        Timecop.freeze(Time.utc(2012, 01, 04, 13, 17, 48))
-        Asset.any_instance.stub(:unique_identifier => 'c82akjt4onjli7qgnbwfz4ltw')
-      end
-
-      after(:each) { Timecop.return }
-
-      describe 'POST /assets/:id' do
-        it "submits an asset" do
-          post "/assets/realm.app.collection.box", :transaction_id => 'xyz', :notification_url => 'the_url'
-          last_response.status.should eq(201)
-          asset = json_output['image']
-          asset['id'].should eq('asset:realm.app.collection.box$20120104131748-789-c82akjt4onjli7qgnbwfz4ltw')
-          asset['basepath'].should eq('http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw')
-          asset['sizes'].keys.should eq(%w(100 300 500 1000 5000))
-          asset['sizes'].values.should eq(['http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw/100.jpg', nil, nil, nil, nil])
-          asset['original'].should eq('http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw/original.png')
-          asset['aspect'].should eq(0.789)
-        end
-      end
-
-      describe 'GET /assets/:id' do
-        it "returns asset details" do
-          get "/assets/realm.app.collection.box"
-          last_response.status.should eq(200)
-          asset = json_output['image']
-          asset['id'].should eq('asset:realm.app.collection.box$20120104131748-789-c82akjt4onjli7qgnbwfz4ltw')
-          asset['basepath'].should eq('http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw')
-          asset['sizes'].keys.should eq(%w(100 300 500 1000 5000))
-          asset['sizes'].values.should eq(['http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw/100.jpg', nil, nil, nil, nil])
-          asset['original'].should eq('http://amazon.bucket/realm/app/collection/box/20120104131748-789-c82akjt4onjli7qgnbwfz4ltw/original.png')
-          asset['aspect'].should eq(0.789)
-        end
-      end
-    end
-
-
-    describe "has no access to god endpoints" do
-      god_endpoints.each do |forbidden|
-        it "fails to #{forbidden[:method]} #{forbidden[:endpoint]}" do
-          self.send(forbidden[:method], forbidden[:endpoint])
-          last_response.status.should eq(403)
-        end
-      end
-    end
-
-    describe "has no access to user endpoints" do
-      user_endpoints.each do |forbidden|
-        it "fails to #{forbidden[:method]} #{forbidden[:endpoint]}" do
-          self.send(forbidden[:method], forbidden[:endpoint])
-          last_response.status.should eq(403)
-        end
-      end
+      last_response.status.should eq(201) # yep, because response is streamed headers will already be sent
+      chunks = json_chunks
+      chunks.last['status'].should eq('failed')
+      chunks.last['message'].should eq('format-not-supported')
+      chunks.last['percent'].should eq(100)
     end
   end
 
+  it "returns failure as last json hash and includes the error message if something unexpected happens" do
+    ImageBundle.any_instance.stub(:generate_sizes).and_raise "Unexpected error"
+    VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+      post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
+    end
+    last_response.status.should eq(201) # yep, because response is streamed headers will already be sent
+    chunks = json_chunks
+    chunks.last['status'].should eq('failed')
+    chunks.last['message'].should eq('Unexpected error')
+    chunks.last['percent'].should eq(100)
+  end
 end
