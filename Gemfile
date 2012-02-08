@@ -15,6 +15,7 @@ gem 'sprockets', :require => 'sprockets'
 gem 'sprockets-helpers', '~> 0.2'
 gem 'coffee-script'
 gem 'haml'
+gem 'o5-logging', :git => "git://github.com/benglerpebbles/o5-logging.git"
 
 gem 'carrot'
 gem 'bengler_test_helper',  :git => "git://github.com/origo/bengler_test_helper.git"
