@@ -78,6 +78,8 @@ GEM
     pathbuilder (0.0.2)
     petroglyph (0.0.1)
       tilt
+    pingable (0.0.9)
+      rack (>= 1.0.0)
     proxies (0.2.1)
     queryparams (0.0.3)
     rack (1.4.0)
@@ -139,6 +141,7 @@ DEPENDENCIES
   httpclient
   pebblebed!
   petroglyph
+  pingable
   rack-contrib!
   rack-test
   rake
