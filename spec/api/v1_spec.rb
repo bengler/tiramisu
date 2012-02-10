@@ -58,7 +58,7 @@ describe 'API v1' do
   end
 
   it "returns failure as last json hash and includes the error message if something unexpected happens" do
-    ImageBundle.any_instance.stub(:generate_sizes).and_raise "Unexpected error"
+    ImageBundle.any_instance.stub(:submit_image_scaling_job).and_raise "Unexpected error"
     VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
     end

@@ -61,7 +61,7 @@ class ImageBundle
   # :server - tootsie server
   # :sizes - array of sizes [{:width => integer, :square => boolean}, ...]
   # :notification_url - url tootsie will notify when the job is done
-  def generate_sizes(options)
+  def submit_image_scaling_job(options)
     TootsieHelper.generate_sizes(options[:server],
       :source => original_image_url,
       :bucket => @store.bucket.name,
