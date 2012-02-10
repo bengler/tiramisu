@@ -21,6 +21,7 @@ class TiramisuV1 < Sinatra::Base
       progress = Progress.new(out)
       progress.received
 
+      # Generate a new image bundle and upload the original image to it
       begin
         intercepted_file = Interceptor.wrap(params[:file][:tempfile]) do |file, method, args|
           progress.transferring(file.pos.to_f/file.size) # <- reports progress as a number between 0 and 1 as the original file is uploaded to S3
@@ -30,7 +31,6 @@ class TiramisuV1 < Sinatra::Base
           :file => intercepted_file,
           :location => location
         )
-        # Submit image scaling job to tootsie
         bundle.submit_image_scaling_job(
           :server => settings.config['tootsie'],
           :notification_url => params[:notification_url])
