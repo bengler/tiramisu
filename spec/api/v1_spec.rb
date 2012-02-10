@@ -20,7 +20,7 @@ describe 'API v1' do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
       end
-      last_response.status.should eq(201)
+      last_response.status.should eq(200)
       chunks = json_chunks
 
       chunks.first['status'].should eq('received')
@@ -49,7 +49,7 @@ describe 'API v1' do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
       end
-      last_response.status.should eq(201) # yep, because response is streamed headers will already be sent
+      last_response.status.should eq(200)
       chunks = json_chunks
       chunks.last['status'].should eq('failed')
       chunks.last['message'].should eq('format-not-supported')
@@ -62,7 +62,7 @@ describe 'API v1' do
     VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
     end
-    last_response.status.should eq(201) # yep, because response is streamed headers will already be sent
+    last_response.status.should eq(200)
     chunks = json_chunks
     chunks.last['status'].should eq('failed')
     chunks.last['message'].should eq('Unexpected error')

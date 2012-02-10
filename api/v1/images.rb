@@ -12,7 +12,7 @@ class TiramisuV1 < Sinatra::Base
     location = path.gsub('.', '/')
 
     response['X-Accel-Buffering'] = 'no'
-    response.status = 200
+    response.status = 200 # must be 200, or else the browser *may* not start flushing the response immediately (not verified)
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream do |out|
