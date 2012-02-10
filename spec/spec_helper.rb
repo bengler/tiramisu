@@ -14,12 +14,12 @@ require 'rack/test'
 
 require 'api/v1'
 require 'config/logging'
-require 'timecop'
 
-# require 'vcr'
-# VCR.config do |c|
-#   c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
-#   c.stub_with :webmock
-# end
+require 'vcr'
+
+VCR.configure do |c|
+  c.cassette_library_dir = 'spec/fixtures/vcr_cassettes'
+  c.hook_into :webmock
+end
 
 set :environment, :test
