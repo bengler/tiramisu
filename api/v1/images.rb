@@ -12,7 +12,7 @@ class TiramisuV1 < Sinatra::Base
     location = path.gsub('.', '/')
 
     response['X-Accel-Buffering'] = 'no'
-    response.status = 201
+    response.status = 200
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream do |out|
