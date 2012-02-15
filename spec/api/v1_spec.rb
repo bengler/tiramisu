@@ -38,8 +38,8 @@ describe 'API v1' do
       klass.should eq('image')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
-      timestamp, aspect_ratio, id = oid.split("-")
-      aspect_ratio.to_i.should eq(file_from_fixture[:image][:aspect_ratio]*1000)
+      timestamp, format, id = oid.split("-")
+      format.should eq("jpeg")
 
       image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}/)
       image['sizes'].map { |s| s['width'] }.should eq([100, 100, 300, 500, 700, 1000, 5000])
@@ -78,16 +78,14 @@ describe 'API v1' do
     end
 
     it "returns failure as last json hash if uploaded file are of wrong format" do
-      ["/documents/document:realm.app.collection.box$*", "/images/image:realm.app.collection.box$*"].each do |route|
-        VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-          post route, :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
-        end
-        last_response.status.should eq(200)
-        chunks = json_chunks
-        chunks.last['status'].should eq('failed')
-        chunks.last['message'].should eq('format-not-supported')
-        chunks.last['percent'].should eq(100)
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
       end
+      last_response.status.should eq(200)
+      chunks = json_chunks
+      chunks.last['status'].should eq('failed')
+      chunks.last['message'].should eq('format-not-supported')
+      chunks.last['percent'].should eq(100)
     end
   end
 

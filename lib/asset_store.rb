@@ -6,8 +6,8 @@ class AssetStore
   # options: 'access_key_id', 'secret_access_key', 'bucket_name'
   def initialize(options)
     @service = S3::Service.new(
-      :access_key_id => options['access_key_id'],
-      :secret_access_key => options['secret_access_key'])
+        :access_key_id => options['access_key_id'],
+        :secret_access_key => options['secret_access_key'])
     @bucket = @service.buckets.find(options['bucket'])
   end
 

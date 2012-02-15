@@ -13,12 +13,7 @@ class TiramisuV1 < Sinatra::Base
     response['X-Accel-Buffering'] = 'no'
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
-    stream do |out|
-      out << " " * 256 if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
-
-      progress = Progress.new(out)
-      progress.received
-
+    stream_file do |progress|
       # Generate a new document bundle and upload the original document to it
       begin
         intercepted_file = Interceptor.wrap(params[:file][:tempfile]) do |file, method, args|
@@ -36,9 +31,6 @@ class TiramisuV1 < Sinatra::Base
         progress.failed('format-not-supported')
       end
 
-      # IE strips off whitespace at the end of an iframe
-      # so we need to send a terminator
-      out << ";" if request.user_agent =~ /MSIE/ # Damn you, IE...
     end
   end
 end

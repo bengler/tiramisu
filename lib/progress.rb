@@ -1,5 +1,7 @@
 class Progress
+
   attr_accessor :stream
+
   def initialize(stream)
     self.stream = stream
   end
