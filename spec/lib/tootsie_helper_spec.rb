@@ -4,13 +4,13 @@ describe TootsieHelper do
 
   describe "#job_params" do
     let(:input) do
-      {:source=>"pix.jpg", :bucket=>"bucket", :path=>"/0-1333-abc", :notification_url=>"tell_me"}
+      {:source => "pix.jpg", :bucket => "bucket", :path => "/0-1333-abc", :notification_url => "tell_me"}
     end
 
     let(:file) { stub(:name => '100.jpg', :width => 100) }
 
     let(:base_output) do
-      {"format"=>"jpeg", "strip_metadata"=>true, "medium" => 'web'}
+      {"format" => "jpeg", "strip_metadata" => true, "medium" => 'web'}
     end
 
     def target_url(filename)

@@ -18,7 +18,7 @@ gem 'haml'
 gem 'o5-logging', :git => "git://github.com/benglerpebbles/o5-logging.git"
 
 gem 'carrot'
-gem 'bengler_test_helper',  :git => "git://github.com/origo/bengler_test_helper.git"
+gem 'bengler_test_helper', :git => "git://github.com/origo/bengler_test_helper.git"
 
 group :development, :test do
   gem 'rspec', '~> 2.8'
