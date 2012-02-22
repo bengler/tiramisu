@@ -10,74 +10,43 @@
         console = {log: noop,debug: noop}
       }
     %script(type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/json2.js")
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/jquery.simplepoll.js")
-    %script(type="text/javascript" src="/api/tiramisu/v1/assets/uploader.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/tiramisu.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/demo.js")
   %body
 
     :javascript
       $(function () {
+        var form = $("#upload_form"),
+            file_field = $("#file"),
+            uploader = new FileUploader(form, file_field, 'image:tiramisu.test'),
+            uploading = false;
 
-        var ProgressBar = (function(statusTextEl, progressBarEl) {
-            return {
-              append: function(html) {
-                statusTextEl.prepend(html);
-              },
-              html: function(html) {
-                statusTextEl.html(html);
-              },
-              progress: function(val) {
-                progressBarEl.css('style', val+'%');
-              }
-            }
-          }),
-          progressBar = ProgressBar($('#progress .text'), $('#progress .bar')),
-          form = $('#upload_form'),
-          file_field = $('#file')[0],
-          fileUploader = new $.fn.FileUploader(form),
-          uid = "image:lifeloop.oa$farsdag";
-
-        $(form).bind('submit', function(e) {
-          var transaction_id = $.fn.TiramisuUploader.generate_transaction_id(),
-            post_url = 'images/'+uid+'?transaction_id='+transaction_id,
-            poll_url = 'transactions/'+transaction_id+'/progress';
-          progressBar.html("<li>Starter opplasting...</li>");
-          $.fn.TiramisuUploader(fileUploader, file_field, post_url, poll_url)
-            .progress(function(p) {
-              progressBar.append("<li>Progress: "+p+"</li>");
-            })
-            .then(function(xhr) {
-              var image = JSON.parse(xhr.responseText).image;
-              progressBar.append("<li>Win! "+image.id+"</li>");
-              $('#thumbnail_container').html('<img src="'+image.sizes['100']+'">');
-            })
-            .fail(function(xhr) {
-              progressBar.append("<li>Error "+xhr.responseText+"</li>");
-            })
-          e.preventDefault();
-          return false;
+        form.bind('submit', function(e) {
+          if (!uploading && $.trim(file_field.val()) != '') { // user has clicked submit, but image is not yet uploaded
+            uploader.doUpload().then(function() {
+              form.submit(); // now we can submit!
+            });
+            e.preventDefault();
+            return false;
+          }
+          return true;
+        });
+        $('#upload_btn').bind('click', function() {
+          uploader.doUpload();
         });
       });
 
-    Test with:
-    %a(href="?uploader=XhrUploader") XHR
-    |
-    %a(href="?uploader=IframeUploader") Legacy (iframe)
-    |
-    %a(href="?") Default/Feature detected
     %hr
-    %form#upload_form(name="upload_form" action="/some/where/else" method="post")
+    %form#upload_form(name="upload_form" action="" method="post")
       %div
         #thumbnail_container
         #file_input_container
-          #uploaded_file_container(style="display:none")
-            Opplastet:
-            %input#uploaded_file(name="uploaded_file" type='text' value="")
-            %img#thumbnail(height="50" width="50")
+          Uploaded:
+          %input#file_uid(name="uploaded_file" type='text' value="")
           %input#file(name="file" type='file')
-          %button#upload_btn Upload
+          %input#upload_btn(type="button") Upload
       %div
-        %input(type='submit' value='Last opp til Tootsie')
+        %input(type='submit' value='Submit form')
 
   %div#progress(style="width:300px")
     .bar(style="float:left;background-color: lightblue;overflow:hidden;height: 4px;width:0")

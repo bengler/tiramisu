@@ -11,6 +11,12 @@ class TiramisuV1 < Sinatra::Base
 
   set :config, YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]
 
+  if environment != :production
+    get "/test" do
+      haml :test
+    end
+  end
+  
   helpers do
 
     def asset_store
