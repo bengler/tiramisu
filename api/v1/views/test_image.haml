@@ -1,0 +1,87 @@
+!!! 5
+%html
+  %head
+    %title Demo
+    :javascript
+      // todo: remove
+      var console;
+      if (console === undefined) {
+        var noop = function() {}
+        console = {log: noop,debug: noop}
+      }
+    %script(type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/tiramisu.js")
+    %script(type="text/javascript" src="/api/tiramisu/v1/assets/demo.js")
+  %body
+
+    :javascript
+      $(function () {
+        var pollForImage = function(url, timeout) {
+          var deferred = $.Deferred(),
+              loader = new Image(),
+              retries = 0,
+              timer,
+              check = function() {
+                loader.src=url+"?retry="+retries++; // Opera will cache it even if it fails
+                $(loader).one('load', function() {
+                  deferred.resolve(loader.src);
+                });
+                $(loader).one('error', function() {
+                  // manually continue polling
+                  timer = setTimeout(check, 1000);
+                });
+              };
+          check();
+          // after 20 seconds of unsuccessful polling, reject it
+          setTimeout(20, function() {
+            clearTimeout(timer);
+            deferred.reject("timeout");
+          });
+          return deferred.promise();
+        };
+      
+        var form = $("#upload_form"),
+            file_field = $("#file"),
+            uid = 'document:tiramisu.test.image',
+            endpoint = '/api/tiramisu/v1/images',
+            uploader = new FileUploader(form, file_field, endpoint+"/"+uid),
+            uploading = false;
+      
+        form.bind('submit', function(e) {
+          if (!uploading && $.trim(file_field.val()) != '') { // user has clicked submit, but image is not yet uploaded
+            uploader.doUpload().then(function(uid) {
+              $("#file_uid").val(uid);
+              form.submit(); // now we can submit!
+            });
+            e.preventDefault();
+            return false;
+          }
+          return true;
+        });
+        $('#upload_btn').bind('click', function() {
+          uploader.doUpload().then(function(image) {
+            $("#file_uid").val(image.id);
+            pollForImage(image.sizes[0].url).then(function(url) {
+              $('#thumbnail_container').html('<img src="'+url+'">');
+            })
+          });
+        });
+      });
+
+    %form#upload_form(name="upload_form" action="" method="post")
+      %p
+        %input#file(name="file" type='file')
+        %input#upload_btn(type="button" value="Upload image")
+      %div
+        Uploaded:
+        %input#file_uid(name="uploaded_file" type='text' value="")
+        #thumbnail_container
+
+      %div
+        %input(type='submit' value='Submit form')
+
+  %div#progress(style="width:300px")
+    .bar(style="float:left;background-color: lightblue;overflow:hidden;height: 4px;width:0")
+    %br
+    %ul.text
+  %div(style="clear:both;overflow:hidden")

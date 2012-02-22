@@ -17,14 +17,12 @@
     return self;
   };
 
-  var FileUploader = function(form, file_field, uid) {
+  var FileUploader = function(form, file_field, post_url) {
     var progressBar = ProgressBar($('#progress .text'), $('#progress .bar')),
         fileUploader = new $.fn.FileUploader(form);
 
     this.doUpload = function() {
-      var post_url = '/api/tiramisu/v1/images/'+uid,
-          uploader,
-          image,
+      var uploader,
           resolved = false,
           deferred = $.Deferred();
 
@@ -35,8 +33,9 @@
       uploader.progress(function(progress) {
           progressBar.setProgress(progress.percent);
           progressBar.html(progress.status);
-          if (progress.image) {
-            deferred.resolve();
+          var res = progress.image || progress.result;
+          if (res) {
+            deferred.resolve(res);
             resolved = true;
           }
         })

@@ -18,12 +18,15 @@
       $(function () {
         var form = $("#upload_form"),
             file_field = $("#file"),
-            uploader = new FileUploader(form, file_field, 'image:tiramisu.test'),
+            uid = 'document:tiramisu.test.document',
+            endpoint = '/api/tiramisu/v1/images',
+            uploader = new FileUploader(form, file_field, endpoint+"/"+uid),
             uploading = false;
-
+      
         form.bind('submit', function(e) {
-          if (!uploading && $.trim(file_field.val()) != '') { // user has clicked submit, but image is not yet uploaded
-            uploader.doUpload().then(function() {
+          if (!uploading && $.trim(file_field.val()) != '') { // user has clicked submit, but file is not yet uploaded
+            uploader.doUpload().then(function(uid) {
+              $("#file_uid").val(uid);
               form.submit(); // now we can submit!
             });
             e.preventDefault();
@@ -32,19 +35,20 @@
           return true;
         });
         $('#upload_btn').bind('click', function() {
-          uploader.doUpload();
+          uploader.doUpload().then(function(file) {
+            $("#file_uid").val(JSON.stringify(file));
+          });
         });
       });
 
-    %hr
     %form#upload_form(name="upload_form" action="" method="post")
+      %p
+        %input#file(name="file" type='file')
+        %input#upload_btn(type="button" value="Upload document")
       %div
-        #thumbnail_container
-        #file_input_container
-          Uploaded:
-          %input#file_uid(name="uploaded_file" type='text' value="")
-          %input#file(name="file" type='file')
-          %input#upload_btn(type="button") Upload
+        Uploaded:
+        %input#file_uid(name="uploaded_file" type='text' value="")
+
       %div
         %input(type='submit' value='Submit form')
 
