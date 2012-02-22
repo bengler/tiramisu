@@ -33,10 +33,10 @@
               };
           check();
           // after 20 seconds of unsuccessful polling, reject it
-          setTimeout(20, function() {
-            clearTimeout(timer);
-            deferred.reject("timeout");
-          });
+          setTimeout(function() {
+             clearTimeout(timer);
+             deferred.reject("timeout");
+           }, 20);
           return deferred.promise();
         };
       
