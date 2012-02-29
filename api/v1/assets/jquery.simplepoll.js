@@ -1,29 +1,5 @@
 /**
- * Todo: document Repeat + SimplePoller + tidy up
- * Todo: Slice up and publish as separate modules on github, maybe (repeat.js, poll.js and SimplePoller(?)
- *
- * Tested in
- *  [x] IE 6
- *  [x] IE 7
- *  [x] IE 8
- *  [x] IE 9
- *  [x] FF 8
- *  [x] Chrome 16
- *  [x] Opera 11.6
- *  [x] Safari 5.1
- *
- * -- This documents the Poll function --
- *
- * A simple and robust way of polling for data changes
- * returns a promise/jquery deferred that will get notified every time new data has arrived
- * Assumes an increasing amount of data and will notify only with the part that is different since last check
- *
- * @param object can be either of type:
- *  - a regular javascript/json object (property is required)
- *  - an array
- *  - a function that returns the data
- * @param property is required if first parameter is an object. Reference the key of object to listen for changes in
- *
+ * A simple poller
  * Usage:
  *  var obj = [1,2,3];
  *  Poll(obj).every(200).for(4000).start().progress(function(data) {
@@ -38,6 +14,7 @@
  * =>
  */
 (function ($) {
+
   var Repeat = (function () {
     var times_map = {
       one:1, two:2, three:3, four:4, five:5, six:6, seven:7, eight:8, nine:9, ten:10,
@@ -206,88 +183,8 @@
     };
   }());
 
-
-  /**
-   *  IE only
-   */
-  var SimpleIFramePoll = (function () {
-
-    var iframeContainer = function() {
-      var iframe_container = document.createElement('span');
-      iframe_container.style.display='none';
-      document.body.appendChild(iframe_container);
-      iframeContainer = function() {return iframe_container};
-      return iframeContainer();
-    };
-
-    var readFrameContent = function (iframe) {
-      var doc = iframe.contentWindow || iframe.contentDocument;
-      doc = doc.document || doc;
-      if (doc.readyState !== 'interactive') return '';
-      return doc.body.innerText;
-    };
-
-    return function(url, delimiter) {
-
-      var poller, iframe = document.createElement('iframe');
-
-      var complete = function () {
-        poller.step().stop();
-      };
-
-      if (delimiter === undefined) delimiter = "\n";
-
-      if (iframe.attachEvent) {
-        iframe.attachEvent("onload", complete);
-        iframe.attachEvent("onerror", complete);
-      }
-      else iframe.onload = iframe.onerror = complete;
-
-      poller = Poll().data(function () {
-        return readFrameContent(iframe).split(delimiter);
-      })
-      .every(200, 'ms')
-      .then(function () {
-        iframeContainer().removeChild(iframe);
-      });
-
-      iframe.src = url;
-      iframeContainer().appendChild(iframe);
-      poller.start();
-      return poller;
-    };
-  })();
-
-  var SimpleXHRPoll = function (url, delimiter) {
-    var req = new XMLHttpRequest(),
-        poll = Poll();
-
-    if (delimiter === undefined) delimiter = "\n";
-
-    req.open('GET', url, true);
-
-    req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
-
-    req.onreadystatechange = function () {
-      if (req.readyState == 3) {
-        poll.data(function() {
-          return req.responseText.split(delimiter);
-        }).every(200, 'ms').start();
-        req.onreadystatechange = function() {
-          if (req.readyState == 4) {
-            poll.step().stop();
-          }
-        }
-      }
-    };
-    req.send();
-    return poll;
+  $.fn.Poller = {
+    Repeat: Repeat,
+    Poll: Poll
   };
-  $.fn.SimplePoll = function(url, delimiter) {
-    $.fn.SimplePoll = $.browser.msie ? SimpleIFramePoll : SimpleXHRPoll;
-    return $.fn.SimplePoll(url, delimiter);
-  };
-  // todo: remove
-  window.Repeat = Repeat;
-  $.fn.Poll = Poll;
 })(jQuery);
