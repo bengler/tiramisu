@@ -1,5 +1,5 @@
 require 'securerandom'
-require 'file_bundle'
+require './lib/file_bundle'
 
 class DocumentBundle < FileBundle
 

@@ -2,7 +2,7 @@
 # upload + scaled and cleaned versions of that image.
 
 require 'securerandom'
-require 'file_bundle'
+require './lib/file_bundle'
 
 class ImageBundle < FileBundle
 

@@ -33,7 +33,7 @@
       uploader.progress(function(progress) {
           progressBar.setProgress(progress.percent);
           progressBar.html(progress.status);
-          var res = progress.image || progress.result;
+          var res = progress.document || progress.image || progress.result;
           if (res) {
             deferred.resolve(res);
             resolved = true;
