@@ -8,9 +8,9 @@ module TootsieHelper
   # :notification_url - url tootsie will post response to
   def self.generate_sizes(server, options)
     job = {
-        :type => 'image',
-        :notification_url => options[:notification_url],
-        :params => job_params(options)
+      :type => 'image',
+      :notification_url => options[:notification_url],
+      :params => job_params(options)
     }
 
     response = HTTPClient.new.post("#{server}/job", job.to_json)
@@ -42,11 +42,11 @@ module TootsieHelper
     suffix = square ? 'sq' : ''
 
     params = {
-        "format" => "jpeg",
-        "medium" => medium,
-        "target_url" => "s3:#{options[:bucket]}/#{options[:path]}/#{width}#{suffix}.jpg?acl=public_read",
-        "strip_metadata" => true,
-        "width" => width
+      "format" => "jpeg",
+      "medium" => medium,
+      "target_url" => "s3:#{options[:bucket]}/#{options[:path]}/#{width}#{suffix}.jpg?acl=public_read",
+      "strip_metadata" => true,
+      "width" => width
     }
     if square
       params["scale"] = 'fit'

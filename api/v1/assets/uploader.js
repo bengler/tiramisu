@@ -68,7 +68,7 @@
 
         self.upload = function() {/* throttle */};
 
-        var poll = $.fn.Poll();
+        var poll = $.fn.Poller.Poll();
         poll.data(function () {
             var content = getFrameBody(iframe[0]);
             var chunks = content.split("\n");
@@ -99,7 +99,7 @@
           });
         });
 
-        Repeat((function() {
+        $.fn.Poller.Repeat((function() {
           var fake_percent = 0;
           return function() {
             fake_percent += ((100-fake_percent)/100);
@@ -143,14 +143,14 @@
       var self = {};
       self.upload = function(file_field, url) {
         var deferred = $.Deferred(),
-            poll = new $.fn.Poll();
+            poll = new $.fn.Poller.Poll();
 
         //if (!file_field || !file.type.match(/image.*/)) return; todo show thumbnail
 
         var file = file_field.files[0]; // todo: support multiple files
 
         var fd = new FormData();
-        fd.append(file_field.name, file); // Append the file
+        fd.append(file_field.name, file);
 
         var xhr = new XMLHttpRequest();
         xhr.open("POST", url);
@@ -224,4 +224,4 @@
   $.fn.FileUploader = window.FormData === undefined ? IframeUploader : XhrUploader;
   $.fn.TiramisuUploader = TiramisuUploader;
 
-})(jQuery, window.Repeat);
+})(jQuery);

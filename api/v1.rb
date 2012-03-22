@@ -19,7 +19,7 @@ class TiramisuV1 < Sinatra::Base
       haml :test_document
     end
   end
-  
+
   helpers do
 
     def asset_store
