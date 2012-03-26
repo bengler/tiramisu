@@ -2,8 +2,9 @@
 # upload + scaled and cleaned versions of that image.
 
 require 'securerandom'
+require './lib/file_bundle'
 
-class ImageBundle
+class ImageBundle < FileBundle
 
   SUPPORTED_FORMATS = ['png', 'jpeg', 'bmp', 'gif', 'tiff', 'gif', 'pdf', 'psd']
 

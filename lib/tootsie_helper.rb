@@ -27,7 +27,7 @@ module TootsieHelper
   end
 
   private
-  
+
   def self.job_params(options)
     params = {}
     params[:input_url] = options[:source]

@@ -84,7 +84,7 @@ GEM
       net-ssh (>= 1.99.1)
     nokogiri (1.5.0)
     pathbuilder (0.0.2)
-    petroglyph (0.0.1)
+    petroglyph (0.0.2)
       tilt
     pingable (0.0.9)
       rack (>= 1.0.0)

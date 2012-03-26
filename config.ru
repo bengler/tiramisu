@@ -26,8 +26,8 @@ map "/api/tiramisu/v1/assets" do
   environment.append_path 'api/v1/assets'
   Sprockets::Helpers.configure do |config|
     config.environment = environment
-    config.prefix      = "/api/tiramisu/v1/assets"
-    config.digest      = false
+    config.prefix = "/api/tiramisu/v1/assets"
+    config.digest = false
   end
   run environment
 end
