@@ -30,7 +30,7 @@ class ImageBundle < FileBundle
 
   def build_from_file(file)
     @file = file
-    @format, width, height = `identify -format '%m %w %h' #{file.path}`.split(/\s+/)
+    @format, width, height = `identify -format '%m %w %h' #{file.path} 2> /dev/null`.split(/\s+/)
     @format.downcase! if @format
     raise FormatError, "Format #{@format.inspect} not supported" unless SUPPORTED_FORMATS.include?(@format)
     @aspect_ratio = width.to_f/height.to_f
