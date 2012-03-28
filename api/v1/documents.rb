@@ -14,6 +14,8 @@ class TiramisuV1 < Sinatra::Base
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream_file do |progress|
+      progress.received
+
       # Generate a new document bundle and upload the original document to it
       begin
         intercepted_file = Interceptor.wrap(params[:file][:tempfile]) do |file, method, args|
@@ -29,6 +31,8 @@ class TiramisuV1 < Sinatra::Base
         progress.completed :document => bundle.document_data
       rescue DocumentBundle::FormatError => e
         progress.failed('format-not-supported')
+      rescue => e
+        progress.failed e.message
       end
 
     end

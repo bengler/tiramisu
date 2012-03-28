@@ -12,10 +12,8 @@ describe 'API v1' do
   let(:image_from_fixture) {
     {:file => 'spec/fixtures/ullevaalseter.jpg', :aspect_ratio =>1.499} 
   }
-  # [x] Make it pass
-  # [ ] Make it right
-  # [ ] Make it fast
-  describe 'POST /assets/:id' do
+
+  describe 'POST /images/:id' do
     it "submits an image and returns a chunked json response with progress data and finally the image hash" do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
@@ -45,7 +43,7 @@ describe 'API v1' do
       image['aspect'].should be_within(0.01).of(1.49)
     end
 
-    it "returns failure as last json hash if uploaded file are of wrong format" do
+    it "returns failure as last json chunk if uploaded file are of wrong format" do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
       end
@@ -57,7 +55,7 @@ describe 'API v1' do
     end
   end
 
-  it "returns failure as last json hash and includes the error message if something unexpected happens" do
+  it "returns failure as last json chunk and includes the error message if something unexpected happens" do
     ImageBundle.any_instance.stub(:submit_image_scaling_job).and_raise "Unexpected error"
     VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
