@@ -12,13 +12,10 @@ class TiramisuV1 < Sinatra::Base
     location = path.gsub('.', '/')
 
     response['X-Accel-Buffering'] = 'no'
-    response.status = 200 # must be 200, or else the browser *may* not start flushing the response immediately (not verified)
+    response.status = 200 # must be 200, or else the browser *may* not start reading from the response immediately (not verified)
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
-    stream do |out|
-      out << " " * 256  if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
-
-      progress = Progress.new(out)
+    stream_file do |progress|
       progress.received
 
       # Generate a new image bundle and upload the original image to it
@@ -41,9 +38,6 @@ class TiramisuV1 < Sinatra::Base
       rescue => e
         progress.failed e.message
       end
-      # IE strips off whitespace at the end of an iframe
-      # so we need to send a terminator
-      out << ";" if request.user_agent =~ /MSIE/ # Damn you, IE...
     end
   end
 end

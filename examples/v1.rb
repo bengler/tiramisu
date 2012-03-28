@@ -11,7 +11,7 @@ class ExamplesV1 < Sinatra::Base
   end
 
   get "/" do
-    %w(image document).map do |example|
+    %w(image file).map do |example|
       "<li><a href=\"v1/#{example}\">#{example}</li>"
     end
   end
@@ -20,8 +20,8 @@ class ExamplesV1 < Sinatra::Base
     haml :image
   end
   
-  get "/document" do
-    haml :document
+  get "/file" do
+    haml :file
   end
   get "/audio" do
     haml :audio

@@ -21,7 +21,6 @@ class TiramisuV1 < Sinatra::Base
       stream do |out|
         out << " " * 256 if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
         progress = Progress.new(out)
-        progress.received
         yield(progress)
         #IE strips off whitespace at the end of an iframe
         #so we need to send a terminator

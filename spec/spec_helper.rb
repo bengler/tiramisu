@@ -9,7 +9,6 @@ $:.unshift(File.dirname(File.dirname(__FILE__)))
 ENV["RACK_ENV"] = "test"
 require 'config/environment'
 
-# require './spec/mockcached'
 require 'rack/test'
 
 require 'api/v1'
