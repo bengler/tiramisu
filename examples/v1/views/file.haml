@@ -1,9 +1,9 @@
-%script{ :src => javascript_path("example-document"), :type => 'text/javascript'}
+%script{ :src => javascript_path("example-file"), :type => 'text/javascript'}
 
 %form#upload(name="upload_form" action="" method="post")
   %fieldset
 
-    %legend Upload document
+    %legend Upload plain file
 
     %label(for="file") File:
     %input#file(name="file" type='file' placeholder="Choose file")

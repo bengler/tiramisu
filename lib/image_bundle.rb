@@ -18,8 +18,6 @@ class ImageBundle < FileBundle
     {:width => 5000, :medium => 'print'}
   ]
 
-  class FormatError < Exception; end
-
   attr_reader :aspect_ratio, :location
 
   def initialize(store, options = {})

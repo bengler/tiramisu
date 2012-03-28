@@ -14,6 +14,19 @@ class FileBundle
     @store.put(original_file_path, @file)
   end
 
+  def build_from_file(options = {})
+    @file = options[:file]
+    @format = options[:format]
+  end
+
+  def file_data
+    {
+      :id => uid("file"),
+      :baseurl => url,
+      :original => original_file_url
+    }
+  end
+  
   def self.create_from_file(options)
     bundle = new(options)
     bundle.build_from_file(options)
@@ -53,7 +66,7 @@ class FileBundle
     member_url(original_file_name)
   end
 
-  # The unique name of the file(image or document) used as a folder name in S3 and as an object id in pebbles
+  # The unique name of the file(image or file) used as a folder name in S3 and as an object id in pebbles
   def oid
     @oid ||= "#{Time.now.utc.strftime('%Y%m%d%H%M%S')}-#{@format}-#{SecureRandom.random_number(36**4).to_s(36)}"
   end

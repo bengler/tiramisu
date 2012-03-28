@@ -12,10 +12,10 @@ describe 'API v1' do
   let(:file_from_fixture) {
     {:file => 'spec/fixtures/forester.pdf', :aspect_ratio =>1.499} 
   }
-  describe 'POST /assets/:id' do
+  describe 'POST /files/:id' do
     it "submits an image and returns a chunked json response with progress data and finally the image hash" do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/documents/document:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(file_from_fixture[:file], "application/pdf")
+        post "/files/file:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(file_from_fixture[:file], "application/pdf")
       end
       last_response.status.should eq(200)
       chunks = json_chunks
@@ -25,26 +25,26 @@ describe 'API v1' do
       chunks.last['status'].should eq('completed')
       chunks.last['percent'].should eq(100)
 
-      document = chunks.last['document']
-      document.should_not be_nil
+      file = chunks.last['file']
+      file.should_not be_nil
 
-      klass, path, oid = Pebblebed::Uid.parse(document['id']) 
-      klass.should eq('document')
+      klass, path, oid = Pebblebed::Uid.parse(file['id']) 
+      klass.should eq('file')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
 
-      document['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}/)
+      file['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}/)
       
-      document['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}\/original\.pdf/)
+      file['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}\/original\.pdf/)
 
     end
 
   end
 
   it "returns failure as last json hash and includes the error message if something unexpected happens" do
-    DocumentBundle.stub(:create_from_file).and_raise "Funky error"
+    FileBundle.stub(:create_from_file).and_raise "Funky error"
     VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-      post "/documents/document:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(file_from_fixture[:file], "image/pdf")
+      post "/files/file:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(file_from_fixture[:file], "image/pdf")
     end
     last_response.status.should eq(200)
     chunks = json_chunks

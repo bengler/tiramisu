@@ -1,11 +1,11 @@
 (function(global) {
   /**
-   * A document uploader widget. This is the glue between the form and the file uploader
+   * A file uploader widget. This is the glue between the form and the file uploader
    * @param form
    * @param file_field
    * @param post_url
    */
-  var DocumentUploader = function(form, file_field, post_url) {
+  var PlainFileUploader = function(form, file_field, post_url) {
     var fileUploader = new $.fn.FileUploader(form),
         stages = { // Progress normalization (since each step reports progress between 0 and 100)
           uploading: function(percent) { return percent/100*60; },
@@ -24,8 +24,8 @@
       uploader.progress(function(progress) {
           progress.percent = stages[progress.status](progress.percent); // normalize progress
           deferred.notify(progress); // simply forward it
-          if (progress.document) {
-            deferred.resolve(progress.document); // If progress comes with an image, that means processing is completed
+          if (progress.file) {
+            deferred.resolve(progress.file); // If progress comes with an image, that means processing is completed
           }
         })
         .then(function() {
@@ -69,11 +69,11 @@
     var form = $("form#upload"),
         file_field = $("#file"),
 
-        uid = 'document:tiramisu.test.document',
-        endpoint = '/api/tiramisu/v1/documents',
+        uid = 'file:tiramisu.test.file',
+        endpoint = '/api/tiramisu/v1/files',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
-        uploader = new DocumentUploader(form, file_field, endpoint+"/"+uid),
+        uploader = new PlainFileUploader(form, file_field, endpoint+"/"+uid),
         uploading;
  
     $('#upload_btn').bind('click', function() {
@@ -84,9 +84,9 @@
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);
       });
-      uploading.then(function(document) {
-        progressBar.prepend('<a href="'+document.original+'" target="_blank">Download file</a>');
-        progressBar.prepend($("<code></code>").append(JSON.stringify(document)));
+      uploading.then(function(file) {
+        progressBar.prepend('<a href="'+file.original+'" target="_blank">Download file</a>');
+        progressBar.prepend($("<code></code>").append(JSON.stringify(file)));
       });
       uploading.fail(function(error) {
         progressBar.setError(error.message || 'unknown error');

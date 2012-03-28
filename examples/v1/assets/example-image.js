@@ -107,7 +107,7 @@
     var form = $("form#upload"),
         file_field = $("#file"),
 
-        uid = 'document:tiramisu.test.image',
+        uid = 'image:tiramisu.test.image',
         endpoint = '/api/tiramisu/v1/images',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
