@@ -2,8 +2,7 @@ require "sinatra/reloader"
 
 class ExamplesV1 < Sinatra::Base
 
-  set :root, File.dirname(__FILE__)
-  #set :haml, :layout => :'layouts/apdm'
+  set :root, File.join(File.dirname(__FILE__), "v1")
   
   register Sinatra::Reloader
 
