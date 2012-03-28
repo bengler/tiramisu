@@ -36,7 +36,7 @@ end
 unless production?
   environment.append_path 'examples/v1/assets'
 
-  require "examples/v1/examples_v1"
+  require "examples/v1"
   map "/examples/v1" do
     run ExamplesV1
   end  
