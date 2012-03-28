@@ -1,0 +1,23 @@
+%script{ :src => javascript_path("example-document"), :type => 'text/javascript'}
+
+%form#upload(name="upload_form" action="" method="post")
+  %fieldset
+
+    %legend Upload document
+
+    %label(for="file") File:
+    %input#file(name="file" type='file' placeholder="Choose file")
+
+    %input#upload_btn(type="button" value="Upload now")
+
+    #progressbar.progressbar
+      %div(style="width: 500px")
+        .indicator
+      %ul.text
+
+    #thumbnail_container
+
+    %code#result
+
+    %div
+      %input(type='submit' value='Submit form')
