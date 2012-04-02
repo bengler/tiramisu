@@ -19,7 +19,7 @@ class TiramisuV1 < Sinatra::Base
         s3_file = S3File.create(base_uid, :filename => params[:file][:filename])
 
         # Upload file to S3
-        asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile]) do |file|
+        asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile], :read) do |file|
            # reports progress as a number between 0 and 1 as the file is uploaded to S3
           progress.transferring(file.pos.to_f/file.size)
         end)
@@ -31,6 +31,7 @@ class TiramisuV1 < Sinatra::Base
         }
       rescue => e
         progress.failed e.message
+        Log.error e
       end
 
     end

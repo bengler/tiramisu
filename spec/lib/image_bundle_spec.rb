@@ -1,92 +1,119 @@
-require 'image_bundle'
-require 'asset_store'
-require 's3_file'
-require 's3_image_file'
-require 'pebblebed'
+require "spec_helper"
 
 describe ImageBundle do
-  describe "#tootsie_job" do
-    it "delivers a hash of parameters that can be used to post a transcoding job to tootsie" do
-      expected_params = [
-        {:width=>100, :square=>false, :url=>"http://example.com/path/timestamp-randstr-aspect/title_100.jpg"},
-        {:width=>100, :square=>true, :url=>"http://example.com/path/timestamp-randstr-aspect/title_100_sq.jpg"},
-        {:width=>300, :square=>false, :url=>"http://example.com/path/timestamp-randstr-aspect/title_300.jpg"},
-        {:width=>500, :square=>true, :url=>"http://example.com/path/timestamp-randstr-aspect/title_500_sq.jpg"},
-        {:width=>700, :square=>false, :url=>"http://example.com/path/timestamp-randstr-aspect/title_700.jpg"},
-        {:width=>1000, :square=>false, :url=>"http://example.com/path/timestamp-randstr-aspect/title_1000.jpg"},
-        {:width=>5000, :square=>false, :url=>"http://example.com/path/timestamp-randstr-aspect/title_5000.jpg"}
+
+  let(:s3_config) {
+    YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]['S3']
+  }
+  let(:asset_store) {
+    store = nil
+    VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+      store = AssetStore.new(s3_config)
+    end
+    store
+  }
+  let(:image_file) {
+    S3ImageFile.new(Pebblebed::Uid.new("image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"))
+  }
+  let(:bundle) {
+    ImageBundle.new(asset_store, image_file)
+  }
+
+  describe "#data" do
+    it "provides an image data hash for the client" do
+
+      asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
+      asset_store.should_receive(:protocol).any_number_of_times.and_return "http://"
+
+      data = bundle.data
+
+      data[:uid].should eq "image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"
+      data[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498"
+      data[:original].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+      data[:aspect_ratio].should eq 1.498
+
+      expected_versions = [
+        {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg"},
+        {:width => 100, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg"},
+        {:width => 300, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_300.jpg"},
+        {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_500_sq.jpg"},
+        {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_700.jpg"},
+        {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_1000.jpg"},
+        {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_5000.jpg"}
       ]
-      #s3_image = ImageBundle.new(Pebblebed::Uid.new('image:path$timestamp-randstr-jpg-title-aspect'))
-      #bundle = ImageBundle.new(store, s3_image)
-      #bundle.image_data[:versions].should eq(expected)
+      data[:versions].should eq expected_versions
+
     end
   end
-=begin
-require 'tootsie_helper'
+  describe "#tootsie_job" do
+    it "provides a hash of parameters that can be used to post a transcoding job to tootsie" do
 
-describe TootsieHelper do
+      asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
 
-  describe "#generate_image_sizes" do
-    xit "creates and submits a scaling job"
+      tootsie_job = bundle.tootsie_job
+
+      tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+
+      expected_versions = [
+        {
+          :format => "jpeg",
+          :width => 100,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg?acl=public_read"
+        },
+        {
+          :scale => "fit",
+          :height => 100,
+          :crop => true,
+          :format => "jpeg",
+          :width => 100,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 300,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_300.jpg?acl=public_read"
+        },
+        {
+          :scale => "fit",
+          :height => 500,
+          :crop => true,
+          :format => "jpeg",
+          :width => 500,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_500_sq.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 700,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_700.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 1000,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_1000.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 5000,
+          :strip_metatadata => true,
+          :medium => "print",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_5000.jpg?acl=public_read"
+        }
+      ]
+      tootsie_job[:params][:versions].should eq expected_versions
+
+    end
   end
-  
-  describe "#submit_job" do
-    xit "accepts a raw parameter hash and submits a job to tootsie"
-  end
-  
-  describe "#image_scaling_job_params" do
-    let(:input) do
-      {:source => "pix.jpg", :bucket => "bucket", :path => "/0-1333-abc", :notification_url => "tell_me"}
-    end
 
-    let(:file) { stub(:name => '100.jpg', :width => 100) }
-
-    let(:base_output) do
-      {"format" => "jpeg", "strip_metadata" => true, "medium" => 'web'}
-    end
-
-    def target_url(filename)
-      "s3:bucket//0-1333-abc/#{filename}?acl=public_read"
-    end
-
-    it "creates multiple versions" do
-      options = input.merge(:sizes => [{:width => 100}, {:width => 200}])
-      job = TootsieHelper.send(:image_scaling_job_params, options)
-      job[:params][:versions].length.should eq(2)
-    end
-
-    xit "defaults medium to 'web'" do
-      options = input.merge(:sizes => [{:width => 100}])
-      job = TootsieHelper.send(:image_scaling_job_params, options)
-      job[:params][:versions].first[:medium].should eq('web')
-    end
-
-    xit "can override medium" do
-      options = input.merge(:sizes => [{:width => 100, :medium => 'print'}])
-      job = TootsieHelper.send(:image_scaling_job_params, options)
-      job[:params][:versions].first[:medium].should eq('print')
-    end
-
-    xit "defaults to using original aspect ratio" do
-      options = input.merge(:sizes => [{:width => 100}])
-      job = TootsieHelper.send(:image_scaling_job_params, options)
-      first_param = job[:params][:versions].first
-      first_param[:width].should eq(100)
-      first_param[:scale].should be_nil
-      first_param[:crop].should be_nil
-      first_param[:height].should be_nil
-    end
-
-    xit "can specify a square" do
-      options = input.merge(:sizes => [{:width => 100, :square => true}])
-      job = TootsieHelper.send(:image_scaling_job_params, options)
-      first_param = job[:params][:versions].first
-      first_param[:height].should eq(100)
-      first_param[:crop].should be_true
-      first_param[:scale].should eq('fit')
-    end
-  end
-end
-
-=end
 end

@@ -1,0 +1,21 @@
+%script{ :src => javascript_path("example-audio"), :type => 'text/javascript'}
+
+%form#upload(name="upload_form" action="" method="post")
+  %fieldset
+
+    %legend Audio file
+
+    %label(for="file") File to upload
+    %input#file(name="file" type='file' placeholder="Choose file")
+
+    %input#upload_btn(type="button" value="Upload now")
+
+    #progressbar.progressbar
+      %div(style="width: 500px")
+        .indicator
+      %ul.text
+
+    %code#result
+
+    %div
+      %input(type='submit' value='Submit form')

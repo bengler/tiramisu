@@ -9,7 +9,8 @@
 #    upload_to_s3(intercepted_stream)
 
 class Interceptor
-  def initialize(wrapped, callback)
+  def initialize(wrapped, method=nil, callback)
+    @method = method
     @wrapped = wrapped
     @callback = callback
   end
@@ -19,11 +20,11 @@ class Interceptor
   end
 
   def method_missing(method, *args, &block)
-    @callback.call(@wrapped, method, args)
+    @callback.call(@wrapped, method, args) if @method.nil? or @method == method
     @wrapped.send(method, *args, &block)
   end
 
-  def self.wrap(wrapped, &block)
-    Interceptor.new(wrapped, block)
+  def self.wrap(wrapped, *args, &block)
+    Interceptor.new(wrapped, args[0], block)
   end
 end

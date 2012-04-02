@@ -28,9 +28,9 @@ class ImageBundle
     @s3_image_file = s3_image_file
   end
 
-  def image_data
+  def data
     data = {
-      :uid => s3_image_file.uid,
+      :uid => s3_image_file.uid.to_s,
       :baseurl => asset_store.url_for(s3_image_file.dirname),
       :original => asset_store.url_for(s3_image_file.path),
       :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0
@@ -60,7 +60,7 @@ class ImageBundle
       version[:format] = "jpeg"
       version[:width] = size[:width]
       version[:strip_metatadata] = true
-      version[:medium] = 'web'
+      version[:medium] = size[:medium] || 'web'
       path_for_size = s3_image_file.path_for_size(size[:width], :square => size[:square], :format => OUTPUT_FORMAT)
       target_url = asset_store.s3_url_for(path_for_size)
       version[:target_url] = "#{target_url}?acl=public_read"
