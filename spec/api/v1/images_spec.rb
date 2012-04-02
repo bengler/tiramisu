@@ -29,18 +29,19 @@ describe 'API v1' do
       image = chunks.last['image']
       image.should_not be_nil
 
-      klass, path, oid = Pebblebed::Uid.parse(image['id']) 
+      klass, path, oid = Pebblebed::Uid.parse(image['uid']) 
       klass.should eq('image')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
-      timestamp, aspect_ratio, id = oid.split("-")
+      
+      timestamp, rand, extension, *title, aspect_ratio = oid.split("-")
       aspect_ratio.to_i.should eq(image_from_fixture[:aspect_ratio]*1000)
 
-      image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}/)
-      image['sizes'].map{|s| s['width']}.should eq([100, 100, 300, 500, 700, 1000, 5000])
+      image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
+      image['versions'].map{|s| s['width']}.should eq([100, 100, 300, 500, 700, 1000, 5000])
       
-      image['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{oid}\/original\.jpeg/)
-      image['aspect'].should be_within(0.01).of(1.49)
+      image['original'].should match(/#{image['baseurl']}\/#{title.join("-")}.#{extension}/)
+      image['aspect_ratio'].to_f.should be_within(0.01).of(1.49)
     end
 
     it "returns failure as last json chunk if uploaded file are of wrong format" do
@@ -56,7 +57,7 @@ describe 'API v1' do
   end
 
   it "returns failure as last json chunk and includes the error message if something unexpected happens" do
-    ImageBundle.any_instance.stub(:submit_image_scaling_job).and_raise "Unexpected error"
+    ImageBundle.any_instance.stub(:tootsie_job).and_raise "Unexpected error"
     VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
     end
