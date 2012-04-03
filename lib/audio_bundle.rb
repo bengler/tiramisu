@@ -41,7 +41,7 @@ class AudioBundle
 
   def tootsie_job
     job = {}
-    job[:type] = 'audio'
+    job[:type] = 'video'
     job[:params] = params = {}
     params[:input_url] = asset_store.url_for(s3_audio_file.path)
 
