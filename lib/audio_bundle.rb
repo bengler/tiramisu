@@ -46,11 +46,10 @@ class AudioBundle
     params[:input_url] = asset_store.url_for(s3_audio_file.path)
 
     params[:versions] = OUTPUT_FORMATS.map do |format|
-      version = {}
-      version[:format] = format
+      version = {}.merge format
+      version[:format] = format[:format]
 
-      path_for_quality = s3_audio_file.path_for_version(format)
-      target_url = asset_store.s3_url_for(path_for_quality)
+      target_url = asset_store.s3_url_for(s3_audio_file.path_for_version(format))
       version[:target_url] = "#{target_url}?acl=public_read"
       version
     end

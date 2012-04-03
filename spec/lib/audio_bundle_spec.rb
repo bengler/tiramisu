@@ -49,8 +49,8 @@ describe AudioBundle do
       tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording.mp3"
 
       expected_versions = [
-        {:format=>{:audio_sample_rate=>44100, :audio_bitrate=>64000, :audio_codec=>"libmp3lame", :format=>"mp3", :content_type=>"audio/mpeg"}, :target_url=>"s3:development.o5.no/area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44100_64000.mp3?acl=public_read"},
-        {:format=>{:audio_sample_rate=>44100, :audio_bitrate=>64000, :format=>"flv", :content_type=>"video/x-flv"}, :target_url=>"s3:development.o5.no/area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44100_64000.flv?acl=public_read"}
+        {:audio_sample_rate=>44100, :audio_bitrate=>64000, :format=>"mp3", :content_type=>"audio/mpeg", :target_url=>"s3:development.o5.no/area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44100_64000.mp3?acl=public_read", :audio_codec=>"libmp3lame"},
+        {:audio_sample_rate=>44100, :audio_bitrate=>64000, :format=>"flv", :content_type=>"video/x-flv", :target_url=>"s3:development.o5.no/area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44100_64000.flv?acl=public_read"}
       ]
       tootsie_job[:params][:versions].should eq expected_versions
 
