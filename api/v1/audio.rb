@@ -42,4 +42,19 @@ class TiramisuV1 < Sinatra::Base
       end
     end
   end
+
+  get '/audio_files/:uid/status' do |uid|
+    uid = Pebblebed::Uid.new(uid)
+    s3_file = S3AudioFile.new(uid)
+    bundle = AudioBundle.new(asset_store, s3_file)
+
+    data = bundle.data
+
+    client = HTTPClient.new
+    data[:versions].each do |version|
+      version[:ready] = (200...300).include? client.head(version[:url]).status_code
+    end
+    content_type :json
+    data.to_json
+  end
 end

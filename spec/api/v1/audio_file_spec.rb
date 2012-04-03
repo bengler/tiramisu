@@ -70,5 +70,41 @@ describe 'API v1' do
       chunks.last['message'].should eq('Funky error')
       chunks.last['percent'].should eq(100)
     end
+    
   end
+  
+  describe "GET /audio_files/:uid/status" do
+    it "provides an endpont for polling for ready versions of an audio file" do
+
+      HTTPClient
+        .any_instance
+        .should_receive(:head)
+        .exactly(AudioBundle::OUTPUT_FORMATS.length).times
+        .and_return(OpenStruct.new(:status_code => 200))
+
+      get "/audio_files/audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording/status"
+
+      data = JSON.parse(last_response.body, :symbolize_names => true)
+
+      data[:versions].map{|v| v[:ready]}.should_not include(false)
+
+    end
+
+    it "provides an endpont for polling for ready versions of an audio file" do
+
+      HTTPClient
+        .any_instance
+        .should_receive(:head)
+        .exactly(AudioBundle::OUTPUT_FORMATS.length).times
+        .and_return(OpenStruct.new(:status_code => 300))
+
+      get "/audio_files/audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording/status"
+      data = JSON.parse(last_response.body, :symbolize_names => true)
+
+      data[:versions].map{|v| v[:ready]}.should_not include(true)
+      
+    end
+    
+  end
+  
 end

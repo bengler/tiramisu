@@ -1,3 +1,4 @@
+
 (function(global) {
   /**
    * A file uploader widget. This is the glue between the form and the file uploader
@@ -16,21 +17,21 @@
           failed: function() { return 100; },
           timeout: function() { return 100; }
         },
-        pollForTranscoded = function(url, timeout) { // somehow...
+        pollForTranscoded = function(uid, timeout) { // somehow...
           var deferred = $.Deferred(),
               retries = 0,
               timer,
               check = function() {
                 deferred.notify({status: 'transcoding', percent: 100/20*retries});
-                /*loader.src=url+"?retry="+retries++; // Opera will cache it even if it fails
-                $(loader).one('load', function() {
-                  deferred.notify({status: 'transcoding', percent: 100});
-                  deferred.resolve(loader.src);
+                $.get("/api/tiramisu/v1/audio_files/"+uid+"/status").then(function(file) {
+                  $.each(file.versions, function(i, version) {
+                    if (version.ready) deferred.resolve(file);
+                  });
+                  if (deferred.state() == 'pending') {
+                    retries++;
+                    timer = setTimeout(check, 1000);  
+                  }
                 });
-                $(loader).one('error', function() {
-                  // manually continue polling
-                  timer = setTimeout(check, 1000);
-                });*/
               };
           check();
           // after 20 seconds of unsuccessful polling, reject it
@@ -51,14 +52,14 @@
           progress.percent = stages[progress.status](progress.percent); // normalize progress
           deferred.notify(progress); // simply forward it
           
-          if (progress.audio_clip) {
-            poller = pollForTranscoded(progress.audio_clips.original);
+          if (progress.audio_file) {
+            poller = pollForTranscoded(progress.audio_file.uid);
             poller.progress(function(progress) {
               progress.percent = stages[progress.status](progress.percent); // normalize progress              
               deferred.notify(progress);
             });
-            poller.then(function() {
-              deferred.resolve(progress.audio_clips); // If progress comes with an image, that means processing is completed              
+            poller.then(function(data) {
+              deferred.resolve(data); // If progress comes with an image, that means processing is completed              
             });
             poller.fail(function(arg) {
               deferred.reject(arg);
@@ -106,8 +107,8 @@
     var form = $("form#upload"),
         file_field = $("#file"),
 
-        uid = 'document:tiramisu.test.audio_clips',
-        endpoint = '/api/tiramisu/v1/audio_clips',
+        uid = 'audio:tiramisu.test.audio_files',
+        endpoint = '/api/tiramisu/v1/audio_files',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
         uploader = new AudioUploader(form, file_field, endpoint+"/"+uid),
@@ -118,15 +119,21 @@
       progressBar.html("");
       uploading = uploader.doUpload();
       uploading.progress(function(progress) {
-        if (progress.audio_clips) {
-          progressBar.prepend($("<code></code>").append(JSON.stringify(progress.audio_clips)));
+        if (progress.audio_file) {
+          progressBar.prepend($("<code></code>").append(JSON.stringify(progress.audio_file)));
+          progressBar.prepend('<a href="'+progress.audio_file.original+'" target="_blank">Download original</a>');
+          $.each(progress.audio_file.versions, function(i, version) {
+            progressBar.prepend('<a href="'+version.url+'" target="_blank">Download '+version.format+' (may not be ready yet)</a>');          
+          });
         }
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);
       });
-      uploading.then(function(audio_clip) {
-        progressBar.prepend('<img src="'+audio_clips.original+'">');
-        progressBar.prepend($("<code></code>").append(JSON.stringify(audio_clips)));
+      uploading.then(function(file) {
+        $.each(file.versions, function(i, version) {
+          if (version.ready)
+            progressBar.prepend('Ready: <a href="'+version.url+'" target="_blank">Download '+version.format+'</a>');          
+        });
       });
       uploading.fail(function(error) {
         progressBar.setError(error.message || 'unknown error');
