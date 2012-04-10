@@ -28,13 +28,13 @@ class TiramisuV1 < Sinatra::Base
         end)
 
         bundle = AudioBundle.new(asset_store, s3_file)
-        job = bundle.tootsie_job
+        job = bundle.to_tootsie_job
 
         job[:notification_url] = params[:notification_url] if params[:notification_url] 
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
-        progress.completed :audio_file => bundle.data
+        progress.completed :audio_file => bundle.metadata
   
       rescue => e
         progress.failed e.message
@@ -48,7 +48,7 @@ class TiramisuV1 < Sinatra::Base
     s3_file = S3AudioFile.new(uid)
     bundle = AudioBundle.new(asset_store, s3_file)
 
-    data = bundle.data
+    data = bundle.metadata
 
     client = HTTPClient.new
     data[:versions].each do |version|

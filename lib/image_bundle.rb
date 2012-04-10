@@ -28,24 +28,24 @@ class ImageBundle
     @s3_image_file = s3_image_file
   end
 
-  def data
-    data = {
+  def metadata
+    metadata = {
       :uid => s3_image_file.uid.to_s,
       :baseurl => asset_store.url_for(s3_image_file.dirname),
       :original => asset_store.url_for(s3_image_file.path),
       :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0
     }
-    data[:versions] = IMAGE_SIZES.map do |size|
+    metadata[:versions] = IMAGE_SIZES.map do |size|
       square = !!size[:square]
       s3_path = s3_image_file.path_for_size(size[:width], :square => size[:square], :format => OUTPUT_FORMAT)
       s3_url = asset_store.url_for(s3_path)
 
       {:width => size[:width], :square => square, :url => s3_url }
     end
-    data
+    metadata
   end
 
-  def tootsie_job
+  def to_tootsie_job
     job = {}
     job[:type] = 'image'
     job[:params] = params = {}

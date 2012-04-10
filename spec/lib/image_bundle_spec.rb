@@ -19,18 +19,18 @@ describe ImageBundle do
     ImageBundle.new(asset_store, image_file)
   }
 
-  describe "#data" do
-    it "provides an image data hash for the client" do
+  describe "#metadata" do
+    it "provides an image metadata hash for the client" do
 
       asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
       asset_store.should_receive(:protocol).any_number_of_times.and_return "http://"
 
-      data = bundle.data
+      metadata = bundle.metadata
 
-      data[:uid].should eq "image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"
-      data[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498"
-      data[:original].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
-      data[:aspect_ratio].should eq 1.498
+      metadata[:uid].should eq "image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"
+      metadata[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498"
+      metadata[:original].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+      metadata[:aspect_ratio].should eq 1.498
 
       expected_versions = [
         {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg"},
@@ -41,7 +41,7 @@ describe ImageBundle do
         {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_1000.jpg"},
         {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_5000.jpg"}
       ]
-      data[:versions].should eq expected_versions
+      metadata[:versions].should eq expected_versions
 
     end
   end
@@ -50,7 +50,7 @@ describe ImageBundle do
 
       asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
 
-      tootsie_job = bundle.tootsie_job
+      tootsie_job = bundle.to_tootsie_job
 
       tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
 

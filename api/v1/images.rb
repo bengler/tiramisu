@@ -31,12 +31,12 @@ class TiramisuV1 < Sinatra::Base
         end)
 
         bundle = ImageBundle.new(asset_store, s3_file)
-        job = bundle.tootsie_job
+        job = bundle.to_tootsie_job
         job[:notification_url] = params[:notification_url] if params[:notification_url] 
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
-        progress.completed :image => bundle.data
+        progress.completed :image => bundle.metadata
 
       rescue ImageBundle::FormatError => e
         progress.failed('format-not-supported')

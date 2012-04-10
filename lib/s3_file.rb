@@ -56,6 +56,7 @@ class S3File
 
   attr_reader :uid
 
+  # Uid must be instance of Pebblebed::Uid
   def initialize(uid)
     raise IncompleteUidError, "Missing oid in uid" if uid.oid.nil?
     @uid = uid

@@ -4,8 +4,6 @@ require "lib/s3_file"
 # > file = S3AudioFile.new(Pebblebed::Uid.new('audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording'))
 # > file.path_for_version(:sample_rate => 44000, :bitrate => 128000, :format=>'flv')
 # => /area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44000_128000.flv
-# > file.path_for_size('100sq')
-# => /area51/secret/unit/20120306122011-9et0-jpg-super-secret-photo-1489/super-secret-photo_100sq.jpg
 
 class S3AudioFile < S3File
   def dirname
