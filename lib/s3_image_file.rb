@@ -29,6 +29,8 @@
 #   > file.path_for_size(100, :square => true)
 #   => "area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg"
 
+require "lib/s3_file"
+
 class S3ImageFile < S3File
 
   def self.create_oid(options)
