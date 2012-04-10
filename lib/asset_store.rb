@@ -3,7 +3,7 @@
 class AssetStore
   attr_reader :bucket
 
-  # options: 'access_key_id', 'secret_access_key', 'bucket_name'
+  # options: 'access_key_id', 'secret_access_key', 'bucket'
   def initialize(options)
     @service = S3::Service.new(
       :access_key_id => options['access_key_id'],
@@ -23,5 +23,13 @@ class AssetStore
 
   def protocol
     @service.protocol
+  end
+
+  def url_for(path)
+    "#{protocol}#{host}/#{path}"
+  end
+
+  def s3_url_for(path)
+    "s3:#{@bucket.name}/#{path}"
   end
 end

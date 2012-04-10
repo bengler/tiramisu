@@ -1,9 +1,10 @@
 require 'cgi'
 require 'timeout'
+require "lib/s3_file"
 
 class TiramisuV1 < Sinatra::Base
 
-  post '/images/:uid' do |uid|
+  post '/audio_files/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
     response.status = 200 # must be 200, or else the browser *may* not start reading from the response immediately (not verified)
@@ -16,30 +17,25 @@ class TiramisuV1 < Sinatra::Base
       begin
 
         uploaded_file = params[:file][:tempfile]
-        filename = params[:file][:filename]
-
-        extension, aspect_ratio = image_info(uploaded_file)
-        # todo: check that file is submitted with a valid extension?
 
         base_uid = Pebblebed::Uid.new(uid)
-        s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
+        s3_file = S3AudioFile.create(base_uid, :filename => params[:file][:filename])
 
         # Upload file to Amazon S3
-        asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile], :read) do |file|
+        asset_store.put s3_file.path, (Interceptor.wrap(uploaded_file, :read) do |file, method|
           # Reports progress as a number between 0 and 1 as the original file is uploaded to S3
-          progress.transferring(file.pos.to_f/file.size)
+          progress.transferring(file.pos.to_f/file.size.to_f)
         end)
 
-        bundle = ImageBundle.new(asset_store, s3_file)
+        bundle = AudioBundle.new(asset_store, s3_file)
         job = bundle.to_tootsie_job
+
         job[:notification_url] = params[:notification_url] if params[:notification_url] 
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
-        progress.completed :image => bundle.metadata
-
-      rescue ImageBundle::FormatError => e
-        progress.failed('format-not-supported')
+        progress.completed :audio_file => bundle.metadata
+  
       rescue => e
         progress.failed e.message
         Log.error e
@@ -47,9 +43,18 @@ class TiramisuV1 < Sinatra::Base
     end
   end
 
-  private
-  def image_info(file)
-    extension, width, height = `identify -format '%m %w %h' #{file.path} 2> /dev/null`.split(/\s+/)
-    [extension, (width && height && width.to_f / height.to_f) || 0]
+  get '/audio_files/:uid/status' do |uid|
+    uid = Pebblebed::Uid.new(uid)
+    s3_file = S3AudioFile.new(uid)
+    bundle = AudioBundle.new(asset_store, s3_file)
+
+    data = bundle.metadata
+
+    client = HTTPClient.new
+    data[:versions].each do |version|
+      version[:ready] = (200...300).include? client.head(version[:url]).status_code
+    end
+    content_type :json
+    data.to_json
   end
 end

@@ -11,7 +11,7 @@ class ExamplesV1 < Sinatra::Base
   end
 
   get "/" do
-    %w(image file).map do |example|
+    %w(image file audio).map do |example|
       "<li><a href=\"v1/#{example}\">#{example}</li>"
     end
   end
