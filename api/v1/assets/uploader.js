@@ -239,6 +239,8 @@
         });
         upload.then(function() {
           if (deferred.state() === 'pending') {
+            // Connection is closed, but deferred has not been resolved
+            // Assume something went wrong and reject
             deferred.reject({status:'failed', message: ''});
           } 
         });

@@ -7,7 +7,7 @@
    * @param post_url
    */
   var AudioUploader = function(form, file_field, post_url) {
-    var fileUploader = new $.fn.FileUploader(form),
+    var uploader = $.fn.TiramisuUploader(form),
         stages = { // Progress normalization. Since each step reports progress from 0 - 100, the overall progress  
           uploading: function(percent) { return percent/100*60; },
           received: function() { return 60; },
@@ -25,9 +25,11 @@
                 deferred.notify({status: 'transcoding', percent: 100/20*retries});
                 $.get("/api/tiramisu/v1/audio_files/"+uid+"/status").then(function(file) {
                   $.each(file.versions, function(i, version) {
-                    if (version.ready) deferred.resolve(file);
+                    if (version.ready) {
+                      deferred.resolve(file);
+                    }
                   });
-                  if (deferred.state() == 'pending') {
+                  if (deferred.state() === 'pending') {
                     retries++;
                     timer = setTimeout(check, 1000);  
                   }
@@ -37,7 +39,7 @@
           // after 20 seconds of unsuccessful polling, reject it
           setTimeout(function() {
              clearTimeout(timer);
-             deferred.reject("timeout");
+             deferred.reject({percent: 100, status:"timeout"});
            }, 20*1000);
           return deferred.promise();
         };
@@ -45,33 +47,27 @@
     // Will read contents of file_field and upload it while notifying the returned 
     // promise with progress events along the way
     this.doUpload = function() {
-      var uploader, deferred = $.Deferred(), poller;
+      var upload,
+          transcode,
+          deferred = $.Deferred();
 
-      uploader = $.fn.TiramisuUploader(fileUploader, file_field[0], post_url);
-      uploader.progress(function(progress) {
+      upload = uploader.upload(file_field[0], post_url);
+      upload.progress(function(progress) {
           progress.percent = stages[progress.status](progress.percent); // normalize progress
-          deferred.notify(progress); // simply forward it
-          
-          if (progress.audio_file) {
-            poller = pollForTranscoded(progress.audio_file.uid);
-            poller.progress(function(progress) {
-              progress.percent = stages[progress.status](progress.percent); // normalize progress              
-              deferred.notify(progress);
-            });
-            poller.then(function(data) {
-              deferred.resolve(data); // If progress comes with an image, that means processing is completed              
-            });
-            poller.fail(function(arg) {
-              deferred.reject(arg);
-            });
-          }
+          deferred.notify(progress);
         })
-        .then(function() {
-          if (!poller) {
-            // Uploader is complete but poller is not started.
-            // Assume something went wrong and reject
-            deferred.reject({percent: 100, status:"failed"});
-          }
+        .then(function(metadata) {
+          transcode = pollForTranscoded(metadata.uid);
+          transcode.then(function(metadata) {
+            deferred.resolve(metadata);
+          });
+          transcode.progress(function(progress) {
+            progress.percent = stages[progress.status](progress.percent);
+            deferred.notify(progress);
+          });
+          transcode.fail(function() {
+            deferred.reject.apply(deferred, arguments);
+          });
         })
         .fail(function(error) {
           deferred.reject(error); // forward errors
@@ -119,20 +115,22 @@
       progressBar.html("");
       uploading = uploader.doUpload();
       uploading.progress(function(progress) {
-        if (progress.audio_file) {
-          progressBar.prepend($("<code></code>").append(JSON.stringify(progress.audio_file)));
-          progressBar.prepend('<a href="'+progress.audio_file.original+'" target="_blank">Download original</a>');
-          $.each(progress.audio_file.versions, function(i, version) {
+        var metadata = progress.metadata;
+        if (metadata) {
+          progressBar.prepend($("<code></code>").append(JSON.stringify(metadata)));
+          progressBar.prepend('<a href="'+metadata.original+'" target="_blank">Download original</a>');
+          $.each(metadata.versions, function(i, version) {
             progressBar.prepend('<a href="'+version.url+'" target="_blank">Download '+version.format+' (may not be ready yet)</a>');          
           });
         }
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);
       });
-      uploading.then(function(file) {
-        $.each(file.versions, function(i, version) {
-          if (version.ready)
-            progressBar.prepend('Ready: <a href="'+version.url+'" target="_blank">Download '+version.format+'</a>');          
+      uploading.then(function(metadata) {
+        $.each(metadata.versions, function(i, version) {
+          if (version.ready) {
+            progressBar.prepend('Ready: <a href="'+version.url+'" target="_blank">Download '+version.format+'</a>');
+          }          
         });
       });
       uploading.fail(function(error) {

@@ -1,3 +1,4 @@
+
 (function(global) {
   /**
    * A file uploader widget. This is the glue between the form and the file uploader
@@ -5,9 +6,9 @@
    * @param file_field
    * @param post_url
    */
-  var ImageUploader = function(form, file_field, post_url) {
-    var fileUploader = new $.fn.FileUploader(form),
-        stages = { // Progress normalization
+  var ImageUplaoder = function(form, file_field, post_url) {
+    var uploader = $.fn.TiramisuUploader(form),
+        stages = { // Progress normalization. Since each step reports progress from 0 - 100, the overall progress  
           uploading: function(percent) { return percent/100*60; },
           received: function() { return 60; },
           transferring: function(percent) { return 60+(percent/100*30); },
@@ -45,33 +46,27 @@
     // Will read contents of file_field and upload it while notifying the returned 
     // promise with progress events along the way
     this.doUpload = function() {
-      var uploader, deferred = $.Deferred(), poller;
+      var upload,
+          transcode,
+          deferred = $.Deferred();
 
-      uploader = $.fn.TiramisuUploader(fileUploader, file_field[0], post_url);
-      uploader.progress(function(progress) {
+      upload = uploader.upload(file_field[0], post_url);
+      upload.progress(function(progress) {
           progress.percent = stages[progress.status](progress.percent); // normalize progress
-          deferred.notify(progress); // simply forward it
-          
-          if (progress.image) {
-            poller = pollForImage(progress.image.sizes[0].url);
-            poller.progress(function(progress) {
-              progress.percent = stages[progress.status](progress.percent); // normalize progress              
-              deferred.notify(progress);
-            });
-            poller.then(function() {
-              deferred.resolve(progress.image); // If progress comes with an image, that means processing is completed              
-            });
-            poller.fail(function(error) {
-              deferred.reject(error);
-            });
-          }
+          deferred.notify(progress);
         })
-        .then(function() {
-          if (!poller) {
-            // Uploader is complete but poller is not started.
-            // Assume something went wrong and reject
-            deferred.reject({percent: 100, status:"failed"});
-          }
+        .then(function(metadata) {
+          transcode = pollForImage(metadata.versions[0].url);
+          transcode.then(function(url) {
+            deferred.resolve(metadata);
+          });
+          transcode.progress(function(progress) {
+            progress.percent = stages[progress.status](progress.percent);
+            deferred.notify(progress);
+          });
+          transcode.fail(function() {
+            deferred.reject.apply(deferred, arguments);
+          });
         })
         .fail(function(error) {
           deferred.reject(error); // forward errors
@@ -111,7 +106,7 @@
         endpoint = '/api/tiramisu/v1/images',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
-        uploader = new ImageUploader(form, file_field, endpoint+"/"+uid),
+        uploader = new ImageUplaoder(form, file_field, endpoint+"/"+uid),
         uploading;
  
     $('#upload_btn').bind('click', function() {
@@ -119,12 +114,13 @@
       progressBar.html("");
       uploading = uploader.doUpload();
       uploading.progress(function(progress) {
+        var metadata = progress.metadata;
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);
       });
-      uploading.then(function(image) {
-        progressBar.prepend('<img src="'+image.sizes[0].url+'">');
-        progressBar.prepend($("<code></code>").append(JSON.stringify(image)));
+      uploading.then(function(metadata) {
+        progressBar.prepend('<img src="'+metadata.versions[0].url+'">');
+        progressBar.prepend($("<code></code>").append(JSON.stringify(metadata)));
       });
       uploading.fail(function(error) {
         progressBar.setError(error.message || 'unknown error');
