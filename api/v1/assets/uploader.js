@@ -30,7 +30,9 @@
       shiftAttrs = function(elem, attrs) {
         var old = {};
         $.each(attrs, function(attr, new_value) {
-          if (attr == 'enctype' && !new_value) new_value = 'application/x-www-form-urlencoded';
+          if (attr === 'enctype' && !new_value) {
+            new_value = 'application/x-www-form-urlencoded';
+          }
           old[attr] = elem.attr(attr);
           // jquery bug #
           elem.attr(attr, new_value || '');
@@ -38,8 +40,8 @@
         return old;
       },
       ltrim = function (str, chr) {
-        var i = -1, chr = chr || ' ';
-        while (str.charAt(++i) == chr) ;
+        var i = -1, char = chr || ' ';
+        while (str.charAt(++i) === char);
         return str.substring(i, str.length);
       },
       getFrameBody = function (iframe) {
@@ -84,7 +86,7 @@
               json = JSON.parse(chunk);
             }
             catch (e) { // if its not json, assume the server raised an unexpected error
-              json = {"percent": 100, "status":"failed", "message": chunk}
+              json = { "percent": 100, "status":"failed", "message": chunk };
             }
             if (json.status === 'failed') {
               deferred.reject(json);
@@ -124,7 +126,7 @@
         return deferred;
       };
       return self;
-    }
+    };
 	}());
 
   /**
@@ -176,17 +178,17 @@
         // ----------
         // Read streamed response from the tiramisu upload action and treat as progress events
         xhr.onreadystatechange = function () {
-          if (xhr.readyState == 3) {
+          if (xhr.readyState === 3) {
             poll.data(function () {
               var chunks = xhr.responseText.split("\n");
               return chunks.slice(0,chunks.length-1);
             })
             .every(200, 'ms').start();
             xhr.onreadystatechange = function() {
-              if (xhr.readyState == 4) {
+              if (xhr.readyState === 4) {
                 poll.step().stop();
               }
-            }
+            };
           }
         };
         poll.progress(function(chunks){
@@ -196,7 +198,7 @@
               json = JSON.parse(chunk);
             }
             catch (e) { // if its not json, assume the server raised an unexpected error
-              json = {"percent": 100, "status":"failed", "message": chunk}
+              json = { "percent": 100, "status":"failed", "message": chunk };
             }
             if (json.status === 'failed') {
               deferred.reject(json);
@@ -212,16 +214,37 @@
         return deferred;
       };
       return self;
-    }
+    };
   }());
 
-  var TiramisuUploader = function(/* $.fn.FileUploader*/ uploader, file_field, url) {
-    return uploader.upload(file_field, url);
+  // Feature detect whether the browser supports the File API
+  var FileUploader = window.FormData === undefined ? IframeUploader : XhrUploader;
+
+  $.fn.TiramisuUploader = function(form) {
+    var fileUploader = new FileUploader(form);
+    return {
+      upload: function(file_field, url) {
+        var deferred = $.Deferred(),
+            upload = fileUploader.upload.apply(fileUploader, arguments);
+        
+        upload.fail(function() { deferred.reject.apply(deferred, arguments); });
+        upload.progress(function(progress) {
+          deferred.notify.apply(deferred, arguments);
+          if (progress.status === 'completed') {
+            deferred.resolve(progress.metadata);
+          }
+          if (progress.status === 'failed') {
+            deferred.reject(progress);
+          }
+        });
+        upload.then(function() {
+          if (deferred.state() === 'pending') {
+            deferred.reject({status:'failed', message: ''});
+          } 
+        });
+        return deferred.promise();
+      }
+    };
   };
-
-  // feature detection for File API
-  // TODO Fix: jQuery plugins should *never* export more than one function
-  $.fn.FileUploader = window.FormData === undefined ? IframeUploader : XhrUploader;
-  $.fn.TiramisuUploader = TiramisuUploader;
-
+  
 })(jQuery);
