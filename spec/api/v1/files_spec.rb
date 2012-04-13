@@ -32,7 +32,7 @@ describe 'API v1' do
       chunks.last['status'].should eq('completed')
       chunks.last['percent'].should eq(100)
 
-      file = chunks.last['file']
+      file = chunks.last['metadata']
       file.should_not be_nil
 
       klass, path, oid = Pebblebed::Uid.parse(file['uid'])
