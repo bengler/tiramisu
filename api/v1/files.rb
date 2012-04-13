@@ -24,7 +24,7 @@ class TiramisuV1 < Sinatra::Base
           progress.transferring(file.pos.to_f/file.size)
         end)
 
-        progress.completed :file => {
+        progress.completed :metadata => {
           :uid => s3_file.uid,
           :baseurl => asset_store.url_for(s3_file.dirname),
           :original => asset_store.url_for(s3_file.path)

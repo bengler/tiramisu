@@ -36,7 +36,7 @@ class TiramisuV1 < Sinatra::Base
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
-        progress.completed :image => bundle.metadata
+        progress.completed :metadata => bundle.metadata
 
       rescue ImageBundle::FormatError => e
         progress.failed('format-not-supported')
