@@ -34,7 +34,7 @@ describe 'API v1' do
       chunks.last['status'].should eq('completed')
       chunks.last['percent'].should eq(100)
 
-      audio_file = chunks.last['audio_file']
+      audio_file = chunks.last['metadata']
       audio_file.should_not be_nil
 
       klass, path, oid = Pebblebed::Uid.parse(audio_file['uid']) 
@@ -48,7 +48,7 @@ describe 'API v1' do
 
       audio_file['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
 
-      audio_file['versions'].map{|v| v['format']}.should eq ['mp3', 'flv']
+      audio_file['versions'].map{|v| v['format']}.should eq AudioBundle::OUTPUT_FORMATS.map {|f| f[:format]}
       
       audio_file['original'].should match(/#{audio_file['baseurl']}\/#{title.join("-")}.#{extension}/)
 

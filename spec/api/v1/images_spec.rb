@@ -35,7 +35,7 @@ describe 'API v1' do
       chunks.last['status'].should eq('completed')
       chunks.last['percent'].should eq(100)
 
-      image = chunks.last['image']
+      image = chunks.last['metadata']
       image.should_not be_nil
 
       klass, path, oid = Pebblebed::Uid.parse(image['uid'])

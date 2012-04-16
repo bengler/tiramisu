@@ -34,7 +34,7 @@ class TiramisuV1 < Sinatra::Base
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
-        progress.completed :audio_file => bundle.metadata
+        progress.completed :metadata => bundle.metadata
   
       rescue => e
         progress.failed e.message

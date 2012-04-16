@@ -24,7 +24,7 @@ describe ImageBundle do
 
       asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
       asset_store.should_receive(:protocol).any_number_of_times.and_return "http://"
-
+  
       metadata = bundle.metadata
 
       metadata[:uid].should eq "image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"

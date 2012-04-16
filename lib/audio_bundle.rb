@@ -6,16 +6,10 @@ class AudioBundle
   OUTPUT_FORMATS = [
     {
       :audio_sample_rate => 44100,
-      :audio_bitrate => 64000,
+      :audio_bitrate => 128000,
       :audio_codec => 'libmp3lame',
       :format => 'mp3',
       :content_type => 'audio/mpeg',
-    },
-    {
-      :audio_sample_rate => 44100,
-      :audio_bitrate => 64000,
-      :format => "flv",
-      :content_type => "video/x-flv"
     }
   ]
 
