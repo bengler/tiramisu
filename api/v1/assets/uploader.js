@@ -1,4 +1,4 @@
-(function ($, Repeat) {
+(function ($) {
   /**
    * TODO: BN cleanup & refactor!
    *
@@ -40,8 +40,9 @@
         return old;
       },
       ltrim = function (str, chr) {
-        var i = -1, char = chr || ' ';
-        while (str.charAt(++i) === char);
+        var i = -1;
+        if (!chr) chr = ' ';
+        while (str.charAt(++i) === chr);
         return str.substring(i, str.length);
       },
       getFrameBody = function (iframe) {
