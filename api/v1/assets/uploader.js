@@ -1,15 +1,14 @@
 (function ($) {
   /**
-   * TODO: BN cleanup & refactor!
    *
    * Fallback iframe uploader legacy browsers (like IE 9) not supporting the HTML5 File API (http://www.w3.org/TR/FileAPI/)
-   * It mimics the progress notification
+   * It mimics the progress notification during upload
    *
    * Tested in:
-   *  [ ] IE 6
-   *  [ ] IE 7
-   *  [ ] IE 8
-   *  [ ] IE 9
+   *  [ ] IE 6 (who cares?)
+   *  [x] IE 7
+   *  [x] IE 8
+   *  [x] IE 9
    *
    *  It **should** also work in other browsers not supporting the file api
    *
