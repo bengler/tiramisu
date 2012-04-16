@@ -198,7 +198,7 @@
               json = JSON.parse(chunk);
             }
             catch (e) { // if its not json, assume the server raised an unexpected error
-              json = { "percent": 100, "status":"failed", "message": chunk };
+              json = { percent: 100, status:"failed", message: chunk };
             }
             if (json.status === 'failed') {
               deferred.reject(json);
@@ -241,7 +241,7 @@
           if (deferred.state() === 'pending') {
             // Connection is closed, but deferred has not been resolved
             // Assume something went wrong and reject
-            deferred.reject({status:'failed', message: ''});
+            deferred.reject({status:'failed', message: 'Unknown error'});
           } 
         });
         return deferred.promise();
