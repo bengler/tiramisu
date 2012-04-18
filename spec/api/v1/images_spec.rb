@@ -43,13 +43,13 @@ describe 'API v1' do
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
 
-      timestamp, rand, extension, *title, aspect_ratio = oid.split("-")
+      timestamp, aspect_ratio, rand= oid.split("-")
       aspect_ratio.to_i.should eq(image_from_fixture[:aspect_ratio]*1000)
 
-      image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
+      image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
       image['versions'].map { |s| s['width'] }.should eq([100, 100, 300, 500, 700, 1000, 5000])
 
-      image['original'].should match(/#{image['baseurl']}\/#{title.join("-")}.#{extension}/)
+      image['original'].should match(/#{image['baseurl']}\/original.jpg/)
       image['aspect_ratio'].to_f.should be_within(0.01).of(1.49)
     end
 

@@ -8,14 +8,14 @@ describe TootsieHelper do
       {
         :type => "image",
         :params => {
-          input_url: "http://development.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg",
+          input_url: "http://development.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg",
           versions: [
             {
               format: "jpeg",
               width: 100,
               strip_metatadata: true,
               medium: "web",
-              target_url: "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg?acl=public_read"
+              target_url: "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/100.jpg?acl=public_read"
             },
             {
               scale: "fit",
@@ -25,7 +25,7 @@ describe TootsieHelper do
               width: 100,
               strip_metatadata: true,
               medium: "web",
-              target_url: "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg?acl=public_read"
+              target_url: "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/100sq.jpg?acl=public_read"
             },
           ]
         }

@@ -3,11 +3,6 @@
 
 class ImageBundle
 
-  class FormatError < Exception;
-  end
-
-  SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
-
   OUTPUT_FORMAT = 'jpg'
   
   IMAGE_SIZES = [
@@ -23,7 +18,6 @@ class ImageBundle
   attr_reader :asset_store, :s3_image_file
 
   def initialize(asset_store, s3_image_file)
-    raise FormatError, "Format #{s3_image_file.extension} not supported" unless SUPPORTED_FORMATS.include?(s3_image_file.extension)
     @asset_store = asset_store
     @s3_image_file = s3_image_file
   end

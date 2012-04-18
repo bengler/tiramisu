@@ -3,6 +3,11 @@ require 'timeout'
 
 class TiramisuV1 < Sinatra::Base
 
+  SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
+
+  class UnsupportedFormatError < Exception;
+  end
+
   post '/images/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
@@ -18,8 +23,12 @@ class TiramisuV1 < Sinatra::Base
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]
 
-        extension, aspect_ratio = image_info(uploaded_file)
-        # todo: check that file is submitted with a valid extension?
+        format, aspect_ratio = image_info(uploaded_file)
+
+        # todo: check that file is submitted with a valid format?
+        if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
+          raise UnsupportedFormatError, "Format #{format} not supported"
+        end
 
         base_uid = Pebblebed::Uid.new(uid)
         s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
@@ -32,14 +41,16 @@ class TiramisuV1 < Sinatra::Base
 
         bundle = ImageBundle.new(asset_store, s3_file)
         job = bundle.to_tootsie_job
-        job[:notification_url] = params[:notification_url] if params[:notification_url] 
+        job[:notification_url] = params[:notification_url] if params[:notification_url]
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
         progress.completed :metadata => bundle.metadata
 
-      rescue ImageBundle::FormatError => e
+      rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
+        Log.error e
+
       rescue => e
         progress.failed e.message
         Log.error e

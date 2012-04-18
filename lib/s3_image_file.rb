@@ -6,55 +6,65 @@
 # 
 # I.e. the following Uid:
 #
-#                  Timestamp v------------v      v-v--- Extension       v--v--- Aspect ratio (1.498)
-#   image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498
-#                          Random string ---^--^     ^--- Filename ---^      
+#                  Timestamp v------------v v--v--- Aspect ratio (1.498)
+#   image:area51.secret.unit$20120306122011-1498-9et0
+#                               Random string ---^--^           
 #
 # Translates into the following s3 file path:
-# /area51/secret/unit/20120306122011-9et0-jpg-super-secret-photo-1489/super-secret-photo.jpg
+# area51/secret/unit/20120306122011-1489-9et0/original.jpg
 #
 # Examples:
-#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498'))
+#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
 #   > file.path
-#   => "area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+#   => "area51/secret/unit/20120306122011-1498-9et0/original.jpg"
 #   > file.dirname
-#   => "area51/secret/unit/20120306122011-9et0-1498"
+#   => "area51/secret/unit/20120306122011-1498-9et0"
 #
 # It will also help figuring out the path of different sizes of the image, i.e.
 #
-#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498'))
+#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
 #   > file.path_for_size(100)
-#   => "area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg"
+#   => "area51/secret/unit/20120306122011-1498-9et0/100.jpg"
 #
 #   > file.path_for_size(100, :square => true)
-#   => "area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg"
+#   => "area51/secret/unit/20120306122011-1498-9et0/100sq.jpg"
 
 require "lib/s3_file"
 
 class S3ImageFile < S3File
 
   def self.create_oid(options)
-    oid = super(options)
-    "#{oid}-#{(options[:aspect_ratio] * 1000).round}"
+    timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S') 
+    rnd = SecureRandom.random_number(36**4).to_s(36)
+    "#{timestamp}-#{(options[:aspect_ratio] * 1000).round}-#{rnd}"
   end
 
   def dirname
-    (uid.path.split(".") << "#{timestamp}-#{random}-#{aspect_ratio}").join("/")
+    (uid.path.split(".") << "#{timestamp}-#{aspect_ratio}-#{random}").join("/")
   end
 
+  # Full path of file (including filename)
+  def path
+    "%s/%s" % [dirname, filename]
+  end
+
+  def basename
+    'original'
+  end
+  
   def aspect_ratio
     parse.last
   end
 
   def path_for_size(size, options = {})
-    parts = [basename, size]
+    parts = [size]
     parts << "sq" if options[:square]
-    ext = options[:format] || extension 
-    "#{dirname}/#{parts.join("_")}.#{ext}"
+    ext = options[:format] || extension
+    "#{dirname}/#{parts.join("")}.#{ext}"
   end
 
   def parse
-    timestamp, rand, extension, *filename, aspect_ratio = uid.oid.split("-")
-    [timestamp, rand, extension, filename.join("-"), aspect_ratio]
+    timestamp, aspect_ratio, rand = uid.oid.split("-")
+    [timestamp, rand, 'jpg', 'original', aspect_ratio]
   end
 end

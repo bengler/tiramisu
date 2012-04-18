@@ -13,7 +13,7 @@ describe ImageBundle do
     store
   }
   let(:image_file) {
-    S3ImageFile.new(Pebblebed::Uid.new("image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"))
+    S3ImageFile.new(Pebblebed::Uid.new("image:area51.secret.unit$20120306122011-1498-9et0"))
   }
   let(:bundle) {
     ImageBundle.new(asset_store, image_file)
@@ -27,19 +27,19 @@ describe ImageBundle do
   
       metadata = bundle.metadata
 
-      metadata[:uid].should eq "image:area51.secret.unit$20120306122011-9et0-jpg-super-secret-photo-1498"
-      metadata[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498"
-      metadata[:original].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+      metadata[:uid].should eq "image:area51.secret.unit$20120306122011-1498-9et0"
+      metadata[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0"
+      metadata[:original].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
       metadata[:aspect_ratio].should eq 1.498
 
       expected_versions = [
-        {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg"},
-        {:width => 100, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg"},
-        {:width => 300, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_300.jpg"},
-        {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_500_sq.jpg"},
-        {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_700.jpg"},
-        {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_1000.jpg"},
-        {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_5000.jpg"}
+        {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/100.jpg"},
+        {:width => 100, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/100sq.jpg"},
+        {:width => 300, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/300.jpg"},
+        {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/500sq.jpg"},
+        {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/700.jpg"},
+        {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1000.jpg"},
+        {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/5000.jpg"}
       ]
       metadata[:versions].should eq expected_versions
 
@@ -52,7 +52,7 @@ describe ImageBundle do
 
       tootsie_job = bundle.to_tootsie_job
 
-      tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo.jpg"
+      tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
 
       expected_versions = [
         {
@@ -60,7 +60,7 @@ describe ImageBundle do
           :width => 100,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/100.jpg?acl=public_read"
         },
         {
           :scale => "fit",
@@ -70,14 +70,14 @@ describe ImageBundle do
           :width => 100,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_100_sq.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/100sq.jpg?acl=public_read"
         },
         {
           :format => "jpeg",
           :width => 300,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_300.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/300.jpg?acl=public_read"
         },
         {
           :scale => "fit",
@@ -87,28 +87,28 @@ describe ImageBundle do
           :width => 500,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_500_sq.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/500sq.jpg?acl=public_read"
         },
         {
           :format => "jpeg",
           :width => 700,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_700.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/700.jpg?acl=public_read"
         },
         {
           :format => "jpeg",
           :width => 1000,
           :strip_metatadata => true,
           :medium => "web",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_1000.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/1000.jpg?acl=public_read"
         },
         {
           :format => "jpeg",
           :width => 5000,
           :strip_metatadata => true,
           :medium => "print",
-          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-9et0-1498/super-secret-photo_5000.jpg?acl=public_read"
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/5000.jpg?acl=public_read"
         }
       ]
       tootsie_job[:params][:versions].should eq expected_versions
