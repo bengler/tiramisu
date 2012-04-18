@@ -10,7 +10,7 @@ describe 'API v1' do
 
   describe 'POST /files/:uid' do
 
-    let(:json_chunks) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }
+    let(:chunked_json_response) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }
     let(:file_from_fixture) {
       'spec/fixtures/forester.pdf'
     }
@@ -25,7 +25,7 @@ describe 'API v1' do
         post "/files/file:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(file_from_fixture, "application/pdf")
       end
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
 
       chunks.first['status'].should eq('received')
       chunks[1]['status'].should eq('transferring')
@@ -54,7 +54,7 @@ describe 'API v1' do
       end
 
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
       chunks.last['status'].should eq('failed')
       chunks.last['message'].should eq('Funky error')
       chunks.last['percent'].should eq(100)

@@ -10,7 +10,7 @@ describe 'API v1' do
 
   describe 'POST /images/:uid' do
 
-    let(:json_chunks) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }
+    let(:chunked_json_response) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }
     let(:image_from_fixture) {
       {:file => 'spec/fixtures/ullevaalseter.jpg', :aspect_ratio => 1.499}
     }
@@ -28,7 +28,7 @@ describe 'API v1' do
       end
 
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
 
       chunks.first['status'].should eq('received')
       chunks[1]['status'].should eq('transferring')
@@ -55,18 +55,13 @@ describe 'API v1' do
 
     it "returns failure as last json chunk if uploaded file are of wrong format" do
       
-      AssetStore.any_instance.should_receive(:put).once do |url, intercepted|
-        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
-      end
-
+      AssetStore.any_instance.should_not_receive(:put)
       TootsieHelper.should_not_receive(:submit_job)
       
-      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
-      end
+      post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
 
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
       chunks.last['status'].should eq('failed')
       chunks.last['message'].should eq('format-not-supported')
       chunks.last['percent'].should eq(100)
@@ -74,14 +69,13 @@ describe 'API v1' do
 
     it "returns failure as last json chunk and includes the error message if something unexpected happens" do
       AssetStore.any_instance.should_receive(:put).once.and_raise("Unexpected error") # just to make something fail
-      
+
       TootsieHelper.should_not_receive(:submit_job)
 
-      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
-      end
+      post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
+
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
       chunks.last['status'].should eq('failed')
       chunks.last['message'].should eq('Unexpected error')
       chunks.last['percent'].should eq(100)

@@ -25,9 +25,8 @@ class TiramisuV1 < Sinatra::Base
 
         format, aspect_ratio = image_info(uploaded_file)
 
-        # todo: check that file is submitted with a valid format?
         if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
-          raise UnsupportedFormatError, "Format #{format} not supported"
+          raise UnsupportedFormatError, "Format '#{format}' not supported"
         end
 
         base_uid = Pebblebed::Uid.new(uid)
@@ -49,11 +48,11 @@ class TiramisuV1 < Sinatra::Base
 
       rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
-        Log.error e
+        #Log.error e
 
       rescue => e
         progress.failed e.message
-        Log.error e
+      #  Log.error e
       end
     end
   end

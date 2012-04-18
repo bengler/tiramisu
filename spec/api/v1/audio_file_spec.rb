@@ -10,7 +10,7 @@ describe 'API v1' do
 
   describe 'POST /audio_files/:id' do
 
-    let(:json_chunks) { last_response.body.split("\n").map {|chunk| JSON.parse(chunk)} }
+    let(:chunked_json_response) { last_response.body.split("\n").map {|chunk| JSON.parse(chunk)} }
     let(:audio_file) {
       'spec/fixtures/yah-rly.mp3' 
     }
@@ -28,7 +28,7 @@ describe 'API v1' do
       end
 
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
       chunks.first['status'].should eq('received')
       chunks[1]['status'].should eq('transferring')
       chunks.last['status'].should eq('completed')
@@ -65,7 +65,7 @@ describe 'API v1' do
       end
   
       last_response.status.should eq(200)
-      chunks = json_chunks
+      chunks = chunked_json_response
       chunks.last['status'].should eq('failed')
       chunks.last['message'].should eq('Funky error')
       chunks.last['percent'].should eq(100)
