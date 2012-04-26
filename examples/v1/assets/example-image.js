@@ -50,7 +50,6 @@
           transcode,
           deferred = $.Deferred();
 
-      console.log(fileField)
       upload = uploader.upload(fileField[0], postUrl);
       upload.progress(function(progress) {
           progress.percent = stages[progress.status](progress.percent); // normalize progress
