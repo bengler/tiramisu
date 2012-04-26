@@ -25,8 +25,10 @@
    * Initialize it
    */
   $(function () {
-    var form = $("form#upload"),
-        file_field = $("#file"),
+    var form = $("form#upload_file"),
+        fileField = form.find('input[type=file]'),
+        uploadButton = form.find('button.upload'),
+        resultElement = form.find('.result'),
 
         uid = 'file:tiramisu.test.file',
         endpoint = '/api/tiramisu/v1/files',
@@ -35,10 +37,10 @@
         uploader = $.fn.TiramisuUploader(form),
         uploading;
  
-    $('#upload_btn').bind('click', function() {
-      $("#result").html("");
+    uploadButton.bind('click', function() {
+      resultElement.html("");
       progressBar.html("");
-      uploading = uploader.upload(file_field, endpoint+"/"+uid);
+      uploading = uploader.upload(fileField[0], endpoint+"/"+uid);
       uploading.progress(function(progress) {
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);

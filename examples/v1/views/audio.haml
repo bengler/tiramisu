@@ -1,14 +1,14 @@
 %script{ :src => javascript_path("example-audio"), :type => 'text/javascript'}
 
-%form#upload(name="upload_form" action="" method="post")
+%form#upload_audio(action="" method="post")
   %fieldset
 
     %legend Audio file
 
     %label(for="file") File to upload
-    %input#file(name="file" type='file' placeholder="Choose file")
+    %input(name="file" type='file' placeholder="Choose file")
 
-    %input#upload_btn(type="button" value="Upload now")
+    %button.upload(type="button") Upload now
 
     #progressbar.progressbar
       %div(style="width: 500px")

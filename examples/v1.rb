@@ -11,19 +11,11 @@ class ExamplesV1 < Sinatra::Base
   end
 
   get "/" do
-    %w(image file audio).map do |example|
+    %w(image file audio multi).map do |example|
       "<li><a href=\"v1/#{example}\">#{example}</li>"
     end
   end
-  
-  get "/image" do
-    haml :image
-  end
-  
-  get "/file" do
-    haml :file
-  end
-  get "/audio" do
-    haml :audio
+  get "/:what" do |what|
+    haml :"#{what}"
   end
 end

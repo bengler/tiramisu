@@ -100,18 +100,20 @@
    * Initialize it
    */
   $(function () {
-    var form = $("form#upload"),
-        file_field = $("#file"),
+    var form = $("form#upload_audio"),
+        fileField = form.find('input[type=file]'),
+        uploadButton = form.find('button.upload'),
+        resultElement = form.find('.result'),
 
         uid = 'audio:tiramisu.test.audio_files',
         endpoint = '/api/tiramisu/v1/audio_files',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
-        uploader = new AudioUploader(form, file_field, endpoint+"/"+uid),
+        uploader = new AudioUploader(form, fileField, endpoint+"/"+uid),
         uploading;
  
-    $('#upload_btn').bind('click', function() {
-      $("#result").html("");
+    uploadButton.bind('click', function() {
+      resultElement.html("");
       progressBar.html("");
       uploading = uploader.doUpload();
       uploading.progress(function(progress) {

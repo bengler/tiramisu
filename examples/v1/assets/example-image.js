@@ -3,10 +3,10 @@
   /**
    * A file uploader widget. This is the glue between the form and the file uploader
    * @param form
-   * @param file_field
-   * @param post_url
+   * @param fileField
+   * @param postUrl
    */
-  var ImageUplaoder = function(form, file_field, post_url) {
+  var ImageUploader = function(form, fileField, postUrl) {
     var uploader = $.fn.TiramisuUploader(form),
         stages = { // Progress normalization. Since each step reports progress from 0 - 100, the overall progress  
           uploading: function(percent) { return percent/100*60; },
@@ -50,7 +50,8 @@
           transcode,
           deferred = $.Deferred();
 
-      upload = uploader.upload(file_field[0], post_url);
+      console.log(fileField)
+      upload = uploader.upload(fileField[0], postUrl);
       upload.progress(function(progress) {
           progress.percent = stages[progress.status](progress.percent); // normalize progress
           deferred.notify(progress);
@@ -99,22 +100,23 @@
    * Initialize it
    */
   $(function () {
-    var form = $("form#upload"),
-        file_field = $("#file"),
+    var form = $("form#upload_image"),
+        fileField = form.find('input[type=file]'),
+        uploadButton = form.find('button.upload'),
+        resultElement = form.find('.result'),
 
         uid = 'image:tiramisu.test.image',
         endpoint = '/api/tiramisu/v1/images',
 
         progressBar = ProgressBar(form.find('.progressbar .text'), form.find('.progressbar .indicator')),
-        uploader = new ImageUplaoder(form, file_field, endpoint+"/"+uid),
+        uploader = new ImageUploader(form, fileField, endpoint+"/"+uid),
         uploading;
- 
-    $('#upload_btn').bind('click', function() {
-      $("#result").html("");
-      progressBar.html("");
+
+    
+    uploadButton.bind('click', function() {
+      resultElement.html("");
       uploading = uploader.doUpload();
       uploading.progress(function(progress) {
-        var metadata = progress.metadata;
         progressBar.setProgress(progress.percent);
         progressBar.prepend(progress.percent+"% "+progress.status);
       });
