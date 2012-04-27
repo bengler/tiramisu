@@ -58,8 +58,8 @@
 
       self.upload = function(file_field, url) {
         var deferred = $.Deferred(),
-            real_upload = self.upload,
-            overridden_attrs = shiftAttrs(form, {
+            actualUpload = self.upload, // keep a reference to "this" function since we're overwriting/throttling it below
+            overriddenAttrs = shiftAttrs(form, {
               target: iframe_name,
               action: url,
               enctype: 'multipart/form-data'
@@ -86,7 +86,7 @@
               json = JSON.parse(chunk);
             }
             catch (e) { // if its not json, assume the server raised an unexpected error
-              json = { "percent": 100, "status":"failed", "message": chunk };
+              json = { percent: 100, status: "failed", message: chunk };
             }
             if (json.status === 'failed') {
               deferred.reject(json);
@@ -116,8 +116,8 @@
 
         deferred.always(function() {
           form.unbind('submit', preventSubmit);
-          shiftAttrs(form, overridden_attrs);
-          self.upload = real_upload;
+          shiftAttrs(form, overriddenAttrs);
+          self.upload = actualUpload;
         });
         form.unbind('submit', preventSubmit);
         form[0].submit();
@@ -158,11 +158,11 @@
         xhr.open("POST", url);
 
         xhr.addEventListener("error", function() {
-          deferred.reject();
+          deferred.reject({status: 'failed', message: 'connection-error'});
         }, false);
 
         xhr.addEventListener("abort", function() {
-          deferred.reject();
+          deferred.reject({status: 'failed', message: 'aborted'});
         }, false);
 
         xhr.upload.addEventListener("progress", function (e) {
@@ -170,10 +170,6 @@
           var percent = e.lengthComputable ? Math.ceil((e.loaded / e.total)*100) : -1;
           deferred.notify({percent: percent, status:'uploading'});
         }, false);
-
-        poll.then(function() {
-          deferred[(xhr.status < 200 || xhr.status > 299) ? 'reject' : 'resolve']();
-        });
 
         // ----------
         // Read streamed response from the tiramisu upload action and treat as progress events
@@ -186,12 +182,15 @@
             .every(200, 'ms').start();
             xhr.onreadystatechange = function() {
               if (xhr.readyState === 4) {
-                poll.step().stop();
+                poll.step().stop(); // finish reading last received chunk of data
               }
             };
           }
         };
         poll.progress(function(chunks){
+          if (xhr.status < 200 || xhr.status > 299) {
+            return; // Only handle 2xx response codes here
+          }
           $.each(chunks, function(i, chunk) {
             var json;
             try {
@@ -208,6 +207,16 @@
             }
           });
         });
+
+        poll.then(function() {
+          if (xhr.status < 200 || xhr.status > 299) {
+            deferred.reject({status:'failed', message: xhr.statusText});
+          }
+          else {
+            deferred.resolve();
+          }
+        });
+
         // ----------
 
         xhr.send(fd);
@@ -227,7 +236,9 @@
         var deferred = $.Deferred(),
             upload = fileUploader.upload.apply(fileUploader, arguments);
         
-        upload.fail(function() { deferred.reject.apply(deferred, arguments); });
+        upload.fail(function() { 
+          deferred.reject.apply(deferred, arguments);
+        });
         upload.progress(function(progress) {
           deferred.notify.apply(deferred, arguments);
           if (progress.status === 'completed') {
