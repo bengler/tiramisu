@@ -1,10 +1,4 @@
 GIT
-  remote: git://github.com/benglerpebbles/o5-logging.git
-  revision: db9686026912448e19fa0512e46f66c871a45da7
-  specs:
-    o5-logging (0.0.1)
-
-GIT
   remote: git://github.com/benglerpebbles/pebblebed.git
   revision: e1be0ce7212405504c3fba81b1eaba4478689423
   specs:
@@ -88,8 +82,6 @@ GEM
     pathbuilder (0.0.2)
     petroglyph (0.0.2)
       tilt
-    pingable (0.0.9)
-      rack (>= 1.0.0)
     proxies (0.2.1)
     queryparams (0.0.3)
     rack (1.4.1)
@@ -152,10 +144,8 @@ DEPENDENCIES
   coffee-script
   haml
   httpclient
-  o5-logging!
   pebblebed!
   petroglyph
-  pingable
   rack-contrib!
   rack-test
   rake

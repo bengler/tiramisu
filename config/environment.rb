@@ -1,3 +1,5 @@
+require File.expand_path('config/site.rb') if File.exists?('config/site.rb')
+
 require "bundler"
 Bundler.require
 
