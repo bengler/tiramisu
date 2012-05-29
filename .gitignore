@@ -9,3 +9,4 @@ coverage/
 selftest
 *.sublime-*
 .sass-cache
+config/site.rb
