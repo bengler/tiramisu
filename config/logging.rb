@@ -2,5 +2,7 @@ require "logger"
 
 Log = LOGGER if defined?(LOGGER)
 
-# FIXME you guys probably want something different, but had failing tests
-Log ||= Logger.new(STDOUT) 
+unless defined?(Log)
+  FileUtils.mkdir('log') unless File.exists?('log')
+  Log = Logger.new("log/#{ENV['RACK_ENV']}.log")
+end
