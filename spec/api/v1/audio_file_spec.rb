@@ -11,9 +11,7 @@ describe 'API v1' do
   describe 'POST /audio_files/:id' do
 
     let(:chunked_json_response) { last_response.body.split("\n").map {|chunk| JSON.parse(chunk)} }
-    let(:audio_file) {
-      'spec/fixtures/yah-rly.mp3'
-    }
+    let(:audio_file) { 'spec/fixtures/yah-rly.mp3' }
 
     it "submits an audio file and returns a chunked json response with progress data and finally a hash describing it" do
 
@@ -84,9 +82,9 @@ describe 'API v1' do
 
       get "/audio_files/audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording/status"
 
-      data = JSON.parse(last_response.body, :symbolize_names => true)
+      data = JSON.parse(last_response.body)
 
-      data[:versions].map{|v| v[:ready]}.should_not include(false)
+      data['versions'].map{|v| v['ready']}.should_not include(false)
 
     end
 
@@ -99,9 +97,9 @@ describe 'API v1' do
         .and_return(OpenStruct.new(:status_code => 300))
 
       get "/audio_files/audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording/status"
-      data = JSON.parse(last_response.body, :symbolize_names => true)
+      data = JSON.parse(last_response.body)
 
-      data[:versions].map{|v| v[:ready]}.should_not include(true)
+      data['versions'].map{|v| v['ready']}.should_not include(true)
 
     end
 
