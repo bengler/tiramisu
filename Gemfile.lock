@@ -6,7 +6,7 @@ GIT
 
 GIT
   remote: git@github.com:bengler/capistrano-bengler.git
-  revision: f84abaee44b6d8872a243f1b9bad6f6c6c0d7371
+  revision: 0779088ff74dddf92df0dbd1bd69102df31c1fc6
   specs:
     capistrano-bengler (0.0.17)
       capistrano (>= 2.9)
@@ -48,7 +48,7 @@ GEM
       multi_json (~> 1.0)
     futurevalue (0.0.2)
     haml (3.1.4)
-    highline (1.6.12)
+    highline (1.6.13)
     hike (1.2.1)
     httpclient (2.2.4)
     i18n (0.6.0)
