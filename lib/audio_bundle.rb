@@ -28,6 +28,7 @@ class AudioBundle
       :original => asset_store.url_for(s3_audio_file.path),
     }
     metadata[:versions] = OUTPUT_FORMATS.map do |version|
+      version[:strip_metadata] = true
       version.merge(:url => asset_store.url_for(s3_audio_file.path_for_version(version)))
     end
     metadata
