@@ -22,6 +22,6 @@ group :development, :test do
   gem 'vcr', '~> 2.0.0.rc1'
   gem 'webmock'
   gem 'simplecov'
-  gem 'capistrano', '~> 2.9.0'
-  gem 'capistrano-bengler', :git => "git@github.com:bengler/capistrano-bengler.git"
+  gem 'capistrano', '~> 2.9.0', :require => false
+  gem 'capistrano-bengler', :git => "git@github.com:bengler/capistrano-bengler.git", :require => false
 end
