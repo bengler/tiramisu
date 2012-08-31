@@ -48,11 +48,12 @@ class TiramisuV1 < Sinatra::Base
 
       rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
-        #Log.error e
-
+        LOGGER.warn e.message
+        LOGGER.error e
       rescue => e
         progress.failed e.message
-      #  Log.error e
+        LOGGER.warn e.message
+        LOGGER.error e
       end
     end
   end

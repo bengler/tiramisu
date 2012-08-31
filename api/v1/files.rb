@@ -31,7 +31,8 @@ class TiramisuV1 < Sinatra::Base
         }
       rescue => e
         progress.failed e.message
-        Log.error e
+        LOGGER.warn e.message
+        LOGGER.error e
       end
 
     end
