@@ -1,5 +1,5 @@
 # A class to transparently intercept all calls to another object
-# It works by wrapping a host object and pretending to be that 
+# It works by wrapping a host object and pretending to be that
 # very object. Used here to intercept stream activity and provide
 # progress reports. E.g.:
 

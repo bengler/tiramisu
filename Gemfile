@@ -16,7 +16,6 @@ gem 'coffee-script'
 gem 'haml'
 
 group :development, :test do
-  gem 'bengler_test_helper', :git => "git://github.com/bengler/bengler_test_helper.git", :require => false
   gem 'rspec', '~> 2.8'
   gem 'rack-test'
   gem 'vcr', '~> 2.0.0.rc1'

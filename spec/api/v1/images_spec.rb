@@ -24,7 +24,7 @@ describe 'API v1' do
       TootsieHelper.should_receive(:submit_job).once
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")        
+        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
       end
 
       last_response.status.should eq(200)
@@ -54,10 +54,10 @@ describe 'API v1' do
     end
 
     it "returns failure as last json chunk if uploaded file are of wrong format" do
-      
+
       AssetStore.any_instance.should_not_receive(:put)
       TootsieHelper.should_not_receive(:submit_job)
-      
+
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
 
       last_response.status.should eq(200)

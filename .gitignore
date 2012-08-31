@@ -10,3 +10,4 @@ selftest
 *.sublime-*
 .sass-cache
 config/site.rb
+config/services.yml

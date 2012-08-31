@@ -14,7 +14,7 @@ class TiramisuV1 < Sinatra::Base
 
   register Sinatra::Pebblebed
 
-  set :config, YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]
+  set :config, Tiramisu.config
 
   helpers do
 

@@ -3,7 +3,7 @@ require "spec_helper"
 describe AudioBundle do
 
   let(:s3_config) {
-    YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]['S3']
+    Tiramisu.config['S3']
   }
   let(:asset_store) {
     store = nil

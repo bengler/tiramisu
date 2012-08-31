@@ -3,12 +3,12 @@
 # Thus, the oid is structured like this: `[timestamp]-[random_string]-[filename]-[aspect_ratio]`.
 #
 # Note that the aspect ratio is multiplied by 1000
-# 
+#
 # I.e. the following Uid:
 #
 #                  Timestamp v------------v v--v--- Aspect ratio (1.498)
 #   image:area51.secret.unit$20120306122011-1498-9et0
-#                               Random string ---^--^           
+#                               Random string ---^--^
 #
 # Translates into the following s3 file path:
 # area51/secret/unit/20120306122011-1489-9et0/original.jpg
@@ -34,7 +34,7 @@ require "lib/s3_file"
 class S3ImageFile < S3File
 
   def self.create_oid(options)
-    timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S') 
+    timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S')
     rnd = SecureRandom.random_number(36**4).to_s(36)
     "#{timestamp}-#{(options[:aspect_ratio] * 1000).round}-#{rnd}"
   end
@@ -51,7 +51,7 @@ class S3ImageFile < S3File
   def basename
     'original'
   end
-  
+
   def aspect_ratio
     parse.last
   end

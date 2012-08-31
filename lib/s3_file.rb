@@ -4,7 +4,7 @@
 #
 #                       Timestamp -----v------------v      v-v--- Extension
 #   file:agricult.forestry101.spring12$20120329234410-7yv6-pdf-the-training-of-a-forester-by-gifford-pinchot
-#                                    Random string ---^--^     ^--- Filename ------------------------------^      
+#                                    Random string ---^--^     ^--- Filename ------------------------------^
 #
 # ... the file path on S3 will be:
 #   agricult/forestry101/spring12/20120329234410-7yv6/the-training-of-a-forester-by-gifford-pinchot.pdf
@@ -34,7 +34,7 @@ class S3File
   end
 
   # Generates an unique oid based on a set of options.
-  # 
+  #
   # @param [options] The options hash. Valid options are:
   #   :filename => Name of file (defaults to `original`)
   #   :extension => File extension (defaults to File.extname of options[:filename])
@@ -48,11 +48,11 @@ class S3File
 
     extension = options[:extension] if options[:extension] # override extension if given
 
-    timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S') 
+    timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S')
     filename = basename.parameterize("-")
     random = SecureRandom.random_number(36**4).to_s(36)
     [timestamp, random, extension.sub(/^\./, '').downcase, filename].join("-")
-  end  
+  end
 
   attr_reader :uid
 

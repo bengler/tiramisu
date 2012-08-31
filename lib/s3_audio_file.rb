@@ -16,5 +16,5 @@ class S3AudioFile < S3File
     parts << options[:audio_bitrate] if options[:audio_bitrate]
     extension = options[:format]
     "#{dirname}/#{parts.join("_")}.#{extension || original_extension}"
-  end  
+  end
 end

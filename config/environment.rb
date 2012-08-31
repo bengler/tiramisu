@@ -8,4 +8,8 @@ Dir.glob('./lib/**/*.rb').each { |lib| require lib }
 ENV['RACK_ENV'] ||= "development"
 environment = ENV['RACK_ENV']
 
-require "config/logging"
+unless defined?(LOGGER)
+  require "logger"
+  FileUtils.mkdir('log') unless File.exists?('log')
+  LOGGER = Logger.new("log/#{ENV['RACK_ENV']}.log")
+end

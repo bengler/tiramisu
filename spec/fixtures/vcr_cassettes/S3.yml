@@ -1,0 +1,40 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: http://<TIRAMISU S3 BUCKET>.s3.amazonaws.com/?
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - ! '*/*'
+      User-Agent:
+      - Ruby
+      Date:
+      - Fri, 31 Aug 2012 13:49:23 GMT
+      Authorization:
+      - AWS <TIRAMISU S3 KEY>:IZnSjdTDExcqKg+F6Yu2pcKo6ic=
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - Vbk08MXMP65/rehAQcc21h32ZhcMZGd0qAW7bpS7mTjyKorHzSswUaAF4y3QyGeV
+      X-Amz-Request-Id:
+      - E3462FDC482FF2E4
+      Date:
+      - Fri, 31 Aug 2012 13:49:24 GMT
+      Content-Type:
+      - application/xml
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - AmazonS3
+    body:
+      encoding: US-ASCII
+      string: ''
+    http_version: 
+  recorded_at: Fri, 31 Aug 2012 13:49:23 GMT
+recorded_with: VCR 2.0.1

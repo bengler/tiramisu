@@ -1,10 +1,10 @@
-# Represents a collection of versions of the same image. Typically an original 
+# Represents a collection of versions of the same image. Typically an original
 # upload + scaled and cleaned versions of that image.
 
 class ImageBundle
 
   OUTPUT_FORMAT = 'jpg'
-  
+
   IMAGE_SIZES = [
     {:width => 100},
     {:width => 100, :square => true},

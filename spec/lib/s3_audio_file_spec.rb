@@ -28,11 +28,11 @@ describe 'S3AudioFile' do
 
   describe '#path_for_version' do
     it "generates a path for a version with a given sample rate of the audio file" do
-      file = S3AudioFile.new(uid) 
+      file = S3AudioFile.new(uid)
       file.path_for_version(:audio_sample_rate => 44100).should eql 'path/to/31122012-randomstr-mp3/super-funky-tunes_44100.mp3'
     end
     it "generates a path for a version with a given bitrate of the audio file" do
-      file = S3AudioFile.new(uid) 
+      file = S3AudioFile.new(uid)
       file.path_for_version(:audio_bitrate => 64000).should eql 'path/to/31122012-randomstr-mp3/super-funky-tunes_64000.mp3'
     end
     it "generates a path for a version with a given format, sample rate and bitrate" do

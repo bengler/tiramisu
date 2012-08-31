@@ -1,10 +1,4 @@
 GIT
-  remote: git://github.com/bengler/bengler_test_helper.git
-  revision: 599b0c5cec320a9d7b1f1bca378c9e33bd25f27d
-  specs:
-    bengler_test_helper (0.0.2)
-
-GIT
   remote: https://github.com/rack/rack-contrib.git
   revision: b7e7c38fd02c3b5da91aa57af78b3f571c6ebcd0
   specs:
@@ -107,7 +101,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  bengler_test_helper!
   coffee-script
   haml
   httpclient

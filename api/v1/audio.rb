@@ -30,12 +30,12 @@ class TiramisuV1 < Sinatra::Base
         bundle = AudioBundle.new(asset_store, s3_file)
         job = bundle.to_tootsie_job
 
-        job[:notification_url] = params[:notification_url] if params[:notification_url] 
+        job[:notification_url] = params[:notification_url] if params[:notification_url]
 
         TootsieHelper.submit_job settings.config['tootsie'], job
 
         progress.completed :metadata => bundle.metadata
-  
+
       rescue => e
         progress.failed e.message
         LOGGER.warn e.message

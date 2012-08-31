@@ -3,7 +3,7 @@ require "sinatra/reloader"
 class ExamplesV1 < Sinatra::Base
 
   set :root, File.join(File.dirname(__FILE__), "v1")
-  
+
   register Sinatra::Reloader
 
   helpers do
@@ -11,11 +11,12 @@ class ExamplesV1 < Sinatra::Base
   end
 
   get "/" do
-    %w(image file audio multi).map do |example|
-      "<li><a href=\"v1/#{example}\">#{example}</li>"
+    %w(image file audio multi).map do |asset|
+      "<li><a href=\"/examples/v1/#{asset}\">#{asset}</li>"
     end
   end
-  get "/:what" do |what|
-    haml :"#{what}"
+
+  get "/:asset" do |asset|
+    haml asset.to_sym
   end
 end

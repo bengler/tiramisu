@@ -12,7 +12,7 @@ describe 'API v1' do
 
     let(:chunked_json_response) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }
     let(:file_from_fixture) {
-      'spec/fixtures/forester.pdf'
+      'spec/fixtures/programmer.pdf'
     }
 
     it "submits a file returns a chunked json response with progress data and finally the file object" do
@@ -42,7 +42,7 @@ describe 'API v1' do
 
       file['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/.*/)
 
-      file['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/.*\/forester\.pdf/)
+      file['original'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/.*\/programmer\.pdf/)
 
     end
 

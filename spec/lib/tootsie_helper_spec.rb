@@ -31,7 +31,7 @@ describe TootsieHelper do
         }
       }
     }
-    
+
     it "accepts a raw parameter hash and submits a job to tootsie" do
       HTTPClient
         .any_instance
@@ -69,8 +69,8 @@ describe TootsieHelper do
         .once
         .and_return(OpenStruct.new(:status_code => 404))
 
-      lambda { TootsieHelper.ping("http://tootsie.org") }.should raise_error /404/  
-      
+      lambda { TootsieHelper.ping("http://tootsie.org") }.should raise_error /404/
+
     end
   end
 end
