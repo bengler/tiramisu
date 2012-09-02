@@ -14,7 +14,6 @@ gem 'sprockets', :require => 'sprockets'
 gem 'sprockets-helpers', '~> 0.2'
 gem 'coffee-script'
 gem 'haml'
-gem 'tootsie'
 
 group :development, :test do
   gem 'rspec', '~> 2.8'
