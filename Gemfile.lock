@@ -64,6 +64,7 @@ GEM
     rspec-mocks (2.9.0)
     s3 (0.3.11)
       proxies (~> 0.2.0)
+    sass (3.2.1)
     simplecov (0.6.1)
       multi_json (~> 1.0)
       simplecov-html (~> 0.5.3)
@@ -111,6 +112,7 @@ DEPENDENCIES
   rake
   rspec (~> 2.8)
   s3
+  sass
   simplecov
   sinatra
   sinatra-contrib
