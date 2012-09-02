@@ -1,3 +1,5 @@
+Dir.glob('./lib/**/*.rb').each { |lib| require lib }
+
 module Tiramisu
   def self.config
     if ENV['RACK_ENV'] == 'test'

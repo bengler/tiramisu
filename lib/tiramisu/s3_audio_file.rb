@@ -3,7 +3,7 @@
 # > file.path_for_version(:sample_rate => 44000, :bitrate => 128000, :format=>'flv')
 # => /area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44000_128000.flv
 
-require "lib/s3_file"
+require "tiramisu/s3_file"
 
 class S3AudioFile < S3File
   def dirname

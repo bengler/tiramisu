@@ -1,4 +1,4 @@
-require 'progress'
+require 'tiramisu/progress'
 require 'json'
 
 describe Progress do

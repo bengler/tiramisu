@@ -1,6 +1,6 @@
 require 'cgi'
 require 'timeout'
-require "lib/s3_file"
+require "tiramisu/s3_file"
 
 class TiramisuV1 < Sinatra::Base
 

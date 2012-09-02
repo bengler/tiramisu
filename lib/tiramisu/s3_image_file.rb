@@ -29,7 +29,7 @@
 #   > file.path_for_size(100, :square => true)
 #   => "area51/secret/unit/20120306122011-1498-9et0/100sq.jpg"
 
-require "lib/s3_file"
+require "tiramisu/s3_file"
 
 class S3ImageFile < S3File
 
