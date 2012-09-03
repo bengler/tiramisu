@@ -5,8 +5,8 @@ class TiramisuV1 < Sinatra::Base
 
   SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
 
-  class UnsupportedFormatError < Exception;
-  end
+  class UnsupportedFormatError < Exception; end
+  class MissingUploadedFileError < Exception; end
 
   post '/images/:uid' do |uid|
 
@@ -19,6 +19,10 @@ class TiramisuV1 < Sinatra::Base
 
       # Generate a new image bundle and upload the original image to it
       begin
+
+        # Firefox sends empty string ""
+        # Safari and Opera sends "undefined"
+        raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
 
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]
@@ -48,6 +52,10 @@ class TiramisuV1 < Sinatra::Base
 
       rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
+        LOGGER.warn e.message
+        LOGGER.error e
+      rescue MissingUploadedFileError => e
+        progress.failed('missing-uploaded-file')
         LOGGER.warn e.message
         LOGGER.error e
       rescue => e
