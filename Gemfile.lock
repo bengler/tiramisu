@@ -53,7 +53,7 @@ GEM
       pathbuilder
       queryparams
       yajl-ruby
-    petroglyph (0.0.2)
+    petroglyph (0.0.3)
       tilt
     proxies (0.2.1)
     queryparams (0.0.3)
