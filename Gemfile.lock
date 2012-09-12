@@ -21,7 +21,11 @@ GEM
       i18n (~> 0.6)
       multi_json (~> 1.0)
     addressable (2.2.7)
+    airbrake (3.0.9)
+      activesupport
+      builder
     backports (2.5.1)
+    builder (3.0.0)
     bunny (0.8.0)
     coffee-script (2.2.0)
       coffee-script-source
@@ -114,6 +118,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  airbrake (~> 3.0.9)
   coffee-script
   haml
   httpclient

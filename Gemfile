@@ -16,6 +16,7 @@ gem 'sprockets-helpers', '~> 0.2'
 gem 'coffee-script'
 gem 'haml'
 gem 'sass'
+gem 'airbrake', '~> 3.0.9', :require => false
 
 group :development, :test do
   gem 'rspec', '~> 2.8'
