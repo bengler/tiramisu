@@ -35,7 +35,7 @@ describe 'API v1' do
       audio_file = chunks.last['metadata']
       audio_file.should_not be_nil
 
-      klass, path, oid = Pebblebed::Uid.parse(audio_file['uid'])
+      klass, path, oid = Pebbles::Uid.parse(audio_file['uid'])
       klass.should eq('audio')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil

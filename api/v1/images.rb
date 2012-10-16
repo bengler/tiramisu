@@ -33,7 +33,7 @@ class TiramisuV1 < Sinatra::Base
           raise UnsupportedFormatError, "Format '#{format}' not supported"
         end
 
-        base_uid = Pebblebed::Uid.new(uid)
+        base_uid = Pebbles::Uid.new(uid)
         s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
 
         # Upload file to Amazon S3

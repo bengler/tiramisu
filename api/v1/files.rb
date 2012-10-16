@@ -15,7 +15,7 @@ class TiramisuV1 < Sinatra::Base
       progress.received
 
       begin
-        base_uid = Pebblebed::Uid.new(uid)
+        base_uid = Pebbles::Uid.new(uid)
         s3_file = S3File.create(base_uid, :filename => params[:file][:filename])
 
         # Upload file to S3

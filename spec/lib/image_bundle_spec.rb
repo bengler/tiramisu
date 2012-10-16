@@ -13,7 +13,7 @@ describe ImageBundle do
     store
   }
   let(:image_file) {
-    S3ImageFile.new(Pebblebed::Uid.new("image:area51.secret.unit$20120306122011-1498-9et0"))
+    S3ImageFile.new(Pebbles::Uid.new("image:area51.secret.unit$20120306122011-1498-9et0"))
   }
   let(:bundle) {
     ImageBundle.new(asset_store, image_file)

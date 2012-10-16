@@ -35,7 +35,7 @@ describe 'API v1' do
       file = chunks.last['metadata']
       file.should_not be_nil
 
-      klass, path, oid = Pebblebed::Uid.parse(file['uid'])
+      klass, path, oid = Pebbles::Uid.parse(file['uid'])
       klass.should eq('file')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
@@ -50,7 +50,7 @@ describe 'API v1' do
       AssetStore.any_instance.should_receive(:put).once.and_raise("Funky error") # just to make something fail
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/files/file:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(file_from_fixture, "image/pdf")
+        post "/files/file:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(file_from_fixture, "image/pdf")
       end
 
       last_response.status.should eq(200)

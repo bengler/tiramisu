@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe 'S3ImageFile' do
 
-  let(:base_uid) { Pebblebed::Uid.new('image:path') }
+  let(:base_uid) { Pebbles::Uid.new('image:path') }
   let(:aspect_ratio) { 1337 }
-  let(:uid) { Pebblebed::Uid.new("image:path$31122012-#{aspect_ratio}-randomstr") }
+  let(:uid) { Pebbles::Uid.new("image:path$31122012-#{aspect_ratio}-randomstr") }
 
   describe '#new' do
     it "takes an uid as parameter keeps the reference to it" do

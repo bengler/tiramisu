@@ -5,16 +5,16 @@ describe 'Lifeloop expects' do
     it "takes an uid as parameter keeps the reference to it" do
       SecureRandom.stub :random_number => 8079809703404923
 
-      created = S3ImageFile.create(Pebblebed::Uid.new('image:apdm.lifeloop.oa.birthday'), {:aspect_ratio => 1.333})
+      created = S3ImageFile.create(Pebbles::Uid.new('image:apdm.lifeloop.oa.birthday'), {:aspect_ratio => 1.333})
       created.uid.to_s.should match /image:apdm\.lifeloop\.oa\.birthday\$\d+\-1333\-.+/
     end
   end
 
   describe "S3ImageFile" do
 
-    let(:base_uid) { Pebblebed::Uid.new('image:path') }
+    let(:base_uid) { Pebbles::Uid.new('image:path') }
     let(:aspect_ratio) { 1337 }
-    let(:uid) { Pebblebed::Uid.new("image:path$31122012-#{aspect_ratio}-randomstr") }
+    let(:uid) { Pebbles::Uid.new("image:path$31122012-#{aspect_ratio}-randomstr") }
 
     describe '#new' do
       it "takes an uid as parameter keeps the reference to it" do

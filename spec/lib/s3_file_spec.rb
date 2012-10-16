@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe 'S3File' do
 
-  let(:base_uid) { Pebblebed::Uid.new("file:agricult.forestry101.spring12") }
-  let(:uid) { Pebblebed::Uid.new("file:agricult.forestry101.spring12$20120329234410-7yv6-pdf-the-training-of-a-forester-by-gifford-pinchot") }
+  let(:base_uid) { Pebbles::Uid.new("file:agricult.forestry101.spring12") }
+  let(:uid) { Pebbles::Uid.new("file:agricult.forestry101.spring12$20120329234410-7yv6-pdf-the-training-of-a-forester-by-gifford-pinchot") }
 
   describe '#new' do
     it "takes an uid as parameter keeps the reference to it" do

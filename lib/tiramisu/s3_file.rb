@@ -11,7 +11,7 @@
 #
 #   Examples:
 #
-# > uid = Pebblebed::Uid.new "agricult/forestry101/spring12/20120329234410-7yv6/the-training-of-a-forester-by-gifford-pinchot.pdf"
+# > uid = Pebbles::Uid.new "agricult/forestry101/spring12/20120329234410-7yv6/the-training-of-a-forester-by-gifford-pinchot.pdf"
 # > s3file = S3File.new(uid)
 # > s3file.path
 # => "agricult/forestry101/spring12/20120329234410-7yv6/the-training-of-a-forester-by-gifford-pinchot.pdf"
@@ -28,8 +28,9 @@ class S3File
   class IncompleteUidError < Exception;  end
 
   def self.create(base_uid, options)
-    uid = base_uid.clone
-    uid.oid = create_oid(options)
+    genus, path, _ = Pebbles::Uid.parse(base_uid.to_s)
+    oid = create_oid(options)
+    uid = Pebbles::Uid.new(Pebbles::Uid.build(genus, path, oid))
     new(uid)
   end
 
@@ -56,7 +57,7 @@ class S3File
 
   attr_reader :uid
 
-  # Uid must be instance of Pebblebed::Uid
+  # Uid must be instance of Pebbles::Uid
   def initialize(uid)
     raise IncompleteUidError, "Missing oid in uid" if uid.oid.nil?
     @uid = uid

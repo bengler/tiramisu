@@ -14,7 +14,7 @@
 # area51/secret/unit/20120306122011-1489-9et0/original.jpg
 #
 # Examples:
-#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
+#   > file = S3ImageFile.new(Pebbles::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
 #   > file.path
 #   => "area51/secret/unit/20120306122011-1498-9et0/original.jpg"
 #   > file.dirname
@@ -22,7 +22,7 @@
 #
 # It will also help figuring out the path of different sizes of the image, i.e.
 #
-#   > file = S3ImageFile.new(Pebblebed::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
+#   > file = S3ImageFile.new(Pebbles::Uid.new('image:area51.secret.unit$20120306122011-1498-9et0'))
 #   > file.path_for_size(100)
 #   => "area51/secret/unit/20120306122011-1498-9et0/100.jpg"
 #

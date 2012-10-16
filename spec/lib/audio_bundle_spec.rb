@@ -13,7 +13,7 @@ describe AudioBundle do
     store
   }
   let(:audio_file) {
-    S3AudioFile.new(Pebblebed::Uid.new("audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording"))
+    S3AudioFile.new(Pebbles::Uid.new("audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording"))
   }
   let(:bundle) {
     AudioBundle.new(asset_store, audio_file)

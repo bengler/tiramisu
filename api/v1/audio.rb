@@ -18,7 +18,7 @@ class TiramisuV1 < Sinatra::Base
 
         uploaded_file = params[:file][:tempfile]
 
-        base_uid = Pebblebed::Uid.new(uid)
+        base_uid = Pebbles::Uid.new(uid)
         s3_file = S3AudioFile.create(base_uid, :filename => params[:file][:filename])
 
         # Upload file to Amazon S3
@@ -45,7 +45,7 @@ class TiramisuV1 < Sinatra::Base
   end
 
   get '/audio_files/:uid/status' do |uid|
-    uid = Pebblebed::Uid.new(uid)
+    uid = Pebbles::Uid.new(uid)
     s3_file = S3AudioFile.new(uid)
     bundle = AudioBundle.new(asset_store, s3_file)
 

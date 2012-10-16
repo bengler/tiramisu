@@ -2,8 +2,8 @@ require 'spec_helper'
 
 describe 'S3AudioFile' do
 
-  let(:base_uid) { Pebblebed::Uid.new('audio:path.to') }
-  let(:uid) { Pebblebed::Uid.new("audio:path.to$31122012-randomstr-mp3-super-funky-tunes") }
+  let(:base_uid) { Pebbles::Uid.new('audio:path.to') }
+  let(:uid) { Pebbles::Uid.new("audio:path.to$31122012-randomstr-mp3-super-funky-tunes") }
 
   describe '#new' do
     it "takes an uid as parameter keeps the reference to it" do

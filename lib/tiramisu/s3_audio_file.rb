@@ -1,5 +1,5 @@
 # Usage example
-# > file = S3AudioFile.new(Pebblebed::Uid.new('audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording'))
+# > file = S3AudioFile.new(Pebbles::Uid.new('audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording'))
 # > file.path_for_version(:sample_rate => 44000, :bitrate => 128000, :format=>'flv')
 # => /area51/secret/unit/20120306122011-ws30-mp3/super-rare-recording_44000_128000.flv
 

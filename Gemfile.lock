@@ -14,6 +14,11 @@ GIT
     rack-contrib (1.1.0)
       rack (>= 0.9.1)
 
+PATH
+  remote: ~/code/pebbles-uid
+  specs:
+    pebbles-uid (0.0.7)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -127,6 +132,7 @@ DEPENDENCIES
   httpclient
   pebblebed
   pebbles-cors!
+  pebbles-uid!
   petroglyph
   rack-contrib!
   rack-test

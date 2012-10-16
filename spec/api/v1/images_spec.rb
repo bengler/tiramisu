@@ -24,7 +24,7 @@ describe 'API v1' do
       TootsieHelper.should_receive(:submit_job).once
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
+        post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
       end
 
       last_response.status.should eq(200)
@@ -38,7 +38,7 @@ describe 'API v1' do
       image = chunks.last['metadata']
       image.should_not be_nil
 
-      klass, path, oid = Pebblebed::Uid.parse(image['uid'])
+      klass, path, oid = Pebbles::Uid.parse(image['uid'])
       klass.should eq('image')
       path.should eq('realm.app.collection.box')
       oid.should_not be_nil
@@ -72,7 +72,7 @@ describe 'API v1' do
 
       TootsieHelper.should_not_receive(:submit_job)
 
-      post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
+      post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
 
       last_response.status.should eq(200)
       chunks = chunked_json_response
