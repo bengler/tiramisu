@@ -14,11 +14,6 @@ GIT
     rack-contrib (1.1.0)
       rack (>= 0.9.1)
 
-PATH
-  remote: ~/code/pebbles-uid
-  specs:
-    pebbles-uid (0.0.7)
-
 GEM
   remote: http://rubygems.org/
   specs:
@@ -67,6 +62,7 @@ GEM
       pathbuilder
       queryparams
       yajl-ruby
+    pebbles-uid (0.0.8)
     petroglyph (0.0.3)
       tilt
     proxies (0.2.1)
@@ -132,7 +128,7 @@ DEPENDENCIES
   httpclient
   pebblebed
   pebbles-cors!
-  pebbles-uid!
+  pebbles-uid (= 0.0.8)
   petroglyph
   rack-contrib!
   rack-test
