@@ -8,7 +8,7 @@ gem 'yajl-ruby', :require => "yajl"
 gem 'petroglyph'
 gem 'unicorn', '~> 4.1.1'
 gem 'pebblebed'
-gem 'pebbles-cors', :git => "https://github.com/pebblestack/pebbles-cors"
+gem 'pebbles-cors', :git => "https://github.com/bengler/pebbles-cors"
 gem 'pebbles-uid', '= 0.0.8'
 gem 's3'
 gem 'httpclient'
