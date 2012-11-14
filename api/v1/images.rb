@@ -18,6 +18,8 @@ class TiramisuV1 < Sinatra::Base
   #
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
   # @required [File] file Multipart form field containing the image to upload
+  # @optional [String] notification_url The endpoint where you wish to receive notification
+  #   when the transfer and scaling job has been completed.
   # @status 200 A stream of JSON objects that describe the status of the transfer.
   #   When status is 'completed', an additional key, 'metadata' will be present containing the full uid,
   #   as well as information about sizes, aspect ratio, and the paths to the stored images.
