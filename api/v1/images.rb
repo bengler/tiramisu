@@ -9,31 +9,31 @@ class TiramisuV1 < Sinatra::Base
   class MissingUploadedFileError < Exception; end
 
   # @apidoc
-  # Post a job to scale and store an image
+  # Post a job to scale and store an image.
   #
   # @category Tiramisu
   # @path /api/tiramisu/v1/images/:uid
   # @http POST
   # @example /api/tiramisu/v1/images/image:acme.myapp file?File
   #
-  # @required [String] uid The partial Pebbles Uid (species:path, without oid)
-  # @required [File] file Multipart form field containing the image to upload
+  # @required [String] uid The partial Pebbles uid (species:path, without oid).
+  # @required [File] file Multipart form field containing the image to upload.
   # @optional [String] notification_url The endpoint where you wish to receive notification
   #   when the transfer and scaling job has been completed.
   # @status 200 A stream of JSON objects that describe the status of the transfer.
-  #   When status is 'completed', an additional key, 'metadata' will be present containing the full uid,
+  #   When status is 'completed' an additional key, 'metadata' will be present containing the full uid
   #   as well as information about sizes, aspect ratio, and the paths to the stored images.
   #   On error, the response will be JSON containing the error message. The status will always be 200.
   post '/images/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
-    response.status = 200 # must be 200, or else the browser *may* not start reading from the response immediately (not verified)
+    response.status = 200 # Must be 200, or else the browser *may* not start reading from the response immediately (not verified).
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream_file do |progress|
       progress.received
 
-      # Generate a new image bundle and upload the original image to it
+      # Generate a new image bundle and upload the original image to it.
       begin
 
         ensure_file
@@ -50,9 +50,9 @@ class TiramisuV1 < Sinatra::Base
         base_uid = Pebbles::Uid.new(uid)
         s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
 
-        # Upload file to Amazon S3
+        # Upload file to Amazon S3.
         asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile], :read) do |file|
-          # Reports progress as a number between 0 and 1 as the original file is uploaded to S3
+          # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
           progress.transferring(file.pos.to_f/file.size)
         end)
 

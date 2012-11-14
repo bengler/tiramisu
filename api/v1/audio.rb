@@ -6,26 +6,26 @@ require "pebbles-uid"
 class TiramisuV1 < Sinatra::Base
 
   # @apidoc
-  # Post a job to transcode and store an audio file
+  # Post a job to transcode and store an audio file.
   #
   # @category Tiramisu
   # @path /api/tiramisu/v1/audio_files
   # @http POST
   # @example /api/tiramisu/v1/audio_files/track:acme.myapp file?File:/asdfasdf
-  # @required [String] uid The partial Pebbles Uid (species:path, without oid)
+  # @required [String] uid The partial Pebbles Uid (species:path, without oid).
   # @status 200 A stream of JSON objects that describe the status of the transfer.
   #   When status is 'completed', an additional key, 'metadata' will be present containing data about the transcoded
-  #   formats urls of transcoded files
+  #   formats urls of transcoded files.
   post '/audio_files/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
-    response.status = 200 # must be 200, or else the browser *may* not start reading from the response immediately (not verified)
+    response.status = 200 # must be 200 or the browser *may* not start reading from the response immediately (not verified).
     content_type 'text/plain' if request.user_agent =~ /MSIE/
 
     stream_file do |progress|
       progress.received
 
-      # Generate a new image bundle and upload the original image to it
+      # Generate a new image bundle and upload the original image to it.
       begin
 
         ensure_file
@@ -35,9 +35,9 @@ class TiramisuV1 < Sinatra::Base
         base_uid = Pebbles::Uid.new(uid)
         s3_file = S3AudioFile.create(base_uid, :filename => params[:file][:filename])
 
-        # Upload file to Amazon S3
+        # Upload file to Amazon S3.
         asset_store.put s3_file.path, (Interceptor.wrap(uploaded_file, :read) do |file, method|
-          # Reports progress as a number between 0 and 1 as the original file is uploaded to S3
+          # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
           progress.transferring(file.pos.to_f/file.size.to_f)
         end)
 
@@ -63,15 +63,15 @@ class TiramisuV1 < Sinatra::Base
   end
 
   # @apidoc
-  # Get transcoding status of uploaded audio file
+  # Get transcoding status of uploaded audio file.
   #
   # @category Tiramisu
   # @path /api/tiramisu/v1/audio_files/:uid/status
   # @http GET
   # @example /api/tiramisu/v1/audio_files/track:acme.myapp$20120920084923-32423-wav-is-a-title/status
-  # @required [String] uid The complete Pebbles Uid (including oid)
+  # @required [String] uid The complete Pebbles uid (including oid).
   # @status 200 A JSON structure that is exactly like the metadata key returned from the upload endpoint, except with an
-  #   appended `ready` key which is true if the transcoding is completed or false if it is in progress
+  #   appended 'ready' key which is true if the transcoding is completed or false if it is in progress.
   get '/audio_files/:uid/status' do |uid|
     uid = Pebbles::Uid.new(uid)
     begin
