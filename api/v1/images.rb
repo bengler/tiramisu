@@ -17,8 +17,10 @@ class TiramisuV1 < Sinatra::Base
   # @example /api/tiramisu/v1/images/image:acme.myapp
   #
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
-  # @returns [JSON] A stream of JSON objects that describe the status of the transfer.
+  # @required [File] file Multipart form field containing the image to upload
+  # @status 200 A stream of JSON objects that describe the status of the transfer.
   #   When status is 'completed', an additional key, 'image' will be present containing data about sizes, location, aspect ratio
+  #   On error, the response will be JSON containing the error message. The status will always be 200.
   post '/images/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
