@@ -11,10 +11,10 @@ class TiramisuV1 < Sinatra::Base
   # @apidoc
   # Post a job to scale and store an image
   #
-  # @category Tiramisu/Images
+  # @category Tiramisu
   # @path /api/tiramisu/v1/images
   # @http POST
-  # @example /api/tiramisu/v1/images/image:acme.myapp
+  # @example /api/tiramisu/v1/images/image:acme.myapp file:myimage.jpg b:c
   #
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
   # @required [File] file Multipart form field containing the image to upload

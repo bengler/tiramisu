@@ -6,7 +6,7 @@ class TiramisuV1 < Sinatra::Base
   # @apidoc
   # Post a job to store a document
   #
-  # @category Tiramisu/Files
+  # @category Tiramisu
   # @path /api/tiramisu/v1/files
   # @http POST
   # @example /api/tiramisu/v1/files/file:acme.myapp
