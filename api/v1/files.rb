@@ -3,8 +3,19 @@ require 'timeout'
 
 class TiramisuV1 < Sinatra::Base
 
-  # POST /files/:uid
-  # +file+ multipart post
+  # @apidoc
+  # Post a job to store a document
+  #
+  # @category Tiramisu/Files
+  # @path /api/tiramisu/v1/files
+  # @http POST
+  # @example /api/tiramisu/v1/files/file:acme.myapp
+  #
+  # @required [String] uid The partial Pebbles Uid (species:path, without oid)
+  # @required [File] file Multipart form field containing the file to upload
+  # @status 200 A stream of JSON objects that describe the status of the transfer.
+  #   When status is 'completed', an additional key, 'metadata' will be present containing full uid, and path to the file.
+  #   On error, the response will be JSON containing the error message. The status will always be 200.
 
   post '/files/:uid' do |uid|
     response['X-Accel-Buffering'] = 'no'
