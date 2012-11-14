@@ -76,8 +76,8 @@ class TiramisuV1 < Sinatra::Base
     uid = Pebbles::Uid.new(uid)
     begin
       s3_file = S3AudioFile.new(uid)
-    rescue IncompleteUidError => e
-      halt 400, "Incomplete Pebbles-uid: #{e.message}"
+    rescue S3File::IncompleteUidError => e
+      halt 400, "Incomplete uid: #{e.message}"
     end
     bundle = AudioBundle.new(asset_store, s3_file)
 
