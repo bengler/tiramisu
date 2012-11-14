@@ -8,6 +8,17 @@ class TiramisuV1 < Sinatra::Base
   class UnsupportedFormatError < Exception; end
   class MissingUploadedFileError < Exception; end
 
+  # @apidoc
+  # Post a job to scale and store an image
+  #
+  # @category Tiramisu/Images
+  # @path /api/tiramisu/v1/images
+  # @http POST
+  # @example /api/tiramisu/v1/images/image:acme.myapp
+  #
+  # @required [String] uid The partial Pebbles Uid (species:path, without oid)
+  # @returns [JSON] A stream of JSON objects that describe the status of the transfer.
+  #   When status is 'completed', an additional key, 'image' will be present containing data about sizes, location, aspect ratio
   post '/images/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
