@@ -26,6 +26,8 @@ class TiramisuV1 < Sinatra::Base
       progress.received
 
       begin
+        ensure_file
+
         base_uid = Pebbles::Uid.new(uid)
         s3_file = S3File.create(base_uid, :filename => params[:file][:filename])
 
@@ -40,6 +42,10 @@ class TiramisuV1 < Sinatra::Base
           :baseurl => asset_store.url_for(s3_file.dirname),
           :original => asset_store.url_for(s3_file.path)
         }
+      rescue MissingUploadedFileError => e
+        progress.failed('missing-uploaded-file')
+        LOGGER.warn e.message
+        LOGGER.error e
       rescue => e
         progress.failed e.message
         LOGGER.warn e.message

@@ -14,7 +14,7 @@ class TiramisuV1 < Sinatra::Base
   # @category Tiramisu
   # @path /api/tiramisu/v1/images/:uid
   # @http POST
-  # @example /api/tiramisu/v1/images/image:acme.myapp file?File:myimage.jpg
+  # @example /api/tiramisu/v1/images/image:acme.myapp file?File
   #
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
   # @required [File] file Multipart form field containing the image to upload
@@ -36,9 +36,7 @@ class TiramisuV1 < Sinatra::Base
       # Generate a new image bundle and upload the original image to it
       begin
 
-        # Firefox sends empty string ""
-        # Safari and Opera sends "undefined"
-        raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
+        ensure_file
 
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]

@@ -1,9 +1,21 @@
 require 'cgi'
 require 'timeout'
 require "tiramisu/s3_file"
+require "pebbles-uid"
 
 class TiramisuV1 < Sinatra::Base
 
+  # @apidoc
+  # Post a job to transcode and store an audio file
+  #
+  # @category Tiramisu/Audio files
+  # @path /api/tiramisu/v1/audio_files
+  # @http POST
+  # @example /api/tiramisu/v1/audio_files/track:acme.myapp file?File:/asdfasdf
+  # @required [String] uid The partial Pebbles Uid (species:path, without oid)
+  # @status 200 A stream of JSON objects that describe the status of the transfer.
+  #   When status is 'completed', an additional key, 'metadata' will be present containing data about the transcoded
+  #   formats urls of transcoded files
   post '/audio_files/:uid' do |uid|
 
     response['X-Accel-Buffering'] = 'no'
@@ -15,6 +27,8 @@ class TiramisuV1 < Sinatra::Base
 
       # Generate a new image bundle and upload the original image to it
       begin
+
+        ensure_file
 
         uploaded_file = params[:file][:tempfile]
 
@@ -36,6 +50,10 @@ class TiramisuV1 < Sinatra::Base
 
         progress.completed :metadata => bundle.metadata
 
+      rescue MissingUploadedFileError => e
+        progress.failed('missing-uploaded-file')
+        LOGGER.warn e.message
+        LOGGER.error e
       rescue => e
         progress.failed e.message
         LOGGER.warn e.message
@@ -44,9 +62,23 @@ class TiramisuV1 < Sinatra::Base
     end
   end
 
+  # @apidoc
+  # Get transcoding status of uploaded audio file
+  #
+  # @category Tiramisu/Audio files
+  # @path /api/tiramisu/v1/audio_files/:uid/status
+  # @http GET
+  # @example /api/tiramisu/v1/audio_files/track:acme.myapp$20120920084923-32423-wav-is-a-title/status
+  # @required [String] uid The complete Pebbles Uid (including oid)
+  # @status 200 A JSON structure that is exactly like the metadata key returned from the upload endpoint, except with an
+  #   appended `ready` key which is true if the transcoding is completed or false if it is in progress
   get '/audio_files/:uid/status' do |uid|
     uid = Pebbles::Uid.new(uid)
-    s3_file = S3AudioFile.new(uid)
+    begin
+      s3_file = S3AudioFile.new(uid)
+    rescue IncompleteUidError => e
+      halt 400, "Incomplete Pebbles-uid: #{e.message}"
+    end
     bundle = AudioBundle.new(asset_store, s3_file)
 
     data = bundle.metadata

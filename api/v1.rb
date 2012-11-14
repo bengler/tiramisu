@@ -29,4 +29,10 @@ class TiramisuV1 < Sinatra::Base
     end
 
   end
+
+  def ensure_file
+    # Firefox sends empty string ""
+    # Safari and Opera sends "undefined"
+    raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
+  end
 end
