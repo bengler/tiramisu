@@ -19,7 +19,8 @@ class TiramisuV1 < Sinatra::Base
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
   # @required [File] file Multipart form field containing the image to upload
   # @status 200 A stream of JSON objects that describe the status of the transfer.
-  #   When status is 'completed', an additional key, 'image' will be present containing data about sizes, location, aspect ratio
+  #   When status is 'completed', an additional key, 'metadata' will be present containing the full uid,
+  #   as well as information about sizes, aspect ratio, and the paths to the stored images.
   #   On error, the response will be JSON containing the error message. The status will always be 200.
   post '/images/:uid' do |uid|
 
