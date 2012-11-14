@@ -1,10 +1,6 @@
-require "sinatra/reloader"
-
 class ExamplesV1 < Sinatra::Base
 
   set :root, File.join(File.dirname(__FILE__), "v1")
-
-  register Sinatra::Reloader
 
   helpers do
     include Sprockets::Helpers
