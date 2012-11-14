@@ -12,7 +12,7 @@ class TiramisuV1 < Sinatra::Base
   # Post a job to scale and store an image
   #
   # @category Tiramisu
-  # @path /api/tiramisu/v1/images
+  # @path /api/tiramisu/v1/images/:uid
   # @http POST
   # @example /api/tiramisu/v1/images/image:acme.myapp file?File:myimage.jpg
   #

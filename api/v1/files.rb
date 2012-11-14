@@ -7,7 +7,7 @@ class TiramisuV1 < Sinatra::Base
   # Post a job to store a document
   #
   # @category Tiramisu
-  # @path /api/tiramisu/v1/files
+  # @path /api/tiramisu/v1/files/:uid
   # @http POST
   # @example /api/tiramisu/v1/files/file:acme.myapp file?File:mydocument.pdf
   #
