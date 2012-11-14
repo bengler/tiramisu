@@ -9,7 +9,7 @@ class TiramisuV1 < Sinatra::Base
   # @category Tiramisu
   # @path /api/tiramisu/v1/files
   # @http POST
-  # @example /api/tiramisu/v1/files/file:acme.myapp
+  # @example /api/tiramisu/v1/files/file:acme.myapp file?File:mydocument.pdf
   #
   # @required [String] uid The partial Pebbles Uid (species:path, without oid)
   # @required [File] file Multipart form field containing the file to upload
