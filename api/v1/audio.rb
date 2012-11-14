@@ -8,7 +8,7 @@ class TiramisuV1 < Sinatra::Base
   # @apidoc
   # Post a job to transcode and store an audio file
   #
-  # @category Tiramisu/Audio files
+  # @category Tiramisu
   # @path /api/tiramisu/v1/audio_files
   # @http POST
   # @example /api/tiramisu/v1/audio_files/track:acme.myapp file?File:/asdfasdf
@@ -65,7 +65,7 @@ class TiramisuV1 < Sinatra::Base
   # @apidoc
   # Get transcoding status of uploaded audio file
   #
-  # @category Tiramisu/Audio files
+  # @category Tiramisu
   # @path /api/tiramisu/v1/audio_files/:uid/status
   # @http GET
   # @example /api/tiramisu/v1/audio_files/track:acme.myapp$20120920084923-32423-wav-is-a-title/status
