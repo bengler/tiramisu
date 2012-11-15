@@ -1,18 +1,14 @@
-Dir.glob('./lib/**/*.rb').each { |lib| require lib }
+Dir.glob('./lib/tiramisu/**/*.rb').each { |lib| require lib }
 
 module Tiramisu
+
   def self.config
-    if ENV['RACK_ENV'] == 'test'
-      @config ||= {
-        "S3" => {
-          "access_key_id" => ENV.fetch('TIRAMISU_S3_KEY'),
-          "secret_access_key" => ENV.fetch('TIRAMISU_S3_SECRET_KEY'),
-          "bucket" => ENV.fetch('TIRAMISU_S3_BUCKET')
-        },
-        "tootsie"=>"http://localhost:9000"
-      }
-    else
-      @config ||= YAML::load(File.open("config/services.yml"))[ENV['RACK_ENV']]
-    end
+    @config ||= Config.new(environment).settings
   end
+
+  def self.environment
+    ENV['RACK_ENV'] ||= 'development'
+  end
+
 end
+
