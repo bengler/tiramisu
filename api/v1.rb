@@ -11,6 +11,10 @@ class TiramisuV1 < Sinatra::Base
 
   set :config, Tiramisu.config
 
+  before do
+    cache_control :private, :no_cache, :no_store, :must_revalidate
+  end
+
   helpers do
 
     def asset_store
