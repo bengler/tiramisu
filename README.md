@@ -1,5 +1,7 @@
 # Tiramisu
 
+[![Build Status](https://semaphoreapp.com/api/v1/projects/07b8419278106d09595c3737e0b53ee5aee4d072/28252/badge.png)](https://semaphoreapp.com/projects/1574/branches/28252)
+
 A service for managing user-originated uploads and asset-processing.
 
 Uses _S3_ for storage, _Tootsie_ for transcoding and _ImageMagick_ for file identification.
