@@ -18,8 +18,8 @@ describe 'API v1' do
       AssetStore.any_instance.should_receive(:put).once do |url, intercepted|
         while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
       end
-
-      TootsieHelper.should_receive(:submit_job).once
+      
+      Pebblebed::GenericClient.any_instance.should_receive(:post).with("/jobs", anything()).once
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/audio_files/audio:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(audio_file, "audio/mpeg")
@@ -56,7 +56,7 @@ describe 'API v1' do
 
       AssetStore.any_instance.should_receive(:put).once.and_raise("Funky error")
 
-      TootsieHelper.should_not_receive(:submit_job)
+      Pebblebed::GenericClient.any_instance.should_not_receive(:post)
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/audio_files/audio:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(audio_file, "audio/mpeg")

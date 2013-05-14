@@ -21,7 +21,7 @@ describe 'API v1' do
         while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
       end
 
-      TootsieHelper.should_receive(:submit_job).once
+      Pebblebed::GenericClient.any_instance.should_receive(:post).with("/jobs", anything()).once
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
@@ -56,7 +56,8 @@ describe 'API v1' do
     it "returns failure as last json chunk if uploaded file are of wrong format" do
 
       AssetStore.any_instance.should_not_receive(:put)
-      TootsieHelper.should_not_receive(:submit_job)
+      
+      Pebblebed::Connector.any_instance.should_not_receive(:post)
 
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
 
@@ -70,7 +71,7 @@ describe 'API v1' do
     it "returns failure as last json chunk and includes the error message if something unexpected happens" do
       AssetStore.any_instance.should_receive(:put).once.and_raise("Unexpected error") # just to make something fail
 
-      TootsieHelper.should_not_receive(:submit_job)
+      Pebblebed::Connector.any_instance.should_not_receive(:post)
 
       post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(image_from_fixture[:file], "image/jpeg")
 
