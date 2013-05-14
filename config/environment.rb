@@ -11,6 +11,11 @@ require 'tiramisu'
 ENV['RACK_ENV'] ||= "development"
 environment = ENV['RACK_ENV']
 
+Pebblebed.config do
+  host 'localhost'
+  service :tootsie
+end
+
 unless defined?(LOGGER)
   require "logger"
   FileUtils.mkdir('log') unless File.exists?('log')
