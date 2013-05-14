@@ -39,4 +39,8 @@ class TiramisuV1 < Sinatra::Base
     # Safari and Opera sends "undefined"
     raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
   end
+  def pebbles
+    #Quickfix for bandwagon
+    @pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => "localhost")
+  end
 end
