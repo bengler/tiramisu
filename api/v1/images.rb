@@ -79,6 +79,10 @@ class TiramisuV1 < Sinatra::Base
       end
     end
   end
+  
+  get "/images/:uid/metadata" do |uid|
+    [200, ImageBundle.new(asset_store, S3ImageFile.new(Pebbles::Uid.new(uid))).metadata.to_json]
+  end
 
   private
   def image_info(file)
