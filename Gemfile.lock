@@ -134,6 +134,7 @@ PLATFORMS
 DEPENDENCIES
   airbrake (~> 3.1.4)
   coffee-script
+  dalli
   haml
   httpclient
   pebblebed

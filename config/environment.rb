@@ -11,6 +11,8 @@ require 'tiramisu'
 ENV['RACK_ENV'] ||= "development"
 environment = ENV['RACK_ENV']
 
+$memcached = Dalli::Client.new unless ENV['RACK_ENV'] == 'test'
+
 Pebblebed.config do
   host 'localhost'
   service :tootsie
