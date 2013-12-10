@@ -17,6 +17,7 @@ class TiramisuV1 < Sinatra::Base
     # caching in IE (see http://support.microsoft.com/kb/234067)
     headers 'Pragma' => 'no-cache'
     headers 'Expires' => '-1'
+    headers 'X-Frame-Options' => 'ALLOWALL'
 
     cache_control :private, :no_cache, :no_store, :must_revalidate
   end
@@ -28,13 +29,16 @@ class TiramisuV1 < Sinatra::Base
     end
 
     def stream_file(&block)
+      opts = {
+        postmessage: request.params['postmessage'] == 'true' 
+      }
       stream do |out|
-        out << " " * 256 if request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
-        progress = Progress.new(out)
+        out << " " * 256 if !opts[:postmessage] && request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
+        progress = Progress.new(out, opts)
         yield(progress)
         #IE strips off whitespace at the end of an iframe
         #so we need to send a terminator
-        out << ";" if request.user_agent =~ /MSIE/ # Damn you, IE...
+        out << ";" if !opts[:postmessage] && request.user_agent =~ /MSIE/ # Damn you, IE...
       end
     end
 

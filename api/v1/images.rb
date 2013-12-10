@@ -26,9 +26,15 @@ class TiramisuV1 < Sinatra::Base
   #   On error, the response will be JSON containing the error message. The status will always be 200.
   post '/images/:uid' do |uid|
 
+    # Tell web server not to buffer response
     response['X-Accel-Buffering'] = 'no'
-    response.status = 200 # Must be 200, or else the browser *may* not start reading from the response immediately (not verified).
-    content_type 'text/plain' if request.user_agent =~ /MSIE/
+
+    # must be 200 or the browser *may* not start reading from the response immediately (not verified).
+    response.status = 200
+
+    if request.user_agent =~ /MSIE/
+      content_type request.params['postmessage'] == 'true' ? 'text/html' : 'text/plain'
+    end
 
     stream_file do |progress|
       progress.received
