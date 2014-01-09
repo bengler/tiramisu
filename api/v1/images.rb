@@ -87,7 +87,11 @@ class TiramisuV1 < Sinatra::Base
 
   private
   def image_info(file)
-    extension, width, height = `identify -format '%m %w %h' #{file.path} 2> /dev/null`.split(/\s+/)
+    extension, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
+    if [5, 6, 7, 8].include?(orientation.to_i)
+      # Adjust for exif orientation
+      width, height = height, width
+    end
     [extension, (width && height && width.to_f / height.to_f) || 0]
   end
 end
