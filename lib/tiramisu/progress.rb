@@ -2,12 +2,20 @@ class Progress
 
   attr_accessor :stream
 
-  def initialize(stream)
+  def initialize(stream, opts={})
+    @opts = opts
     self.stream = stream
   end
 
   def report(progress)
-    self.stream << "#{progress.to_json}\n"
+    if @opts[:postmessage]
+      self.stream << "<script>"
+      self.stream << "window.parent.postMessage('#{progress.to_json}', '*');"
+      self.stream << "</script>"
+    else
+      self.stream << "#{progress.to_json}\n"
+    end
+
   end
 
   def status(percent, message, details = {})
@@ -29,4 +37,5 @@ class Progress
   def completed(details = {})
     report status(100, 'completed').merge details
   end
+
 end
