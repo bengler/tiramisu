@@ -26,6 +26,8 @@ class TiramisuV1 < Sinatra::Base
   #   On error, the response will be JSON containing the error message. The status will always be 200.
   post '/images/:uid' do |uid|
 
+    LOGGER.info "Received uploaded image #{uid}"
+    
     # Tell web server not to buffer response
     response['X-Accel-Buffering'] = 'no'
 
@@ -37,6 +39,8 @@ class TiramisuV1 < Sinatra::Base
     end
 
     stream_file do |progress|
+      LOGGER.info 'Started streaming response'
+
       progress.received
 
       # Generate a new image bundle and upload the original image to it.
@@ -47,6 +51,7 @@ class TiramisuV1 < Sinatra::Base
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]
 
+        LOGGER.info 'Getting info about uploaded file'
         format, aspect_ratio = image_info(uploaded_file)
 
         if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
@@ -56,18 +61,24 @@ class TiramisuV1 < Sinatra::Base
         base_uid = Pebbles::Uid.new(uid)
         s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
 
+        LOGGER.info 'Transferring image to S3...'
         # Upload file to Amazon S3.
         asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile], :read) do |file|
           # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
           progress.transferring(file.pos.to_f/file.size)
         end)
+        LOGGER.info '... Done!'
 
         bundle = ImageBundle.new(asset_store, s3_file)
         job = bundle.to_tootsie_job
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
+        LOGGER.info 'Posting transcoding job to tootsie'
         pebbles.tootsie.post("/jobs", job)
+        LOGGER.info '... Done!'
 
+
+        LOGGER.info 'Closing down response stream!'
         progress.completed :metadata => bundle.metadata
 
       rescue UnsupportedFormatError => e
