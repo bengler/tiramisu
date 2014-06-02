@@ -33,7 +33,7 @@ module Tiramisu
           "secret_access_key" => ENV.fetch('TIRAMISU_S3_SECRET_KEY'),
           "bucket" => ENV.fetch('TIRAMISU_S3_BUCKET')
         },
-        "tootsie"=>"http://localhost:9000"
+        "tootsie"=>"localhost"
       }
     end
 

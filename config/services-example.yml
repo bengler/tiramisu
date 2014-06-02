@@ -4,18 +4,18 @@ production:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: http://localhost:9000
+  tootsie: tootsie.o5.no
 
 staging:
   S3:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: http://localhost:9000
+  tootsie: tootsie.staging.o5.no
 
 development:
   S3:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: http://localhost:9000
+  tootsie: pebbles.dev
