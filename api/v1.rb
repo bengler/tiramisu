@@ -51,6 +51,6 @@ class TiramisuV1 < Sinatra::Base
   end
   def pebbles
     #Quickfix for bandwagon
-    @pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => "localhost")
+    @pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => settings.config['tootsie'])
   end
 end
