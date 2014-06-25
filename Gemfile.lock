@@ -23,7 +23,7 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
-    addressable (2.2.7)
+    addressable (2.3.6)
     airbrake (3.1.4)
       builder
       girl_friday
@@ -37,7 +37,8 @@ GEM
       execjs
     coffee-script-source (1.2.0)
     connection_pool (0.9.2)
-    crack (0.3.1)
+    crack (0.4.2)
+      safe_yaml (~> 1.0.0)
     curb (0.8.5)
     dalli (2.6.4)
     deepstruct (0.0.7)
@@ -92,6 +93,7 @@ GEM
     rspec-mocks (2.9.0)
     s3 (0.3.11)
       proxies (~> 0.2.0)
+    safe_yaml (1.0.3)
     sass (3.2.1)
     simplecov (0.6.1)
       multi_json (~> 1.0)
@@ -123,10 +125,10 @@ GEM
       kgio (~> 2.6)
       rack
       raindrops (~> 0.7)
-    vcr (2.0.1)
-    webmock (1.8.5)
-      addressable (>= 2.2.7)
-      crack (>= 0.1.7)
+    vcr (2.9.2)
+    webmock (1.18.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
     yajl-ruby (1.2.1)
 
 PLATFORMS
@@ -154,6 +156,6 @@ DEPENDENCIES
   sprockets
   sprockets-helpers (~> 0.2)
   unicorn
-  vcr (~> 2.0.0.rc1)
+  vcr (~> 2.9)
   webmock
   yajl-ruby

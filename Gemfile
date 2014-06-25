@@ -21,7 +21,7 @@ gem 'dalli'
 group :development, :test do
   gem 'rspec', '~> 2.8'
   gem 'rack-test'
-  gem 'vcr', '~> 2.0.0.rc1'
+  gem 'vcr', '~> 2.9'
   gem 'webmock'
   gem 'simplecov'
 end
