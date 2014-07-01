@@ -1,8 +1,8 @@
 GIT
   remote: https://github.com/bengler/pebbles-cors
-  revision: 28771b32f16ea16da076639b1080cf6116033194
+  revision: 869d6b6540577b8f598dac9263b82c783513243c
   specs:
-    pebbles-cors (0.2.1)
+    pebbles-cors (0.2.2)
       dalli
       pebblebed
       rack
