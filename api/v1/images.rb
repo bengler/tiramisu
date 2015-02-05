@@ -27,7 +27,7 @@ class TiramisuV1 < Sinatra::Base
   post '/images/:uid' do |uid|
 
     LOGGER.info "Received uploaded image #{uid}"
-    
+
     # Tell web server not to buffer response
     response['X-Accel-Buffering'] = 'no'
 
@@ -83,7 +83,8 @@ class TiramisuV1 < Sinatra::Base
 
       rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
-        LOGGER.warn e.message
+        message = "#{e.message} filename: #{filename} uploaded_file: #{uploaded_file}"
+        LOGGER.warn message
         LOGGER.error e
       rescue MissingUploadedFileError => e
         progress.failed('missing-uploaded-file')
@@ -96,7 +97,7 @@ class TiramisuV1 < Sinatra::Base
       end
     end
   end
-  
+
   get "/images/:uid/metadata" do |uid|
     content_type :json
     [200, ImageBundle.new(asset_store, S3ImageFile.new(Pebbles::Uid.new(uid))).metadata.to_json]
