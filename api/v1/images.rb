@@ -90,11 +90,11 @@ class TiramisuV1 < Sinatra::Base
         progress.failed('missing-uploaded-file')
         message = "#{e.message}. #{request.inspect}"
         LOGGER.warn message
-        LOGGER.exception e
+        LOGGER.respond_to?(:exception) ? LOGGER.exception(e) : LOGGER.error(e)
       rescue => e
         progress.failed e.message
         LOGGER.warn e.message
-        LOGGER.exception e
+        LOGGER.respond_to?(:exception) ? LOGGER.exception(e) : LOGGER.error(e)
       end
     end
   end
