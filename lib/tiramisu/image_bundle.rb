@@ -12,6 +12,9 @@ class ImageBundle
     {:width => 500, :square => true},
     {:width => 700},
     {:width => 1000},
+    {:width => 1600},
+    {:width => 2048},
+    {:width => 3000},
     {:width => 5000, :medium => 'print'}
   ]
 

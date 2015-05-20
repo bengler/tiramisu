@@ -39,6 +39,9 @@ describe ImageBundle do
         {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/500sq.jpg"},
         {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/700.jpg"},
         {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1000.jpg"},
+        {:width => 1600, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1600.jpg"},
+        {:width => 2048, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/2048.jpg"},
+        {:width => 3000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/3000.jpg"},
         {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/5000.jpg"}
       ]
       metadata[:versions].should eq expected_versions
@@ -102,6 +105,27 @@ describe ImageBundle do
           :strip_metatadata => true,
           :medium => "web",
           :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/1000.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 1600,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/1600.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 2048,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/2048.jpg?acl=public_read"
+        },
+        {
+          :format => "jpeg",
+          :width => 3000,
+          :strip_metatadata => true,
+          :medium => "web",
+          :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/3000.jpg?acl=public_read"
         },
         {
           :format => "jpeg",

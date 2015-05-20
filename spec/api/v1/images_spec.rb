@@ -50,7 +50,7 @@ describe 'API v1' do
       aspect_ratio.to_i.should eq 1499
 
       image['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
-      image['versions'].map { |s| s['width'] }.should eq([100, 100, 300, 500, 700, 1000, 5000])
+      image['versions'].map { |s| s['width'] }.should eq([100, 100, 300, 500, 700, 1000, 1600, 2048, 3000, 5000])
 
       image['original'].should match(/#{image['baseurl']}\/original.jpg/)
       image['aspect_ratio'].to_f.should be_within(0.001).of(1.499)
@@ -95,7 +95,7 @@ describe 'API v1' do
       chunks.last['message'].should eq('format-not-supported')
       chunks.last['percent'].should eq(100)
     end
-    
+
     it "returns failure as last json chunk and includes the error message if something unexpected happens" do
       AssetStore.any_instance.should_receive(:put).once.and_raise("Unexpected error") # just to make something fail
 
