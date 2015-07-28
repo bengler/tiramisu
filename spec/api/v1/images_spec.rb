@@ -50,7 +50,7 @@ describe 'API v1' do
       expect(aspect_ratio.to_i).to eq 1499
 
       expect(image['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
-      expect(image['versions'].map { |s| s['width'] }).to eq([100, 100, 300, 500, 700, 1000, 1600, 2048, 3000, 5000])
+      expect(image['versions'].map { |s| s['width'] }).to eq([100, 100, 300, 500])
 
       expect(image['original']).to match(/#{image['baseurl']}\/original.jpg/)
       expect(image['aspect_ratio'].to_f).to be_within(0.001).of(1.499)

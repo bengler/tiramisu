@@ -52,7 +52,7 @@ class TiramisuV1 < Sinatra::Base
         filename = params[:file][:filename]
 
         LOGGER.info 'Getting info about uploaded file'
-        format, aspect_ratio = image_info(uploaded_file)
+        format, width, height, aspect_ratio = image_info(uploaded_file)
 
         if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
           raise UnsupportedFormatError, "Format '#{format}' not supported"
@@ -69,7 +69,7 @@ class TiramisuV1 < Sinatra::Base
         end)
         LOGGER.info '... Done!'
 
-        bundle = ImageBundle.new(asset_store, s3_file)
+        bundle = ImageBundle.new(asset_store, s3_file, {height: height, width: width, aspect_ratio: aspect_ratio})
         job = bundle.to_tootsie_job
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
@@ -99,11 +99,6 @@ class TiramisuV1 < Sinatra::Base
     end
   end
 
-  get "/images/:uid/metadata" do |uid|
-    content_type :json
-    [200, ImageBundle.new(asset_store, S3ImageFile.new(Pebbles::Uid.new(uid))).metadata.to_json]
-  end
-
   private
   def image_info(file)
     extension, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
@@ -111,6 +106,10 @@ class TiramisuV1 < Sinatra::Base
       # Adjust for exif orientation
       width, height = height, width
     end
-    [extension, (width && height && width.to_f / height.to_f) || 0]
+
+    width = width && width.to_f
+    height = height && height.to_f
+
+    [extension, width, height, (width && height && width / height) || 0]
   end
 end

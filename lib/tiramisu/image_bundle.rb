@@ -6,40 +6,47 @@ class ImageBundle
   OUTPUT_FORMAT = 'jpg'
 
   IMAGE_SIZES = [
-    {:width => 100},
-    {:width => 100, :square => true},
-    {:width => 300},
-    {:width => 500, :square => true},
-    {:width => 700},
-    {:width => 1000},
-    {:width => 1600},
-    {:width => 2048},
-    {:width => 3000},
-    {:width => 5000, :medium => 'print'}
+      {:width => 100},
+      {:width => 100, :square => true},
+      {:width => 300},
+      {:width => 500, :square => true},
+      {:width => 700},
+      {:width => 1000},
+      {:width => 1600},
+      {:width => 2048},
+      {:width => 3000},
+      {:width => 5000, :medium => 'print'}
   ]
 
   attr_reader :asset_store, :s3_image_file
 
-  def initialize(asset_store, s3_image_file)
+  def initialize(asset_store, s3_image_file, image_info)
     @asset_store = asset_store
     @s3_image_file = s3_image_file
+    @image_info = image_info
   end
 
   def metadata
-    metadata = {
-      :uid => s3_image_file.uid.to_s,
-      :baseurl => asset_store.url_for(s3_image_file.dirname),
-      :original => asset_store.url_for(s3_image_file.path),
-      :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0
+    {
+        :uid => s3_image_file.uid.to_s,
+        :baseurl => asset_store.url_for(s3_image_file.dirname),
+        :original => asset_store.url_for(s3_image_file.path),
+        :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0,
+        :versions => versions
     }
-    metadata[:versions] = IMAGE_SIZES.map do |size|
+  end
+
+  def versions
+    IMAGE_SIZES
+    .select { |size|
+      size[:width] <= @image_info[:width]
+    }
+    .map { |size|
       square = !!size[:square]
       s3_path = s3_image_file.path_for_size(size[:width], :square => size[:square], :format => OUTPUT_FORMAT)
       s3_url = asset_store.url_for(s3_path)
-
-      {:width => size[:width], :square => square, :url => s3_url }
-    end
-    metadata
+      {:width => size[:width], :square => square, :url => s3_url}
+    }
   end
 
   def to_tootsie_job

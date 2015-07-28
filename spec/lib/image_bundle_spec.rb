@@ -16,7 +16,7 @@ describe ImageBundle do
     S3ImageFile.new(Pebbles::Uid.new("image:area51.secret.unit$20120306122011-1498-9et0"))
   }
   let(:bundle) {
-    ImageBundle.new(asset_store, image_file)
+    ImageBundle.new(asset_store, image_file, {height: 900, width: 1600})
   }
 
   describe "#metadata" do
@@ -39,10 +39,7 @@ describe ImageBundle do
         {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/500sq.jpg"},
         {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/700.jpg"},
         {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1000.jpg"},
-        {:width => 1600, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1600.jpg"},
-        {:width => 2048, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/2048.jpg"},
-        {:width => 3000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/3000.jpg"},
-        {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/5000.jpg"}
+        {:width => 1600, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/1600.jpg"}
       ]
       expect(metadata[:versions]).to eq expected_versions
 
