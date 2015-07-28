@@ -1,0 +1,91 @@
+---
+http_interactions:
+- request:
+    method: head
+    uri: http://<TIRAMISU S3 BUCKET>.s3.amazonaws.com/
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      Date:
+      - Tue, 28 Jul 2015 09:46:58 GMT
+      Authorization:
+      - AWS <TIRAMISU S3 KEY>:PgU0aOB9JvoP0K1mYQtWojemGLc=
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - u33UsySDaNLlxq+OaQLTd9YBJ+K0kFQo4gdeGrKp4Sj03qV7PUQrVz9kl0fSsd9eW829pxoSZ4A=
+      X-Amz-Request-Id:
+      - 217E718FAF6DFEBE
+      Date:
+      - Tue, 28 Jul 2015 09:46:59 GMT
+      X-Amz-Bucket-Region:
+      - eu-west-1
+      Content-Type:
+      - application/xml
+      Transfer-Encoding:
+      - chunked
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Tue, 28 Jul 2015 09:46:58 GMT
+- request:
+    method: put
+    uri: http://<TIRAMISU S3 BUCKET>.s3.amazonaws.com/s3:<TIRAMISU S3 BUCKET>/dummy/content
+    body:
+      encoding: UTF-8
+      string: dummy content
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+      X-Amz-Acl:
+      - public-read
+      X-Amz-Storage-Class:
+      - STANDARD
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '13'
+      Date:
+      - Tue, 28 Jul 2015 09:46:58 GMT
+      Content-Md5:
+      - kMVaOAZGJ9yjN9+l/FvhIA==
+      Authorization:
+      - AWS <TIRAMISU S3 KEY>:rh7qleONfcK7cLa9wQ/KhD6GH1Q=
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      X-Amz-Id-2:
+      - JAG+m6LteNNy66jRE8gjYLvzj5RU205wudqrMZkMohCARATbu/R9l3mx93Wssy3fu95IgKv85jU=
+      X-Amz-Request-Id:
+      - B2A1792C4B00247E
+      Date:
+      - Tue, 28 Jul 2015 09:46:59 GMT
+      Etag:
+      - '"90c55a38064627dca337dfa5fc5be120"'
+      Content-Length:
+      - '0'
+      Server:
+      - AmazonS3
+    body:
+      encoding: UTF-8
+      string: ''
+    http_version: 
+  recorded_at: Tue, 28 Jul 2015 09:46:58 GMT
+recorded_with: VCR 2.9.3

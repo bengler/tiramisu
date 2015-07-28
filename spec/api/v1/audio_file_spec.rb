@@ -15,58 +15,58 @@ describe 'API v1' do
 
     it "submits an audio file and returns a chunked json response with progress data and finally a hash describing it" do
 
-      AssetStore.any_instance.should_receive(:put).once do |url, intercepted|
+      expect_any_instance_of(AssetStore).to receive(:put).once do |instance, url, intercepted|
         while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
       end
-      
-      Pebblebed::GenericClient.any_instance.should_receive(:post).with("/jobs", anything()).once
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post).with("/jobs", anything()).once
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/audio_files/audio:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(audio_file, "audio/mpeg")
       end
 
-      last_response.status.should eq(200)
+      expect(last_response.status).to eq(200)
       chunks = chunked_json_response
-      chunks.first['status'].should eq('received')
-      chunks[1]['status'].should eq('transferring')
-      chunks.last['status'].should eq('completed')
-      chunks.last['percent'].should eq(100)
+      expect(chunks.first['status']).to eq('received')
+      expect(chunks[1]['status']).to eq('transferring')
+      expect(chunks.last['status']).to eq('completed')
+      expect(chunks.last['percent']).to eq(100)
 
       audio_file = chunks.last['metadata']
-      audio_file.should_not be_nil
+      expect(audio_file).not_to be_nil
 
       klass, path, oid = Pebbles::Uid.parse(audio_file['uid'])
-      klass.should eq('audio')
-      path.should eq('realm.app.collection.box')
-      oid.should_not be_nil
+      expect(klass).to eq('audio')
+      expect(path).to eq('realm.app.collection.box')
+      expect(oid).not_to be_nil
 
       timestamp, rand, extension, *title = oid.split("-")
 
-      extension.should eq "mp3"
+      expect(extension).to eq "mp3"
 
-      audio_file['baseurl'].should match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
+      expect(audio_file['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
 
-      audio_file['versions'].map{|v| v['format']}.should eq AudioBundle::OUTPUT_FORMATS.map {|f| f[:format]}
+      expect(audio_file['versions'].map{|v| v['format']}).to eq AudioBundle::OUTPUT_FORMATS.map {|f| f[:format]}
 
-      audio_file['original'].should match(/#{audio_file['baseurl']}\/#{title.join("-")}.#{extension}/)
+      expect(audio_file['original']).to match(/#{audio_file['baseurl']}\/#{title.join("-")}.#{extension}/)
 
     end
 
     it "returns failure as last json chunk and includes the error message if something unexpected happens" do
 
-      AssetStore.any_instance.should_receive(:put).once.and_raise("Funky error")
+      expect_any_instance_of(AssetStore).to receive(:put).once.and_raise("Funky error")
 
-      Pebblebed::GenericClient.any_instance.should_not_receive(:post)
+      expect_any_instance_of(Pebblebed::GenericClient).not_to receive(:post)
 
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         post "/audio_files/audio:realm.app.collection.box", :file => Rack::Test::UploadedFile.new(audio_file, "audio/mpeg")
       end
 
-      last_response.status.should eq(200)
+      expect(last_response.status).to eq(200)
       chunks = chunked_json_response
-      chunks.last['status'].should eq('failed')
-      chunks.last['message'].should eq('Funky error')
-      chunks.last['percent'].should eq(100)
+      expect(chunks.last['status']).to eq('failed')
+      expect(chunks.last['message']).to eq('Funky error')
+      expect(chunks.last['percent']).to eq(100)
     end
 
   end
@@ -74,9 +74,8 @@ describe 'API v1' do
   describe "GET /audio_files/:uid/status" do
     it "provides an endpont for polling for ready versions of an audio file" do
 
-      HTTPClient
-        .any_instance
-        .should_receive(:head)
+      expect_any_instance_of(HTTPClient)
+        .to receive(:head)
         .exactly(AudioBundle::OUTPUT_FORMATS.length).times
         .and_return(OpenStruct.new(:status_code => 200))
 
@@ -84,22 +83,21 @@ describe 'API v1' do
 
       data = JSON.parse(last_response.body)
 
-      data['versions'].map{|v| v['ready']}.should_not include(false)
+      expect(data['versions'].map{|v| v['ready']}).to_not include(false)
 
     end
 
     it "provides an endpont for polling for ready versions of an audio file" do
 
-      HTTPClient
-        .any_instance
-        .should_receive(:head)
+      expect_any_instance_of(HTTPClient)
+        .to receive(:head)
         .exactly(AudioBundle::OUTPUT_FORMATS.length).times
         .and_return(OpenStruct.new(:status_code => 300))
 
       get "/audio_files/audio:area51.secret.unit$20120306122011-ws30-mp3-super-rare-recording/status"
       data = JSON.parse(last_response.body)
 
-      data['versions'].map{|v| v['ready']}.should_not include(true)
+      expect(data['versions'].map{|v| v['ready']}).to_not include(true)
 
     end
 

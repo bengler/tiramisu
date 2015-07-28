@@ -22,15 +22,15 @@ describe ImageBundle do
   describe "#metadata" do
     it "provides an image metadata hash for the client" do
 
-      asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
-      asset_store.should_receive(:protocol).any_number_of_times.and_return "http://"
+      expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
+      expect(asset_store).to receive(:protocol).at_least(:once).and_return "http://"
 
       metadata = bundle.metadata
 
-      metadata[:uid].should eq "image:area51.secret.unit$20120306122011-1498-9et0"
-      metadata[:baseurl].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0"
-      metadata[:original].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
-      metadata[:aspect_ratio].should eq 1.498
+      expect(metadata[:uid]).to eq "image:area51.secret.unit$20120306122011-1498-9et0"
+      expect(metadata[:baseurl]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0"
+      expect(metadata[:original]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
+      expect(metadata[:aspect_ratio]).to eq 1.498
 
       expected_versions = [
         {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/100.jpg"},
@@ -44,18 +44,18 @@ describe ImageBundle do
         {:width => 3000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/3000.jpg"},
         {:width => 5000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-9et0/5000.jpg"}
       ]
-      metadata[:versions].should eq expected_versions
+      expect(metadata[:versions]).to eq expected_versions
 
     end
   end
   describe "#tootsie_job" do
     it "provides a hash of parameters that can be used to post a transcoding job to tootsie" do
 
-      asset_store.should_receive(:host).any_number_of_times.and_return "example.com"
+      expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
 
       tootsie_job = bundle.to_tootsie_job
 
-      tootsie_job[:params][:input_url].should eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
+      expect(tootsie_job[:params][:input_url]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-9et0/original.jpg"
 
       expected_versions = [
         {
@@ -135,7 +135,7 @@ describe ImageBundle do
           :target_url => "s3:development.o5.no/area51/secret/unit/20120306122011-1498-9et0/5000.jpg?acl=public_read"
         }
       ]
-      tootsie_job[:params][:versions].should eq expected_versions
+      expect(tootsie_job[:params][:versions]).to eq expected_versions
 
     end
   end
