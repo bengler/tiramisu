@@ -17,7 +17,7 @@ describe 'S3ImageFile' do
 
   describe '#path' do
     it "includes the aspect ratio as a part of the path" do
-      expect(S3ImageFile.new(uid).path).to eql 'path/31122012-1337-randomstr/original.jpg'
+      expect(S3ImageFile.new(uid, {original_extension: 'png'}).path).to eql 'path/31122012-1337-randomstr/original.png'
     end
   end
 
@@ -29,10 +29,10 @@ describe 'S3ImageFile' do
 
   describe '#path_for_size' do
     it "generates a path for a given size (version) of the image" do
-      expect(S3ImageFile.new(uid).path_for_size(200)).to eql 'path/31122012-1337-randomstr/200.jpg'
+      expect(S3ImageFile.new(uid).path_for_size(200, extension: 'png')).to eql 'path/31122012-1337-randomstr/200.png'
     end
     it "generates a path for a given square-sized (version) of the image" do
-      expect(S3ImageFile.new(uid).path_for_size(200, :square => true)).to eql 'path/31122012-1337-randomstr/200sq.jpg'
+      expect(S3ImageFile.new(uid).path_for_size(200, square: true, extension: 'png')).to eql 'path/31122012-1337-randomstr/200sq.png'
     end
   end
 end

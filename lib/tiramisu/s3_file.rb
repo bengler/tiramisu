@@ -31,7 +31,7 @@ class S3File
     genus, path, _ = Pebbles::Uid.parse(base_uid.to_s)
     oid = create_oid(options)
     uid = Pebbles::Uid.new(Pebbles::Uid.build(genus, path, oid))
-    new(uid)
+    new(uid, options)
   end
 
   # Generates an unique oid based on a set of options.
@@ -43,7 +43,7 @@ class S3File
   # @return [String] the oid
 
   def self.create_oid(options)
-    filename = options[:filename] || 'original'
+    filename = options[:filename]
     extension = File.extname(filename)
     basename = File.basename(filename, extension)
 
@@ -58,9 +58,10 @@ class S3File
   attr_reader :uid
 
   # Uid must be instance of Pebbles::Uid
-  def initialize(uid)
+  def initialize(uid, options={})
     raise IncompleteUidError, "Missing oid in uid" if uid.oid.nil?
     @uid = uid
+    @options = options
   end
 
   # Path of the directory where file is located
@@ -88,6 +89,10 @@ class S3File
 
   def extension
     parse[2]
+  end
+
+  def original_extension
+    @options[:original_extension]
   end
 
   def basename

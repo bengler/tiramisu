@@ -45,7 +45,7 @@ class S3ImageFile < S3File
 
   # Full path of file (including filename)
   def path
-    "%s/%s" % [dirname, filename]
+    path_for_size('original', extension: original_extension)
   end
 
   def basename
@@ -57,10 +57,9 @@ class S3ImageFile < S3File
   end
 
   def path_for_size(size, options = {})
-    parts = [size]
-    parts << "sq" if options[:square]
-    ext = options[:format] || extension
-    "#{dirname}/#{parts.join("")}.#{ext}"
+    sq = options[:square] ? 'sq' : ''
+    ext = options[:extension] || extension
+    "#{dirname}/#{size}#{sq}.#{ext}"
   end
 
   def parse

@@ -17,6 +17,9 @@ describe 'API v1' do
     let(:rotated_image) {
       'spec/fixtures/rotated.jpg'
     }
+    let(:gif_image) {
+      'spec/fixtures/pandafail.gif'
+    }
 
     it "submits an image and returns a chunked json response with progress data and finally the image hash" do
 
@@ -46,11 +49,11 @@ describe 'API v1' do
       expect(path).to eq('realm.app.collection.box')
       expect(oid).to_not be_nil
 
-      timestamp, aspect_ratio, rand= oid.split("-")
+      timestamp, aspect_ratio, rand = oid.split("-")
       expect(aspect_ratio.to_i).to eq 1499
 
       expect(image['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
-      expect(image['versions'].map { |s| s['width'] }).to eq([100, 100, 300, 500])
+      expect(image['versions'].map { |s| s['width'] }).to eq([100, 100, 300, 500, 640])
 
       expect(image['original']).to match(/#{image['baseurl']}\/original.jpg/)
       expect(image['aspect_ratio'].to_f).to be_within(0.001).of(1.499)
@@ -81,6 +84,77 @@ describe 'API v1' do
       expect(aspect_ratio.to_i).to eq 558
 
       expect(image['aspect_ratio'].to_f).to be_within(0.001).of(0.558)
+    end
+
+    it "converts to jpeg unless explicitly told not to" do
+
+      expect_any_instance_of(AssetStore).to receive(:put).once do |_, _, intercepted|
+        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
+      end
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post) {|_, endpoint, params|
+        expect(endpoint).to eq('/jobs')
+        expect(params[:params][:input_url]).to end_with("original.gif")
+
+        versions = params[:params][:versions]
+
+        versions.each do |version|
+        expect(version[:target_url]).to match(/\d+(sq)?\.jpg\?.*$/)
+        end
+      }.once
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(gif_image, "image/gif")
+      end
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+
+      image = chunks.last['metadata']
+      versions = image['versions']
+      expect(image).to_not be_nil
+      oid = Pebbles::Uid.parse(image['uid']).last
+      expect(oid).to_not be_nil
+
+      versions.each do |version|
+        expect(version['url']).to end_with '.jpg'
+      end
+
+    end
+
+    it "converts to gif if force_jpeg is set to false" do
+
+      expect_any_instance_of(AssetStore).to receive(:put).once do |_, _, intercepted|
+        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
+      end
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post) {|_, endpoint, params|
+        expect(endpoint).to eq('/jobs')
+        expect(params[:params][:input_url]).to end_with("original.gif")
+
+        versions = params[:params][:versions]
+
+        versions.each do |version|
+          expect(version[:target_url]).to match(/\d+(sq)?\.gif\?.*/)
+        end
+      }.once
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$?force_jpeg=false", :file => Rack::Test::UploadedFile.new(gif_image, "image/gif")
+      end
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+
+      image = chunks.last['metadata']
+      versions = image['versions']
+      expect(image).to_not be_nil
+      expect(image['original']).to end_with '.gif'
+
+      versions.each do |version|
+        expect(version['url']).to end_with '.gif'
+      end
+
     end
 
     it "returns failure as last json chunk if uploaded file are of wrong format" do

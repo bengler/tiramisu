@@ -5,6 +5,9 @@ class TiramisuV1 < Sinatra::Base
 
   SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
 
+  # Do not transcode these formats to jpeg
+  KEEP_FORMATS = %w(png gif)
+
   class UnsupportedFormatError < Exception; end
   class MissingUploadedFileError < Exception; end
 
@@ -20,6 +23,8 @@ class TiramisuV1 < Sinatra::Base
   # @required [File] file Multipart form field containing the image to upload.
   # @optional [String] notification_url The endpoint where you wish to receive notification
   #   when the transfer and scaling job has been completed.
+  # @optional [boolean] force_jpeg Will converts all sizes/versions to jpeg. Defaults to true. Set this to false
+  #   in order to support gif and png transcoding
   # @status 200 A stream of JSON objects that describe the status of the transfer.
   #   When status is 'completed' an additional key, 'metadata' will be present containing the full uid
   #   as well as information about sizes, aspect ratio, and the paths to the stored images.
@@ -50,6 +55,7 @@ class TiramisuV1 < Sinatra::Base
 
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]
+        force_jpeg = params[:force_jpeg] != 'false'
 
         LOGGER.info 'Getting info about uploaded file'
         format, width, height, aspect_ratio = image_info(uploaded_file)
@@ -58,8 +64,11 @@ class TiramisuV1 < Sinatra::Base
           raise UnsupportedFormatError, "Format '#{format}' not supported"
         end
 
+        format = 'jpeg' if force_jpeg
         base_uid = Pebbles::Uid.new(uid)
-        s3_file = S3ImageFile.create(base_uid, :filename => filename, :aspect_ratio => aspect_ratio)
+        s3_file = S3ImageFile.create(base_uid,
+                                     :original_extension => File.extname(filename).slice(1..-1),
+                                     :aspect_ratio => aspect_ratio)
 
         LOGGER.info 'Transferring image to S3...'
         # Upload file to Amazon S3.
@@ -69,7 +78,12 @@ class TiramisuV1 < Sinatra::Base
         end)
         LOGGER.info '... Done!'
 
-        bundle = ImageBundle.new(asset_store, s3_file, {height: height, width: width, aspect_ratio: aspect_ratio})
+        bundle = ImageBundle.new(asset_store, s3_file, {
+          format: format,
+          height: height,
+          width: width, 
+          aspect_ratio: aspect_ratio
+        })
         job = bundle.to_tootsie_job
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
@@ -101,15 +115,15 @@ class TiramisuV1 < Sinatra::Base
 
   private
   def image_info(file)
-    extension, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
+    format, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
     if [5, 6, 7, 8].include?(orientation.to_i)
       # Adjust for exif orientation
       width, height = height, width
     end
 
-    width = width && width.to_f
-    height = height && height.to_f
+    width = width && width.to_i
+    height = height && height.to_i
 
-    [extension, width, height, (width && height && width / height) || 0]
+    [format && format.downcase, width, height, (width && height && width.to_f / height.to_f) || 0]
   end
 end
