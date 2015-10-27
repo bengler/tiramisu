@@ -20,6 +20,9 @@ describe 'API v1' do
     let(:gif_image) {
       'spec/fixtures/pandafail.gif'
     }
+    let(:bmp_image) {
+      'spec/fixtures/mann.bmp'
+    }
 
     it "submits an image and returns a chunked json response with progress data and finally the image hash" do
 
@@ -153,6 +156,42 @@ describe 'API v1' do
 
       versions.each do |version|
         expect(version['url']).to end_with '.gif'
+      end
+
+    end
+
+    it "converts to jpeg if force_jpeg is set to false and target format is not in #{TiramisuV1::KEEP_FORMATS}" do
+
+      expect_any_instance_of(AssetStore).to receive(:put).once do |_, _, intercepted|
+        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
+      end
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post) {|_, endpoint, params|
+        expect(endpoint).to eq('/jobs')
+        expect(params[:params][:input_url]).to end_with("original.bmp")
+
+        versions = params[:params][:versions]
+
+        versions.each do |version|
+          expect(version[:target_url]).to match(/\d+(sq)?\.jpg\?.*/)
+          expect(version[:format]).to eq("jpeg")
+        end
+      }.once
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$?force_jpeg=false", :file => Rack::Test::UploadedFile.new(bmp_image, "image/bmp")
+      end
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+
+      image = chunks.last['metadata']
+      versions = image['versions']
+      expect(image).to_not be_nil
+      expect(image['original']).to end_with '.bmp'
+
+      versions.each do |version|
+        expect(version['url']).to end_with '.jpg'
       end
 
     end

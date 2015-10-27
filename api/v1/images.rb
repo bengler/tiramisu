@@ -64,7 +64,7 @@ class TiramisuV1 < Sinatra::Base
           raise UnsupportedFormatError, "Format '#{format}' not supported"
         end
 
-        format = 'jpeg' if force_jpeg
+        format = 'jpeg' if force_jpeg or !KEEP_FORMATS.include?(format)
         base_uid = Pebbles::Uid.new(uid)
         s3_file = S3ImageFile.create(base_uid,
                                      :original_extension => File.extname(filename).slice(1..-1),
@@ -81,7 +81,7 @@ class TiramisuV1 < Sinatra::Base
         bundle = ImageBundle.new(asset_store, s3_file, {
           format: format,
           height: height,
-          width: width, 
+          width: width,
           aspect_ratio: aspect_ratio
         })
         job = bundle.to_tootsie_job
