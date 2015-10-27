@@ -164,4 +164,36 @@ describe ImageBundle do
       expect(version[:target_url]).to match /s3:development\.o5\.no\/area51\/secret\/unit\/\d+-1498-\w+\/\d+(sq)?.gif\?acl=public_read/
     end
   end
+
+
+  it "does convert bmp to jpeg" do
+
+    expect(SecureRandom).to receive(:random_number).and_return 807980
+
+    expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
+
+    s3_file = S3ImageFile.create("image:area51.secret.unit",
+                                 :original_extension => 'bmp',
+                                 :extension => 'bmp',
+                                 :aspect_ratio => 1.498)
+
+    bundle = ImageBundle.new(asset_store, s3_file, {
+                                            format: 'bmp',
+                                            height: 1080,
+                                            width: 1920,
+                                            aspect_ratio: 16.0/9.0
+                                        })
+
+    tootsie_job = bundle.to_tootsie_job
+
+    expect(tootsie_job[:params][:input_url]).to match /http:\/\/example\.com\/area51\/secret\/unit\/\d+-1498-\w+\/original\.bmp/
+
+    versions = tootsie_job[:params][:versions]
+
+    versions.each do |version|
+      expect(version[:format]).to eq('jpeg')
+      expect(version[:target_url]).to match /s3:development\.o5\.no\/area51\/secret\/unit\/\d+-1498-\w+\/\d+(sq)?.gif\?acl=public_read/
+    end
+  end
+
 end
