@@ -104,5 +104,6 @@ class S3File
   def parse
     timestamp, random, extension, *filename = @uid.oid.split("-")
     [timestamp, random, extension, filename.join("-")]
-    end
+  end
+
 end

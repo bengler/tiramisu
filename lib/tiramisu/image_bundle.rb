@@ -4,24 +4,24 @@
 class ImageBundle
 
   PREFERRED_SIZES = [
-      {:width => 100},
-      {:width => 100, :square => true},
-      {:width => 300},
-      {:width => 500, :square => true},
-      {:width => 700},
-      {:width => 1000},
-      {:width => 1600},
-      {:width => 2048},
-      {:width => 3000},
-      {:width => 5000, :medium => 'print'}
+    {:width => 100},
+    {:width => 100, :square => true},
+    {:width => 300},
+    {:width => 500, :square => true},
+    {:width => 700},
+    {:width => 1000},
+    {:width => 1600},
+    {:width => 2048},
+    {:width => 3000},
+    {:width => 5000, :medium => 'print'}
   ]
 
   # Maps from imagemagic format output to the extension used in urls
   EXTENSIONS = {
-      'jpg' => 'jpg',
-      'jpeg' => 'jpg',
-      'gif' => 'gif',
-      'png' => 'png'
+    'jpg' => 'jpg',
+    'jpeg' => 'jpg',
+    'gif' => 'gif',
+    'png' => 'png'
   }
 
   attr_reader :asset_store, :s3_image_file
@@ -34,12 +34,12 @@ class ImageBundle
 
   def metadata
     {
-        :uid => s3_image_file.uid.to_s,
-        :baseurl => asset_store.url_for(s3_image_file.dirname),
-        :original => asset_store.url_for(s3_image_file.path),
-        :fullsize => versions.last[:url],
-        :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0,
-        :versions => versions
+      :uid => s3_image_file.uid.to_s,
+      :baseurl => asset_store.url_for(s3_image_file.dirname),
+      :original => asset_store.url_for(s3_image_file.path),
+      :fullsize => versions.last[:url],
+      :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0,
+      :versions => versions
     }
   end
 
@@ -68,10 +68,11 @@ class ImageBundle
   def versions
     valid_sizes
       .map { |size|
-        s3_path = s3_image_file.path_for_size(size[:width], :square => size[:square],
-                                              :extension => EXTENSIONS[target_format])
+        s3_path = s3_image_file.path_for_size(size[:width],
+          :square => size[:square],
+          :extension => EXTENSIONS[target_format]
+        )
         s3_url = asset_store.url_for(s3_path)
-
         {
           width: size[:width],
           square: size[:square],
@@ -81,7 +82,6 @@ class ImageBundle
   end
 
   def to_tootsie_job
-
     params = {}
     params[:input_url] = asset_store.url_for(s3_image_file.path)
     params[:versions] = valid_sizes.map do |size|
@@ -95,8 +95,10 @@ class ImageBundle
       version[:width] = size[:width]
       version[:strip_metatadata] = true
       version[:medium] = 'web'
-      path_for_size = s3_image_file.path_for_size(size[:width], :square => size[:square],
-                                                  :extension => EXTENSIONS[target_format])
+      path_for_size = s3_image_file.path_for_size(size[:width],
+        :square => size[:square],
+        :extension => EXTENSIONS[target_format]
+      )
       target_url = asset_store.s3_url_for(path_for_size)
       version[:target_url] = "#{target_url}?acl=public_read"
       version
@@ -107,4 +109,5 @@ class ImageBundle
       params: params
     }
   end
+
 end
