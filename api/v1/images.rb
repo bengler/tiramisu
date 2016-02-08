@@ -129,6 +129,7 @@ class TiramisuV1 < Sinatra::Base
 
     path = params[:path]
     halt [400, {error: 'no path'}.to_json] unless path
+    halt [403, {error: 'You must be god to delete anything'}.to_json] unless identity_is_god?
 
     LOGGER.info "Delete image at #{path}"
     # TODO: halt 403 unless god
