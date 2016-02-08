@@ -17,6 +17,11 @@ class AssetStore
     object.save
   end
 
+  def delete(path)
+    object = @bucket.objects.find(path)
+    return object.destroy
+  end
+
   def host
     @bucket.host
   end
