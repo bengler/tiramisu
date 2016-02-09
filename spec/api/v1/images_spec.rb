@@ -8,6 +8,29 @@ describe 'API v1' do
     TiramisuV1
   end
 
+  describe 'DELETE /images' do
+
+    it 'only gods may delete stuff' do
+      delete '/images', :path => 'realm/app/collection/bliff/300.jpg'
+      expect(last_response.status).to eq(403)
+    end
+
+    it 'works' do
+      path = 'realm/app/collection/bliff/300.jpg'
+      expect_any_instance_of(TiramisuV1).to receive(:identity_is_god?).once.and_return true
+      expect_any_instance_of(AssetStore).to receive(:delete).once.with(path).and_return true
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        delete '/images', :path => path
+      end
+
+      expect(last_response.status).to eq(200)
+      success = JSON.parse(last_response.body)['deleted']
+      expect(success).to be true
+    end
+
+  end
+
   describe 'POST /images/:uid' do
 
     let(:chunked_json_response) { last_response.body.split("\n").map { |chunk| JSON.parse(chunk) } }

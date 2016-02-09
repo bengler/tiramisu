@@ -113,7 +113,47 @@ class TiramisuV1 < Sinatra::Base
     end
   end
 
+
+  # @apidoc
+  # Delete a single image from S3.
+  #
+  # @category Tiramisu
+  # @path /api/tiramisu/v1/images/:path
+  # @http DELETE
+  #
+  # @required [String] path The whole image URL minus hostname, e.g. apdm/oa/kittens/20160208121232-809-a5x0/original.jpg.
+  # @example /api/tiramisu/v1/images
+  # @status 200 [JSON] {deleted: true} if the delete operation succeeded, else an error message.
+  delete '/images' do
+    content_type 'application/json', :charset => 'utf-8'
+
+    path = params[:path]
+    halt 400, {error: 'no path'}.to_json unless path
+    halt 403, {error: 'You must be god to delete anything'}.to_json unless identity_is_god?
+
+    LOGGER.info "Delete image at #{path}"
+    # TODO: halt 403 unless god
+
+    begin
+      # Delete file from Amazon S3.
+      delete_ok = asset_store.delete path
+      halt 200, {deleted: delete_ok}.to_json
+
+    rescue S3::Error::NoSuchKey => e
+      message = "Unknown image: #{path}"
+      LOGGER.warn message
+      halt 404, {error: message}.to_json
+
+    rescue S3::Error::AccessDenied => e
+      message = "#{e.message} at S3 for path: #{path}. Key/bucket trouble?"
+      LOGGER.warn message
+      halt 403, {error: message}.to_json
+    end
+  end
+
+
   private
+
   def image_info(file)
     format, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
     if [5, 6, 7, 8].include?(orientation.to_i)

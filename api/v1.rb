@@ -30,7 +30,7 @@ class TiramisuV1 < Sinatra::Base
 
     def stream_file(&block)
       opts = {
-        postmessage: request.params['postmessage'] == 'true' 
+        postmessage: request.params['postmessage'] == 'true'
       }
       stream do |out|
         out << " " * 256 if !opts[:postmessage] && request.user_agent =~ /MSIE/ # ie need ~ 250 k of prelude before it starts flushing the response buffer
@@ -41,6 +41,11 @@ class TiramisuV1 < Sinatra::Base
         out << ";" if !opts[:postmessage] && request.user_agent =~ /MSIE/ # Damn you, IE...
       end
     end
+
+    def identity_is_god?
+      current_identity && current_identity.respond_to?(:god) && current_identity.god
+    end
+
 
   end
 
