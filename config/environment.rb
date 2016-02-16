@@ -14,6 +14,7 @@ environment = ENV['RACK_ENV']
 Pebblebed.config do
   host Tiramisu.config['tootsie']
   service :tootsie
+  service :checkpoint
 end
 
 unless defined?(LOGGER)
