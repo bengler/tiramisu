@@ -42,10 +42,10 @@ class TiramisuV1 < Sinatra::Base
       end
     end
 
-    def identity_is_god?
-      current_identity && current_identity.respond_to?(:god) && current_identity.god
+    def identity_is_god?(realm)
+      identity = current_identity
+      (identity && identity.respond_to?(:god) && identity.god && identity.realm == realm)
     end
-
 
   end
 
@@ -54,8 +54,10 @@ class TiramisuV1 < Sinatra::Base
     # Safari and Opera sends "undefined"
     raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
   end
-  def pebbles
+
+  def tootsie
     #Quickfix for bandwagon
-    @pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => settings.config['tootsie'])
+    @toots_pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => settings.config['tootsie'])
+    @toots_pebbles.tootsie
   end
 end

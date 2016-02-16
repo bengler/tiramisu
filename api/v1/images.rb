@@ -88,7 +88,7 @@ class TiramisuV1 < Sinatra::Base
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
         LOGGER.info 'Posting transcoding job to tootsie'
-        pebbles.tootsie.post("/jobs", job)
+        tootsie.post("/jobs", job)
         LOGGER.info '... Done!'
 
 
@@ -128,11 +128,9 @@ class TiramisuV1 < Sinatra::Base
     content_type 'application/json', :charset => 'utf-8'
 
     path = params[:path]
+    realm = path.split('/').first
     halt 400, {error: 'no path'}.to_json unless path
-    halt 403, {error: 'You must be god to delete anything'}.to_json unless identity_is_god?
-
-    LOGGER.info "Delete image at #{path}"
-    # TODO: halt 403 unless god
+    halt 403, {error: "You must be god to delete #{path} from #{realm}"}.to_json unless identity_is_god? realm
 
     begin
       # Delete file from Amazon S3.

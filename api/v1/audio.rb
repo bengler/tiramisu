@@ -52,7 +52,7 @@ class TiramisuV1 < Sinatra::Base
 
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
-        pebbles.tootsie.post("/jobs", job)
+        tootsie.post("/jobs", job)
 
         progress.completed :metadata => bundle.metadata
 
