@@ -29,7 +29,7 @@ Tiramisu uses the environment variable `RACK_ENV` to determine current environme
         access_key_id: <aws access key>
         secret_access_key: <aws secret>
         bucket: <your bucket name>
-      tootsie: <your tootsie pebble's host>
+
     production:
       ...
 
@@ -139,4 +139,4 @@ When configuring this service for production mind the following points:
   display. Thus unicorn and possibly other services in the http-chain must be configured
   to allow considerable connection time. Minutes!
 
-* Tiramisu employs Tootsie to transcode the images. An instance of the tootsie pebble must be up and running at the configured tootsie host
+* Tiramisu employs Tootsie to transcode the images. An instance of the tootsie pebble must be up and running.

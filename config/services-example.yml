@@ -4,18 +4,15 @@ production:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: tiramisu.o5.no
 
 staging:
   S3:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: tiramisu.staging.o5.no
 
 development:
   S3:
     access_key_id: THES3KEY
     secret_access_key: the/S3/secret0access+key
     bucket: the.s3.bucket
-  tootsie: tiramisu.dev
