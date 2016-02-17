@@ -55,9 +55,4 @@ class TiramisuV1 < Sinatra::Base
     raise MissingUploadedFileError if params[:file].nil? || params[:file] == '' || params[:file] == 'undefined'
   end
 
-  def tootsie
-    #Quickfix for bandwagon
-    @toots_pebbles ||= ::Pebblebed::Connector.new(checkpoint_session, :host => settings.config['tootsie'])
-    @toots_pebbles.tootsie
-  end
 end
