@@ -143,7 +143,7 @@ class TiramisuV1 < Sinatra::Base
       halt 404, {error: message}.to_json
 
     rescue S3::Error::AccessDenied => e
-      message = "#{e.message} at S3 for path: #{path}. Key/bucket trouble?"
+      message = "S3 sez access denied for path: #{path}. Key/bucket trouble?"
       LOGGER.warn message
       halt 403, {error: message}.to_json
     end
