@@ -88,7 +88,7 @@ class TiramisuV1 < Sinatra::Base
         job[:notification_url] = params[:notification_url] if params[:notification_url]
 
         LOGGER.info 'Posting transcoding job to tootsie'
-        tootsie.post("/jobs", job)
+        pebbles.tootsie.post("/jobs", job)
         LOGGER.info '... Done!'
 
 
