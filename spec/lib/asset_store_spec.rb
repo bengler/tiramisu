@@ -8,7 +8,7 @@ describe AssetStore do
     it "figures out the url of a path" do
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
         store = AssetStore.new(config)
-        expect(store.url_for("a/path/with/file.ext")).to eql "http://development.o5.no.s3.amazonaws.com/a/path/with/file.ext"
+        expect(store.url_for("a/path/with/file.ext")).to eql "https://s3-eu-west-1.amazonaws.com/development.o5.no/a/path/with/file.ext"
       end
     end
     it "figures out the S3 url of a path" do

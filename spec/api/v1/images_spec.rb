@@ -78,7 +78,7 @@ describe 'API v1' do
       timestamp, aspect_ratio, rand = oid.split("-")
       expect(aspect_ratio.to_i).to eq 1499
 
-      expect(image['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
+      expect(image['baseurl']).to match(/https\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{aspect_ratio}-#{rand}/)
       expect(image['versions'].map { |s| s['width'] }).to eq([100, 100, 300, 500, 640])
 
       expect(image['original']).to match(/#{image['baseurl']}\/original.jpg/)
