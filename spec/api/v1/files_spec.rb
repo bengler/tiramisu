@@ -40,9 +40,9 @@ describe 'API v1' do
       expect(path).to eq('realm.app.collection.box')
       expect(oid).to_not be_nil
 
-      expect(file['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/.*/)
+      expect(file['baseurl']).to match(/https\:\/\/.+\/#{path.split(".").join("/")}\/.*/)
 
-      expect(file['original']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/.*\/programmer\.pdf/)
+      expect(file['original']).to match(/https\:\/\/.+\/#{path.split(".").join("/")}\/.*\/programmer\.pdf/)
 
     end
 

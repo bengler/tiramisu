@@ -44,7 +44,7 @@ describe 'API v1' do
 
       expect(extension).to eq "mp3"
 
-      expect(audio_file['baseurl']).to match(/http\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
+      expect(audio_file['baseurl']).to match(/https\:\/\/.+\/#{path.split(".").join("/")}\/#{timestamp}-#{rand}/)
 
       expect(audio_file['versions'].map{|v| v['format']}).to eq AudioBundle::OUTPUT_FORMATS.map {|f| f[:format]}
 
