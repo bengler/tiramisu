@@ -35,7 +35,7 @@ class AssetStore
   def url_for(path)
     ssl_host = 's3-eu-west-1.amazonaws.com'
     ssl_root_path = host.sub('.s3.amazonaws.com', '')
-    "https://#{ssl_host}/#{ssl_root_path}/#{path}"
+    "#{protocol}#{ssl_host}/#{ssl_root_path}/#{path}"
   end
 
 
