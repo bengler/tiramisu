@@ -39,6 +39,7 @@ class ImageBundle
       :original => asset_store.url_for(s3_image_file.path),
       :fullsize => versions.last[:url],
       :aspect_ratio => s3_image_file.aspect_ratio.to_f/1000.0,
+      :secure_access => true,
       :versions => versions
     }
   end
