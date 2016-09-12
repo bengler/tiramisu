@@ -27,12 +27,17 @@ class AssetStore
   end
 
   def protocol
-    @service.protocol
+    'https://' # used to be @service.protocol, now we always want an https url
   end
 
+  # old: http://apps.o5.no.s3.amazonaws.com/apdm/commercial/sanity/stories/20150701124117-1333-p6q9/2048.jpg
+  # new: https://s3-eu-west-1.amazonaws.com/apps.o5.no/apdm/commercial/sanity/stories/20150701124117-1333-p6q9/2048.jpg
   def url_for(path)
-    "#{protocol}#{host}/#{path}"
+    ssl_host = 's3-eu-west-1.amazonaws.com'
+    ssl_root_path = host.sub('.s3.amazonaws.com', '')
+    "https://#{ssl_host}/#{ssl_root_path}/#{path}"
   end
+
 
   def s3_url_for(path)
     "s3:#{@bucket.name}/#{path}"
