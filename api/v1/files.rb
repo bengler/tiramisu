@@ -46,7 +46,8 @@ class TiramisuV1 < Sinatra::Base
         progress.completed :metadata => {
           :uid => s3_file.uid,
           :baseurl => asset_store.url_for(s3_file.dirname),
-          :original => asset_store.url_for(s3_file.path)
+          :original => asset_store.url_for(s3_file.path),
+          :secure_access => true
         }
       rescue MissingUploadedFileError => e
         progress.failed('missing-uploaded-file')
