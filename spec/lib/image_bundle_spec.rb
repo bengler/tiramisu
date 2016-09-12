@@ -19,7 +19,7 @@ describe ImageBundle do
   describe "#metadata" do
     it "provides an image metadata hash for the client" do
 
-      expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
+      expect(asset_store).to receive(:host).at_least(:once).and_return "apps.o5.no.s3.amazonaws.com"
       expect(asset_store).to receive(:protocol).at_least(:once).and_return "http://"
 
       bundle = ImageBundle.new(asset_store, image_file, {
@@ -32,19 +32,19 @@ describe ImageBundle do
       metadata = bundle.metadata
 
       expect(metadata[:uid]).to eq "image:area51.secret.unit$20120306122011-1498-uuva"
-      expect(metadata[:baseurl]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-uuva"
-      expect(metadata[:original]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-uuva/original.jpg"
+      expect(metadata[:baseurl]).to eq "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva"
+      expect(metadata[:original]).to eq "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/original.jpg"
       expect(metadata[:aspect_ratio]).to eq 1.498
 
       expected_versions = [
-        {:width => 100, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/100.jpg"},
-        {:width => 100, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/100sq.jpg"},
-        {:width => 300, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/300.jpg"},
-        {:width => 500, :square => true, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/500sq.jpg"},
-        {:width => 700, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/700.jpg"},
-        {:width => 1000, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/1000.jpg"},
-        {:width => 1600, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/1600.jpg"},
-        {:width => 1920, :square => false, :url => "http://example.com/area51/secret/unit/20120306122011-1498-uuva/1920.jpg"}
+        {:width => 100, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/100.jpg"},
+        {:width => 100, :square => true, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/100sq.jpg"},
+        {:width => 300, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/300.jpg"},
+        {:width => 500, :square => true, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/500sq.jpg"},
+        {:width => 700, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/700.jpg"},
+        {:width => 1000, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/1000.jpg"},
+        {:width => 1600, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/1600.jpg"},
+        {:width => 1920, :square => false, :url => "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/1920.jpg"}
       ]
       expect(metadata[:versions]).to eq expected_versions
 
@@ -53,7 +53,7 @@ describe ImageBundle do
   describe "#tootsie_job" do
     it "provides a hash of parameters that can be used to post a transcoding job to tootsie" do
 
-      expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
+      expect(asset_store).to receive(:host).at_least(:once).and_return "apps.o5.no.s3.amazonaws.com"
 
       bundle = ImageBundle.new(asset_store, image_file, {
                                               format: 'jpeg',
@@ -64,7 +64,7 @@ describe ImageBundle do
 
       tootsie_job = bundle.to_tootsie_job
 
-      expect(tootsie_job[:params][:input_url]).to eq "http://example.com/area51/secret/unit/20120306122011-1498-uuva/original.jpg"
+      expect(tootsie_job[:params][:input_url]).to eq "http://apps.o5.no.s3.amazonaws.com/area51/secret/unit/20120306122011-1498-uuva/original.jpg"
 
       expected_versions = [
           {
@@ -139,7 +139,7 @@ describe ImageBundle do
 
     expect(SecureRandom).to receive(:random_number).and_return 807980
 
-    expect(asset_store).to receive(:host).at_least(:once).and_return "example.com"
+    expect(asset_store).to receive(:host).at_least(:once).and_return "apps.o5.no.s3.amazonaws.com"
 
     s3_file = S3ImageFile.create("image:area51.secret.unit",
                                  :original_extension => 'gif',
@@ -155,7 +155,7 @@ describe ImageBundle do
 
     tootsie_job = bundle.to_tootsie_job
 
-    expect(tootsie_job[:params][:input_url]).to match /http:\/\/example\.com\/area51\/secret\/unit\/\d+-1498-\w+\/original\.gif/
+    expect(tootsie_job[:params][:input_url]).to match /http:\/\/apps\.o5\.no\.s3\.amazonaws\.com\/area51\/secret\/unit\/\d+-1498-\w+\/original\.gif/
 
     versions = tootsie_job[:params][:versions]
 
