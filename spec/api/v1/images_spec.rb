@@ -29,6 +29,21 @@ describe 'API v1' do
       expect(success).to be true
     end
 
+    it 'works with bucket prefix to path' do
+      path = 'apps.o5.no/realm/app/collection/bliff/300.jpg'
+      stripped_path = path.sub(/^\w+\.o5\.no\//, '')
+      expect_any_instance_of(TiramisuV1).to receive(:identity_is_god?).once.and_return true
+      expect_any_instance_of(AssetStore).to receive(:delete).once.with(stripped_path).and_return true
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        delete '/images', :path => path
+      end
+
+      expect(last_response.status).to eq(200)
+      success = JSON.parse(last_response.body)['deleted']
+      expect(success).to be true
+    end
+
   end
 
   describe 'POST /images/:uid' do

@@ -128,8 +128,9 @@ class TiramisuV1 < Sinatra::Base
     content_type 'application/json', :charset => 'utf-8'
 
     path = params[:path]
-    realm = path.split('/').first
     halt 400, {error: 'no path'}.to_json unless path
+    path = path.sub(/^\w+\.o5\.no\//, '') # new paths are prefixed by bucket name
+    realm = path.split('/').first
     halt 403, {error: "You must be god to delete #{path} from #{realm}"}.to_json unless identity_is_god? realm
 
     begin
