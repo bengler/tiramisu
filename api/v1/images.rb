@@ -1,7 +1,7 @@
 require 'cgi'
 require 'timeout'
 
-VALID_ORIENTATION_IDS = %w(top-left top-right bottom-right bottom-left left-top right-top right-bottom left-bottom)
+ORIENTATION_IDS = %w(top-left top-right bottom-right bottom-left left-top right-top right-bottom left-bottom)
 
 class TiramisuV1 < Sinatra::Base
 
@@ -65,8 +65,8 @@ class TiramisuV1 < Sinatra::Base
 
         if force_orientation
           LOGGER.info "Forcing orientation #{force_orientation} on uploaded file"
-          unless VALID_ORIENTATION_IDS.include?(force_orientation)
-            raise InvalidParameterError, "Invalid orientation '#{force_orientation}'. Must be one of #{VALID_ORIENTATION_IDS}"
+          unless ORIENTATION_IDS.include?(force_orientation)
+            raise InvalidParameterError, "Invalid orientation '#{force_orientation}'. Must be one of #{ORIENTATION_IDS}"
           end
           force_orientation_on_uploaded_file(uploaded_file.path, force_orientation)
         end
@@ -168,7 +168,8 @@ class TiramisuV1 < Sinatra::Base
   private
 
   def force_orientation_on_uploaded_file(filepath, orientation)
-    `mogrify -orient #{orientation} #{filepath}`
+    orientation_id = ORIENTATION_IDS.find_index(orientation)
+    `exiftool -Orientation=#{orientation_id} -overwrite_original_in_place -n #{filepath}`
   end
 
   def image_info(file)
