@@ -55,6 +55,9 @@ describe 'API v1' do
     let(:rotated_image) {
       'spec/fixtures/rotated.jpg'
     }
+    let(:wrongly_rotated_image) {
+      'spec/fixtures/wrong-orientation.jpg'
+    }
     let(:gif_image) {
       'spec/fixtures/pandafail.gif'
     }
@@ -122,9 +125,38 @@ describe 'API v1' do
 
       _, aspect_ratio, _ = oid.split("-")
 
-      expect(aspect_ratio.to_i).to eq 558
+      expect(aspect_ratio.to_i).to eq 1333
 
-      expect(image['aspect_ratio'].to_f).to be_within(0.001).of(0.558)
+      expect(image['aspect_ratio'].to_f).to be_within(0.001).of(1.333)
+    end
+
+    it "forces an orientation on image" do
+
+      expect_any_instance_of(AssetStore).to receive(:put).once do |instance, url, intercepted|
+        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
+      end
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post).with("/jobs", anything()).once
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$?force_orientation=left-bottom", {
+          :file => Rack::Test::UploadedFile.new(wrongly_rotated_image, "image/jpeg")
+        }
+      end
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+
+      image = chunks.last['metadata']
+      expect(image).to_not be_nil
+      oid = Pebbles::Uid.parse(image['uid']).last
+      expect(oid).to_not be_nil
+
+      _, aspect_ratio, _ = oid.split("-")
+
+      expect(aspect_ratio.to_i).to eq 1333
+
+      expect(image['aspect_ratio'].to_f).to be_within(0.001).of(1.333)
     end
 
     it "converts to jpeg unless explicitly told not to" do
