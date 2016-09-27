@@ -86,7 +86,7 @@ class TiramisuV1 < Sinatra::Base
 
         LOGGER.info 'Transferring image to S3...'
         # Upload file to Amazon S3.
-        asset_store.put s3_file.path, (Interceptor.wrap(params[:file][:tempfile], :read) do |file|
+        asset_store.put s3_file.path, (Interceptor.wrap(File.open(uploaded_file), :read) do |file|
           # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
           progress.transferring(file.pos.to_f/file.size)
         end)
@@ -168,8 +168,7 @@ class TiramisuV1 < Sinatra::Base
   private
 
   def force_orientation_on_uploaded_file(filepath, orientation)
-    res = `mogrify -orient #{orientation} #{filepath}`
-    LOGGER.info("mogrify -orient #{orientation} #{filepath} => #{res}")
+    `mogrify -orient #{orientation} #{filepath}`
   end
 
   def image_info(file)
