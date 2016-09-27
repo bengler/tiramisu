@@ -168,7 +168,8 @@ class TiramisuV1 < Sinatra::Base
   private
 
   def force_orientation_on_uploaded_file(filepath, orientation)
-    `mogrify -orient #{orientation} #{filepath}`
+    res = `mogrify -orient #{orientation} #{filepath}`
+    LOGGER.info("mogrify -orient #{orientation} #{filepath} => #{res}")
   end
 
   def image_info(file)
