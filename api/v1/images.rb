@@ -1,6 +1,8 @@
 require 'cgi'
 require 'timeout'
 
+VALID_ORIENTATION_IDS = %w(top-left top-right bottom-right bottom-left left-top right-top right-bottom left-bottom)
+
 class TiramisuV1 < Sinatra::Base
 
   SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
@@ -10,6 +12,7 @@ class TiramisuV1 < Sinatra::Base
 
   class UnsupportedFormatError < Exception; end
   class MissingUploadedFileError < Exception; end
+  class InvalidParameterError < Exception; end
 
   # @apidoc
   # Post a job to scale and store an image.
@@ -23,8 +26,9 @@ class TiramisuV1 < Sinatra::Base
   # @required [File] file Multipart form field containing the image to upload.
   # @optional [String] notification_url The endpoint where you wish to receive notification
   #   when the transfer and scaling job has been completed.
-  # @optional [boolean] force_jpeg Will converts all sizes/versions to jpeg. Defaults to true. Set this to false
+  # @optional [boolean] force_jpeg Will convert all sizes/versions to jpeg. Defaults to true. Set this to false
   #   in order to support gif and png transcoding
+  # @optional [string] force_orientation Will force set an orientation on image
   # @status 200 A stream of JSON objects that describe the status of the transfer.
   #   When status is 'completed' an additional key, 'metadata' will be present containing the full uid
   #   as well as information about sizes, aspect ratio, and the paths to the stored images.
@@ -56,6 +60,16 @@ class TiramisuV1 < Sinatra::Base
         uploaded_file = params[:file][:tempfile]
         filename = params[:file][:filename]
         force_jpeg = params[:force_jpeg] != 'false'
+
+        force_orientation = params.include?('force_orientation') && params['force_orientation']
+
+        if force_orientation
+          LOGGER.info "Forcing orientation #{force_orientation} on uploaded file"
+          unless VALID_ORIENTATION_IDS.include?(force_orientation)
+            raise InvalidParameterError, "Invalid orientation '#{force_orientation}'. Must be one of #{VALID_ORIENTATION_IDS}"
+          end
+          force_orientation_on_uploaded_file(uploaded_file.path, force_orientation)
+        end
 
         LOGGER.info 'Getting info about uploaded file'
         format, width, height, aspect_ratio = image_info(uploaded_file)
@@ -152,6 +166,10 @@ class TiramisuV1 < Sinatra::Base
 
 
   private
+
+  def force_orientation_on_uploaded_file(filepath, orientation)
+    `mogrify -orient #{orientation} #{filepath}`
+  end
 
   def image_info(file)
     format, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
