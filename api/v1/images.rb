@@ -169,7 +169,7 @@ class TiramisuV1 < Sinatra::Base
 
   def force_orientation_on_uploaded_file(filepath, orientation)
     orientation_id = ORIENTATION_IDS.find_index(orientation) + 1
-    `exiftool -Orientation=#{orientation_id} -overwrite_original_in_place -n #{filepath}`
+    `exiftool -ignoreMinorErrors -Orientation=#{orientation_id} -overwrite_original_in_place -n #{filepath}`
   end
 
   def image_info(file)
