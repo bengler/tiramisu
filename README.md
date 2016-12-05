@@ -1,6 +1,6 @@
 # Tiramisu
 
-[![Build Status](https://semaphoreapp.com/api/v1/projects/07b8419278106d09595c3737e0b53ee5aee4d072/28252/badge.png)](https://semaphoreapp.com/projects/1574/branches/28252)
+[![Build Status](https://semaphoreci.com/api/v1/bengler/tiramisu/branches/master/badge.svg)](https://semaphoreci.com/bengler/tiramisu)
 
 A service for managing user-originated uploads and asset-processing.
 
