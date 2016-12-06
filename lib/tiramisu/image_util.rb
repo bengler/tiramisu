@@ -23,7 +23,13 @@ class ImageUtil
 
   def self.dimensions(path)
     lines = `vipsheader --all #{path} 2> /dev/null`.split("\n")
-    return identify_fallback(path) if $?.exitstatus > 0
+    if $?.exitstatus > 0
+      # vipsheader failed, find out why
+      reason = `vipsheader --all #{path} 2>&1`
+      raise StandardError.new('Make sure vipsheader is installed and in your path') if reason.include? 'command not found'
+      LOGGER.info("Shell command vipsheader failed. Reason:\n#{reason}")
+      return identify_fallback(path)
+    end
     width = nil
     height = nil
     orientation = nil

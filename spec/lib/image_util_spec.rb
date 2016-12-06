@@ -32,24 +32,28 @@ describe ImageUtil do
 
     it 'figures out image metrics' do
       path = './spec/fixtures/strange_image_files/jpg.jpg'
+      expect(ImageUtil).not_to receive(:identify_fallback)
       metrics = ImageUtil.read_metrics(path)
       expect(metrics).to eq(['jpeg', '1024', '680'])
     end
 
     it 'reads orientation' do
       path = './spec/fixtures/rotated.jpg'
+      expect(ImageUtil).not_to receive(:identify_fallback)
       metrics = ImageUtil.read_metrics(path)
       expect(metrics).to eq(['jpeg', '450', '600', '8'])
     end
 
     it 'reads bmp file even if its borked' do
       path = './spec/fixtures/strange_image_files/bmp_borked.bmp'
+      expect(ImageUtil).to receive(:identify_fallback).and_call_original
       metrics = ImageUtil.read_metrics(path)
       expect(metrics).to eq(['bmp', '99', '100'])
     end
 
     it 'reads psd files' do
       path = './spec/fixtures/strange_image_files/psd.psd'
+      expect(ImageUtil).to receive(:identify_fallback).and_call_original
       metrics = ImageUtil.read_metrics(path)
       expect(metrics).to eq(['psd', '33', '50'])
     end
