@@ -68,11 +68,11 @@ class TiramisuV1 < Sinatra::Base
           unless ORIENTATION_IDS.include?(force_orientation)
             raise InvalidParameterError, "Invalid orientation '#{force_orientation}'. Must be one of #{ORIENTATION_IDS}"
           end
-          force_orientation_on_uploaded_file(uploaded_file.path, force_orientation)
+          ImageUtil.force_orientation_on_file(uploaded_file.path, force_orientation)
         end
 
         LOGGER.info 'Getting info about uploaded file'
-        format, width, height, aspect_ratio = image_info(uploaded_file)
+        format, width, height, aspect_ratio = ImageUtil.sanitized_image_info(uploaded_file.path)
 
         if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
           raise UnsupportedFormatError, "Format '#{format}' not supported"
@@ -164,24 +164,4 @@ class TiramisuV1 < Sinatra::Base
     end
   end
 
-
-  private
-
-  def force_orientation_on_uploaded_file(filepath, orientation)
-    orientation_id = ORIENTATION_IDS.find_index(orientation) + 1
-    `exiftool -ignoreMinorErrors -Orientation=#{orientation_id} -overwrite_original_in_place -n #{filepath}`
-  end
-
-  def image_info(file)
-    format, width, height, orientation = `identify -format '%m %w %h %[EXIF:Orientation]' #{file.path} 2> /dev/null`.split(/\s+/)
-    if [5, 6, 7, 8].include?(orientation.to_i)
-      # Adjust for exif orientation
-      width, height = height, width
-    end
-
-    width = width && width.to_i
-    height = height && height.to_i
-
-    [format && format.downcase, width, height, (width && height && width.to_f / height.to_f) || 0]
-  end
 end
