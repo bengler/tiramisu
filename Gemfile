@@ -9,6 +9,7 @@ gem 'pebbles-cors', :git => "https://github.com/bengler/pebbles-cors"
 gem 'pebbles-uid'
 gem 's3'
 gem 'httpclient'
+gem 'mimemagic', '~> 0.3.2'
 
 group :development, :test do
   gem 'rspec'
