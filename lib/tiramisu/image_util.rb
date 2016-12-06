@@ -1,4 +1,5 @@
 require 'mimemagic'
+require 'open3'
 
 class ImageUtil
 
@@ -22,18 +23,23 @@ class ImageUtil
 
 
   def self.dimensions(path)
-    lines = `vipsheader --all #{path} 2> /dev/null`.split("\n")
-    if $?.exitstatus > 0
-      # vipsheader failed, find out why
-      reason = `vipsheader --all #{path} 2>&1`
-      raise StandardError.new('Make sure vipsheader is installed and in your path') if reason.include? 'command not found'
-      LOGGER.info("Shell command vipsheader failed. Reason:\n#{reason}")
+    lines = ''
+    error = ''
+    process_status = Open3.popen3("vipsheader --all #{path}") do |stdin, stdout, stderr, wait_thr|
+      stdin.close
+      lines = stdout.read
+      error = stderr.read
+      wait_thr.value
+    end
+    if !process_status.exited? || process_status.exitstatus != 0
+      LOGGER.warn("Shell command vipsheader failed. Reason: #{error}")
       return identify_fallback(path)
     end
+
     width = nil
     height = nil
     orientation = nil
-    lines.each do |line|
+    lines.split("\n").each do |line|
       width ||= line[/^width\:\s(\d+)/,1]
       height ||= line[/^height\:\s(\d+)/,1]
       orientation ||= line[/^orientation\:\s(\d)/,1]
