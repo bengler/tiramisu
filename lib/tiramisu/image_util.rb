@@ -23,23 +23,20 @@ class ImageUtil
 
 
   def self.dimensions(path)
-    lines = ''
-    error = ''
-    process_status = Open3.popen3("vipsheader --all #{path}") do |stdin, stdout, stderr, wait_thr|
+    cmd = "vipsheader --all #{path}"
+    headers, stderr, process_status = Open3.popen3(cmd) do |stdin, stdout, stderr, wait_thr|
       stdin.close
-      lines = stdout.read
-      error = stderr.read
-      wait_thr.value
+      [stdout.read, stderr.read, wait_thr.value]
     end
     if !process_status.exited? || process_status.exitstatus != 0
-      LOGGER.warn("Shell command vipsheader failed. Reason: #{error}")
+      LOGGER.warn("Shell command vipsheader failed. Reason: #{stderr}")
       return identify_fallback(path)
     end
 
     width = nil
     height = nil
     orientation = nil
-    lines.split("\n").each do |line|
+    headers.split("\n").each do |line|
       width ||= line[/^width\:\s(\d+)/,1]
       height ||= line[/^height\:\s(\d+)/,1]
       orientation ||= line[/^orientation\:\s(\d)/,1]
