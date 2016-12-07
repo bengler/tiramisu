@@ -27,6 +27,22 @@ describe ImageUtil do
     end
   end
 
+  context 'empty file' do
+    let(:empty_file_path) {
+       './spec/fixtures/empty.jpeg'
+    }
+
+    it 'finds mimetype' do
+      mimetype = ImageUtil.mimetype(empty_file_path)
+      expect(mimetype).to eq('image/jpeg')
+    end
+
+    it 'return empty dimensions' do
+      dimensions = ImageUtil.dimensions(empty_file_path)
+      expect(dimensions).to eq([])
+    end
+  end
+
 
   context 'metrics' do
 

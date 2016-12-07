@@ -3,6 +3,18 @@ require 'open3'
 
 class ImageUtil
 
+  def self.sanitized_image_info(filepath)
+    format, width, height, orientation = ImageUtil.read_metrics(filepath)
+    if [5, 6, 7, 8].include?(orientation.to_i)
+      # Adjust for exif orientation
+      width, height = height, width
+    end
+    width = width && width.to_i
+    height = height && height.to_i
+    [format, width, height, (width && height && width.to_f / height.to_f) || 0]
+  end
+
+
   def self.read_metrics(path)
     [file_type(path)] + dimensions(path)
   end
@@ -49,23 +61,10 @@ class ImageUtil
     return `identify -format '%w %h %[EXIF:Orientation]' #{path}[0] 2> /dev/null`.split(/\s+/)
   end
 
+
   def self.force_orientation_on_file(filepath, orientation)
     orientation_id = ORIENTATION_IDS.find_index(orientation) + 1
     `exiftool -ignoreMinorErrors -Orientation=#{orientation_id} -overwrite_original_in_place -n #{filepath}`
-  end
-
-
-  def self.sanitized_image_info(filepath)
-    format, width, height, orientation = ImageUtil.read_metrics(filepath)
-    if [5, 6, 7, 8].include?(orientation.to_i)
-      # Adjust for exif orientation
-      width, height = height, width
-    end
-
-    width = width && width.to_i
-    height = height && height.to_i
-
-    [format, width, height, (width && height && width.to_f / height.to_f) || 0]
   end
 
 end

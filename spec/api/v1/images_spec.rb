@@ -267,7 +267,6 @@ describe 'API v1' do
     end
 
     it "returns failure as last json chunk if uploaded file are of wrong format" do
-
       expect_any_instance_of(Pebblebed::Connector).not_to receive(:post)
 
       post "/images/image:realm.app.collection.box$*", :file => Rack::Test::UploadedFile.new('spec/fixtures/unsupported-format.xml')
@@ -292,5 +291,18 @@ describe 'API v1' do
       expect(chunks.last['message']).to eq('Unexpected error')
       expect(chunks.last['percent']).to eq(100)
     end
+
+    it "returns failure as last json chunk if uploaded file is empty" do
+      expect_any_instance_of(Pebblebed::Connector).not_to receive(:post)
+
+      post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new('spec/fixtures/empty.jpeg')
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+      expect(chunks.last['status']).to eq('failed')
+      expect(chunks.last['message']).to eq('empty-file')
+      expect(chunks.last['percent']).to eq(100)
+    end
+
   end
 end

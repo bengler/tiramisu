@@ -10,6 +10,7 @@ class TiramisuV1 < Sinatra::Base
   # Do not transcode these formats to jpeg
   KEEP_FORMATS = %w(png gif)
 
+  class EmptyFileError < Exception; end
   class UnsupportedFormatError < Exception; end
   class MissingUploadedFileError < Exception; end
   class InvalidParameterError < Exception; end
@@ -88,9 +89,7 @@ class TiramisuV1 < Sinatra::Base
         # Upload file to Amazon S3.
         asset_store.put s3_file.path, (Interceptor.wrap(File.open(uploaded_file), :read) do |file|
           # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
-          LOGGER.info "uploaded_file.path: #{uploaded_file.path.inspect}"
-          LOGGER.info "file.pos.to_f: #{file.pos.to_f.inspect}"
-          LOGGER.info "file.size: #{file.size}"
+          raise(EmptyFileError, "Empty file recieved #{filename}") if file.size == 0
           progress.transferring(file.pos.to_f/file.size)
         end)
         LOGGER.info '... Done!'
@@ -114,6 +113,11 @@ class TiramisuV1 < Sinatra::Base
 
       rescue UnsupportedFormatError => e
         progress.failed('format-not-supported')
+        message = "#{e.message} filename: #{filename} uploaded_file: #{uploaded_file}"
+        LOGGER.warn message
+        LOGGER.error e
+      rescue EmptyFileError => e
+        progress.failed('empty-file')
         message = "#{e.message} filename: #{filename} uploaded_file: #{uploaded_file}"
         LOGGER.warn message
         LOGGER.error e
