@@ -38,6 +38,7 @@ GEM
     i18n (0.7.0)
     json (1.8.3)
     kgio (2.9.3)
+    mimemagic (0.3.2)
     mini_portile (0.6.2)
     minitest (5.7.0)
     multi_json (1.11.2)
@@ -119,6 +120,7 @@ PLATFORMS
 DEPENDENCIES
   airbrake (~> 3.1.4)
   httpclient
+  mimemagic (~> 0.3.2)
   pebblebed
   pebbles-cors!
   pebbles-uid
@@ -134,3 +136,6 @@ DEPENDENCIES
   unicorn
   vcr
   webmock
+
+BUNDLED WITH
+   1.13.2
