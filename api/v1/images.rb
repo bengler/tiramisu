@@ -88,6 +88,9 @@ class TiramisuV1 < Sinatra::Base
         # Upload file to Amazon S3.
         asset_store.put s3_file.path, (Interceptor.wrap(File.open(uploaded_file), :read) do |file|
           # Reports progress as a number between 0 and 1 as the original file is uploaded to S3.
+          LOGGER.info "uploaded_file.path: #{uploaded_file.path.inspect}"
+          LOGGER.info "file.pos.to_f: #{file.pos.to_f.inspect}"
+          LOGGER.info "file.size: #{file.size}"
           progress.transferring(file.pos.to_f/file.size)
         end)
         LOGGER.info '... Done!'
