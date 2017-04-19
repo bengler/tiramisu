@@ -5,7 +5,7 @@ ORIENTATION_IDS = %w(top-left top-right bottom-right bottom-left left-top right-
 
 class TiramisuV1 < Sinatra::Base
 
-  SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif pdf psd)
+  SUPPORTED_FORMATS = %w(png jpeg jpg bmp gif tiff gif psd)
 
   # Do not transcode these formats to jpeg
   KEEP_FORMATS = %w(png gif)
