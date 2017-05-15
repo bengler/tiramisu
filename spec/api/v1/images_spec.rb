@@ -55,6 +55,9 @@ describe 'API v1' do
     let(:rotated_image) {
       'spec/fixtures/rotated.jpg'
     }
+    let(:iphone_portrait) {
+      'spec/fixtures/iphone_portrait.jpg'
+    }
     let(:wrongly_rotated_image) {
       'spec/fixtures/wrong-orientation.jpg'
     }
@@ -129,6 +132,32 @@ describe 'API v1' do
 
       expect(image['aspect_ratio'].to_f).to be_within(0.001).of(1.333)
     end
+
+
+    it "calculates correct aspect ratio for iphone portrait image" do
+
+      expect_any_instance_of(AssetStore).to receive(:put).once do |instance, url, intercepted|
+        while intercepted.read(intercepted.size.to_f / 5.0) ; end # causes progress to be reported
+      end
+
+      expect_any_instance_of(Pebblebed::GenericClient).to receive(:post).with("/jobs", anything()).once
+
+      VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
+        post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(iphone_portrait, "image/jpeg")
+      end
+
+      expect(last_response.status).to eq(200)
+      chunks = chunked_json_response
+
+      image = chunks.last['metadata']
+      expect(image).to_not be_nil
+      oid = Pebbles::Uid.parse(image['uid']).last
+      _, aspect_ratio, _ = oid.split("-")
+      expect(oid).to_not be_nil
+      expect(aspect_ratio.to_i).to eq 750
+      expect(image['aspect_ratio'].to_f).to be_within(0.001).of(0.75)
+    end
+
 
     it "forces an orientation on image" do
 

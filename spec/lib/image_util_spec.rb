@@ -2,7 +2,6 @@ require "spec_helper"
 
 expected_mimetypes = {
   bmp: 'image/bmp',
-  bmp_borked: 'image/bmp',
   gif: 'image/gif',
   jpg: 'image/jpeg',
   pdf: 'application/pdf',
@@ -15,11 +14,12 @@ expected_mimetypes = {
 describe ImageUtil do
 
   context 'mimetype' do
+    # filename logic: <actual_mimetype>_<whatever>.<alleged_mimetype>
     it 'finds the correct mimetype' do
       dir = './spec/fixtures/strange_image_files/'
       Dir.foreach(dir) do |filename|
         next if ['.', '..', '.DS_Store'].include? filename
-        file_format = filename.split('.').first
+        file_format = filename.split('.').first.split('_').first # bmp_borked.bmp -> bmp
         fullpath = "#{dir}#{filename}"
         mimetype = ImageUtil.mimetype(fullpath)
         expect(mimetype).to eq(expected_mimetypes[file_format.to_sym])
@@ -72,6 +72,13 @@ describe ImageUtil do
       expect(ImageUtil).to receive(:identify_fallback).and_call_original
       metrics = ImageUtil.read_metrics(path)
       expect(metrics).to eq(['psd', '33', '50'])
+    end
+
+    it 'infers correct aspect_ratio' do
+      path = './spec/fixtures/iphone_portrait.jpg'
+      expect(ImageUtil).not_to receive(:identify_fallback)
+      image_info = ImageUtil.sanitized_image_info(path)
+      expect(image_info).to eq(['jpeg', 3024, 4032, 0.75])
     end
 
   end
