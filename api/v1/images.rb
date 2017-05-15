@@ -74,6 +74,7 @@ class TiramisuV1 < Sinatra::Base
 
         LOGGER.info 'Getting info about uploaded file'
         format, width, height, aspect_ratio = ImageUtil.sanitized_image_info(uploaded_file.path)
+        LOGGER.info "#{format}//#{width}//#{height}//#{aspect_ratio}"
 
         if format.nil? or not SUPPORTED_FORMATS.include?(format.downcase)
           raise UnsupportedFormatError, "Format '#{format}' not supported"

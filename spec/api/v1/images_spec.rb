@@ -142,8 +142,9 @@ describe 'API v1' do
 
       expect_any_instance_of(Pebblebed::GenericClient).to receive(:post).with("/jobs", anything()).once
 
+      file_to_upload = Rack::Test::UploadedFile.new(iphone_portrait, "image/jpeg")
       VCR.use_cassette('S3', :match_requests_on => [:method, :host]) do
-        post "/images/image:realm.app.collection.box$", :file => Rack::Test::UploadedFile.new(iphone_portrait, "image/jpeg")
+        post "/images/image:realm.app.collection.box$", :file => file_to_upload
       end
 
       expect(last_response.status).to eq(200)
