@@ -5,7 +5,6 @@ class ImageUtil
 
   def self.sanitized_image_info(filepath)
     format, width, height, orientation = ImageUtil.read_metrics(filepath)
-    LOGGER.info "sanitized_image_info: #{format}//#{width}//#{height}//#{orientation}"
 
     if [5, 6, 7, 8].include?(orientation.to_i)
       # Adjust for exif orientation
@@ -51,7 +50,6 @@ class ImageUtil
     height = nil
     orientation = nil
     headers.split("\n").each do |line|
-      puts "header_line: #{line}"
       width ||= line[/^width\:\s(\d+)/,1]
       height ||= line[/^height\:\s(\d+)/,1]
       orientation ||= line[/^orientation\:\s(\d)/,1]
