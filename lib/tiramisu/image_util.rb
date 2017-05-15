@@ -51,6 +51,7 @@ class ImageUtil
     height = nil
     orientation = nil
     headers.split("\n").each do |line|
+      LOGGER.info "header_line: #{line}"
       width ||= line[/^width\:\s(\d+)/,1]
       height ||= line[/^height\:\s(\d+)/,1]
       orientation ||= line[/^orientation\:\s(\d)/,1]
