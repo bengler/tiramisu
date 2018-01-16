@@ -20,15 +20,15 @@ GEM
     airbrake (3.1.17)
       builder
       multi_json
-    amq-protocol (2.2.0)
+    amq-protocol (2.3.0)
     backports (3.6.5)
     builder (3.2.2)
-    bunny (2.8.0)
-      amq-protocol (>= 2.2.0)
+    bunny (2.9.1)
+      amq-protocol (~> 2.3.0)
     concurrent-ruby (1.0.5)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
-    curb (0.8.8)
+    curb (0.9.4)
     dalli (2.7.4)
     deepstruct (0.0.7)
     diff-lcs (1.2.5)
@@ -42,16 +42,16 @@ GEM
     kgio (2.9.3)
     mimemagic (0.3.2)
     mini_portile2 (2.3.0)
-    minitest (5.10.3)
+    minitest (5.11.1)
     multi_json (1.11.2)
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
     pathbuilder (0.0.2)
-    pebblebed (0.3.13)
+    pebblebed (0.3.25)
       absolute_time
       activesupport
       bunny
-      curb (~> 0.8.8)
+      curb (>= 0.8.8)
       deepstruct (>= 0.0.4)
       futurevalue
       nokogiri
@@ -124,7 +124,7 @@ DEPENDENCIES
   airbrake (~> 3.1.4)
   httpclient
   mimemagic (~> 0.3.2)
-  pebblebed (= 0.3.13)
+  pebblebed (~> 0.3.25)
   pebbles-cors!
   pebbles-uid
   rack-contrib
