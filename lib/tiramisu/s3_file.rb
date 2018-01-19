@@ -50,7 +50,7 @@ class S3File
     extension = options[:extension] if options[:extension] # override extension if given
 
     timestamp = Time.now.utc.strftime('%Y%m%d%H%M%S')
-    filename = basename.parameterize("-")
+    filename = basename.parameterize
     random = SecureRandom.random_number(36**4).to_s(36)
     [timestamp, random, extension.sub(/^\./, '').downcase, filename].join("-")
   end
