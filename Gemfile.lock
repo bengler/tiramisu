@@ -36,7 +36,7 @@ GEM
     futurevalue (0.0.2)
     git-version-bump (0.15.1)
     httpclient (2.6.0.1)
-    i18n (0.9.1)
+    i18n (0.9.3)
       concurrent-ruby (~> 1.0)
     json (1.8.6)
     kgio (2.9.3)
@@ -47,7 +47,7 @@ GEM
     nokogiri (1.8.1)
       mini_portile2 (~> 2.3.0)
     pathbuilder (0.0.2)
-    pebblebed (0.3.25)
+    pebblebed (0.3.26)
       absolute_time
       activesupport
       bunny
@@ -122,23 +122,23 @@ PLATFORMS
 
 DEPENDENCIES
   airbrake (~> 3.1.4)
-  httpclient
+  httpclient (~> 2.6.0.1)
   mimemagic (~> 0.3.2)
-  pebblebed (~> 0.3.25)
+  pebblebed (~> 0.3.26)
   pebbles-cors!
-  pebbles-uid
-  rack-contrib
-  rack-test
-  rake
-  rspec
-  rspec-mocks
-  s3
-  simplecov
-  sinatra
-  sinatra-contrib
-  unicorn
-  vcr
-  webmock
+  pebbles-uid (~> 0.0.22)
+  rack-contrib (~> 1.3.0)
+  rack-test (~> 0.6.3)
+  rake (~> 10.4.2)
+  rspec (~> 3.3.0)
+  rspec-mocks (~> 3.3.2)
+  s3 (~> 0.3.22)
+  simplecov (~> 0.10.0)
+  sinatra (~> 1.4.6)
+  sinatra-contrib (~> 1.4.6)
+  unicorn (~> 4.9.0)
+  vcr (~> 2.9.3)
+  webmock (~> 1.21.0)
 
 BUNDLED WITH
-   1.13.2
+   1.13.6
