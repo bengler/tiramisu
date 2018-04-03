@@ -4,7 +4,7 @@ gem 'rake', '~> 10.4.2'
 gem 'sinatra', '~> 1.4.6'
 gem 'sinatra-contrib', '~> 1.4.6'
 gem 'rack-contrib', '~> 1.3.0'
-gem 'pebblebed', '~> 0.3.26'
+gem 'pebblebed', '~> 0.4.4'
 gem 'pebbles-cors', :git => "https://github.com/bengler/pebbles-cors"
 gem 'pebbles-uid', '~> 0.0.22'
 gem 's3', '~> 0.3.22'
